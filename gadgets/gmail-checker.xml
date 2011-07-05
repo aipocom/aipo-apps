@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs
+            title="Gmail Checker"
+            description="Gmail の未読メールを確認することができるアプリケーションです。自動更新機能により、新着のメールをお知らせしてくれます。" height="35">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Require feature="osapi"/>
+        <Require feature="setprefs"/>
+        <Require feature="oauthpopup"/>
+        <Optional feature="aipostyle"/>
+        <OAuth>
+            <Service name="google">
+                <Access url="https://www.google.com/accounts/OAuthGetAccessToken" method="GET"/>
+                <Request
+                        url="https://www.google.com/accounts/OAuthGetRequestToken?scope=https://mail.google.com/"
+                        method="GET"/>
+                <Authorization
+                        url="https://www.google.com/accounts/OAuthAuthorizeToken"/>
+            </Service>
+        </OAuth>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/gmail-checker/img/icon/icon16-trans.png</Icon>
+    </ModulePrefs>
+    <UserPref name="p2homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
+        <EnumValue value="3"/>
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="20"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <UserPref name="p3canvasRows" display_name="表示件数（最大化時）" datatype="enum" default_value="20">
+        <EnumValue value="3"/>
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="20"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <UserPref name="p4autoReload" display_name="自動更新" datatype="enum" default_value="5">
+        <EnumValue value="0" display_value="自動更新しない"/>
+        <EnumValue value="1" display_value="1分毎"/>
+        <EnumValue value="5" display_value="5分毎"/>
+        <EnumValue value="10" display_value="10分毎"/>
+        <EnumValue value="30" display_value="30分毎"/>
+        <EnumValue value="60" display_value="1時間毎"/>
+    </UserPref>
+    <UserPref name="p5createActivity" display_name="あなた宛のお知らせ" datatype="enum" default_value="1">
+        <EnumValue value="0" display_value="通知しない"/>
+        <EnumValue value="1" display_value="通知する"/>
+    </UserPref>
+    <UserPref name="p6label" display_name="ラベル" datatype="string"/>
+    <Content type="html"><![CDATA[
+        <style type="text/css">
+
+            table.feedTable {
+                border: none;
+                padding: 0;
+                border-collapse: collapse;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            table.feedTable  tr:hover {
+                background: #F5F5F5;
+            }
+
+            table.feedTable td {
+                padding: 3px;
+                margin: 0px;
+                border-bottom: #EEE solid 1px;
+                vertical-align: top;
+            }
+
+            table.feedTable td.icon {
+                width: 22px;
+                padding: 0;
+                text-align: right;
+                vertical-align: middle;
+            }
+
+            table.feedTable td.name {
+                width: 100px;
+                font-size: 85%;
+                vertical-align: middle;
+            }
+
+            table.feedTable td.name {
+                width: 70px;
+            }
+
+            table.feedTable td span.date {
+                font-size: 85%;
+                padding: 0px 0 3px;
+                display: block;
+            }
+
+            table.feedTable tr.unread {
+                background: #FFEFE5;
+            }
+
+            table.feedTable tr.unread td {
+                font-weight: bold;
+            }
+
+        </style>
+        <div class="aipostyle">
+            <div id="content"><a href="javascript:void(0);" id="personalize" style="display:none">こちらをクリックして Gmail
+                にログインしてください。</a></div>
+        </div>
+        <script type="text/javascript">
+
+        var version = "1.0";
+        var changeLogUrl = "javascript:void(0);";
+
+        gadgets.util.registerOnLoadHandler(init);
+
+        var msg = new gadgets.MiniMessage();
+        var staticMsg;
+        var noticeMsg;
+        var prefs = new gadgets.Prefs();
+        var rows = 5;
+        var autoReload = 5;
+        var unread;
+        var latest;
+        var viewerId;
+        var notice = 0;
+        var isFirst = true;
+        var activityCount = 0;
+        var label;
+
+        function CronTask(task, interval, isDecay) {
+            this.task = task;
+            this.isDecay = isDecay;
+            this.interval = interval;
+            this.decayRate = 1;
+            this.decayMultiplier = 1.5;
+            this.maxDecayTime = 5 * 60 * 1000; // 3 minutes
+        }
+
+        CronTask.prototype = {
+
+            start: function() {
+                this.stop().run();
+                return this;
+            },
+
+            stop: function() {
+                if (this.worker) {
+                    window.clearTimeout(this.worker);
+                }
+                return this;
+            },
+
+            run: function() {
+                var cronTask = this;
+                this.task(function() {
+                    cronTask.decayRate = cronTask.isDecay ? Math.max(1, cronTask.decayRate / cronTask.decayMultiplier) : cronTask.decayRate * cronTask.decayMultiplier;
+                    var expire = cronTask.interval * cronTask.decayRate;
+                    if (!cronTask.isDecay) {
+                        expire = (expire >= cronTask.maxDecayTime) ? cronTask.maxDecayTime : expire;
+                    }
+                    expire = Math.floor(expire);
+                    cronTask.worker = window.setTimeout(
+                            function () {
+                                cronTask.run.call(cronTask);
+                            },
+                            expire);
+                });
+            },
+
+            reset: function() {
+                this.destroy().run();
+                return this;
+            },
+
+            destroy: function() {
+                this.stop();
+                this.decayRate = 1;
+                return this;
+            }
+        };
+
+        function showMessage(text) {
+            if (staticMsg) {
+                msg.dismissMessage(staticMsg);
+            }
+            staticMsg = msg.createStaticMessage(text);
+        }
+
+        function stripTags(text) {
+            return  text.replace(/<\/?[^>]+>/gi, '');
+        }
+
+        function splitBytes(src, len) {
+            var re = [/[\u0000-\u007F]/g, /[\u0080-\u07FF]/g, /[\u0800-\uFFFF]/g]
+            var enc = src;
+            for (var i = 0; i < re.length; i++) {
+                enc = enc.replace(re[i], Math.pow(10, i));
+            }
+            var startSrc = 0, startEnc = 0, tmp, splitLen, rslt = [];
+
+            while (startSrc != src.length) {
+                tmp = enc.substr(startEnc, len + 1);
+                if (tmp.length > len) tmp = tmp.replace(/10*$/, "");
+                startEnc += tmp.length;
+                splitLen = tmp.replace(/0+/g, "").length;
+                rslt.push(src.substr(startSrc, splitLen));
+                startSrc += splitLen;
+            }
+            return rslt;
+        }
+
+        function formatDate(date) {
+            var currentDate = new Date();
+            var result = "";
+            if (currentDate.getYear() == date.getYear() && currentDate.getMonth() == date.getMonth() && currentDate.getDay() == date.getDay()) {
+                return  ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+            } else {
+                return date.getMonth() + 1 + "月" + date.getDate() + "日";
+            }
+        }
+
+        function fetchViewer() {
+            var callback = function(response) {
+                viewerId = response.viewer.id;
+
+                if (autoReload == 0) {
+                    fetchFeed();
+                } else {
+                    var task = new CronTask(fetchFeed, autoReload * 60 * 1000, true);
+                    task.start();
+                }
+            };
+            var batch = osapi.newBatch()
+                    .add('viewer', osapi.people.getViewer());
+            batch.execute(callback);
+        }
+
+        function createActivity(count, title) {
+            var callback = function(response) {
+                if (response.error) {
+                    msg.createTimerMessage("アクティビティの送信に失敗しました。", 5);
+                } else {
+                    activityCount = count;
+                }
+            };
+            var activity = {};
+            var split = splitBytes("新着メールを " + count + " 件受信しました。", 60);
+            activity['title'] = split[0];
+            if (split.length > 1) {
+                activity['title'] += '...';
+            }
+            activity['priority'] = 1;
+            activity['externalId'] = '__MODULE_ID__.unread';
+            activity['recipients'] = [ viewerId ];
+            osapi.activities.create({
+                userId: '@viewer', activity: activity
+            }).execute(callback);
+        }
+
+        function fetchFeed(decay) {
+            var callback = function(response) {
+                if (staticMsg) {
+                    msg.dismissMessage(staticMsg);
+                }
+                if (response.oauthApprovalUrl) {
+                    var popup = new gadgets.oauth.Popup(
+                            response.oauthApprovalUrl,
+                            null,
+                            function() {
+                                return;
+                            },
+                            function() {
+                                document.getElementById('personalize').style.display = "none";
+                                fetchFeed(decay);
+                            }
+                            );
+
+                    var personalize = document.getElementById('personalize');
+                    personalize.style.display = "";
+                    personalize.onclick = popup.createOpenerOnClick();
+                    gadgets.window.adjustHeight();
+
+                    //var approvaldone = document.getElementById('approvaldone');
+                    //approvaldone.onclick = popup.createApprovedOnClick();
+                } else {
+                    if (response.rc == 200) {
+                        var entries = response.data.Entry;
+                        var html = new Array();
+
+                        html.push('<h3>' + gadgets.util.escapeString(response.data.Title) + '</h3>');
+                        if (entries.length == 0) {
+                            html.push('未読メールはありません。');
+                        } else {
+                            html.push('<table class="feedTable wide">');
+                        }
+                        var count = 0;
+                        var isRead = isFirst;
+                        for (var i in entries) {
+                            var entry = entries[i];
+                            var currentId = entry.Date;
+                            if (i == 0) {
+                                latest = entry.Date;
+                            }
+                            if (currentId == unread) {
+                                isRead = true;
+                            }
+                            if (!isRead && currentId != unread) {
+                                count ++;
+                            }
+                            var date = new Date();
+                            date.setTime(entry.Date);
+                            if (isRead) {
+                                html.push('<tr><td>');
+                            } else {
+                                html.push('<tr class="unread"><td>');
+                            }
+                            html.push('<span class="date">' + formatDate(date) + '</span>');
+                            var entryTitle = entry.Title;
+                            if (!entryTitle) {
+                                entryTitle = "（件名なし）";
+                            }
+                            html.push('<a href="' + entry.Link + '" target="_blank">' + stripTags(entryTitle) + "</a></td>");
+                            html.push('</td></tr>');
+                        }
+                        if (entries.length > 0) {
+                            html.push('</table>');
+                        }
+                        document.getElementById('content').innerHTML = html.join('');
+                        if (count > 0) {
+                            if (noticeMsg) {
+                                msg.dismissMessage(noticeMsg);
+                            }
+                            if (!isFirst) {
+                                noticeMsg = msg.createDismissibleMessage("新着メールを " + count + " 件受信しました。", function() {
+                                    unread = latest;
+                                    if (noticeMsg) {
+                                        msg.dismissMessage(noticeMsg);
+                                    }
+                                    isFirst = true;
+                                    fetchFeed();
+                                });
+                                if (notice == 1) {
+                                    if (count > activityCount) {
+                                        createActivity(count, gadgets.util.escapeString(response.data.Title));
+                                    }
+                                }
+                            } else {
+                                unread = latest;
+                            }
+                        } else {
+                            if (noticeMsg) {
+                                msg.dismissMessage(noticeMsg);
+                            }
+                            unread = latest;
+                        }
+                        isFirst = false;
+                    } else {
+                        showMessage("未読メールの読み込みに失敗しました。")
+                    }
+                    if (decay) {
+                        decay();
+                    }
+                }
+                gadgets.window.adjustHeight();
+            }
+
+            var params = {};
+            params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.FEED;
+            params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.OAUTH;
+            params[gadgets.io.RequestParameters.OAUTH_SERVICE_NAME] = "google";
+            params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.GET;
+            params[gadgets.io.RequestParameters.NUM_ENTRIES] = 100;
+            params[gadgets.io.RequestParameters.GET_SUMMARIES] = true;
+            params[gadgets.io.RequestParameters.OAUTH_USE_TOKEN] = "always";
+
+            var url = "https://mail.google.com/mail/feed/atom/";
+            if (label) {
+                url += encodeURIComponent(label) + "/";
+            }
+
+            var ts = new Date().getTime();
+            var sep = "?";
+            var refreshInterval = autoReload * 60;
+            if (refreshInterval && refreshInterval > 0) {
+                ts = Math.floor(ts / (refreshInterval * 1000));
+            }
+            if (url.indexOf("?") > -1) {
+                sep = "&";
+            }
+
+
+            gadgets.io.makeRequest([ url, sep, "nocache=", ts ].join(""), callback, params);
+
+            showMessage("未読メールを読み込んでいます。");
+
+            gadgets.window.adjustHeight();
+        }
+
+        function showVersion() {
+            var span = document.createElement("span");
+            span.innerHTML = "<a href='" + changeLogUrl + "' target='_blank'>バージョン " + version + " にアップデートされました。</a>";
+            var versionMsg = msg.createDismissibleMessage(span, function() {
+                msg.dismissMessage(versionMsg);
+                gadgets.window.adjustHeight();
+            });
+        }
+
+        function init() {
+            var oldVersion = prefs.getString("version");
+            if (version != oldVersion) {
+                if (oldVersion) {
+                    showVersion();
+                }
+                prefs.set("version", version);
+            }
+            var currentView = gadgets.views.getCurrentView();
+            var supportViews = gadgets.views.getSupportedViews();
+            if (currentView.getName() == 'canvas') {
+                rows = prefs.getInt("p3canvasRows");
+            } else {
+                rows = prefs.getInt("p2homeRows");
+            }
+            autoReload = prefs.getInt("p4autoReload");
+            notice = prefs.getInt("p5createActivity");
+            label = prefs.getString("p6label");
+            fetchViewer();
+            gadgets.window.adjustHeight();
+        }
+
+        </script>
+        ]]></Content>
+</Module>

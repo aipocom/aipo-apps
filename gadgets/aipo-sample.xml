@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs
+            title="Aipoアプリサンプル"
+            description="Aipoアプリのサンプルガジェットです。">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Require feature="tabs"/>
+        <Require feature="aipostyle"/>
+        <Require feature="osapi"/>
+    </ModulePrefs>
+    <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <UserPref name="p2-canvasRows" display_name="表示件数（最大化時）" datatype="enum" default_value="10">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <Content type="html"><![CDATA[
+        <div class="aipostyle">
+        <div id="tab1Container">
+        <div id="ospaiContent">
+            <form name="form" action="">
+                <table class="form wide">
+                    <tr>
+                        <th>グループ
+                        </th>
+                        <td><select id="groupSelect" name="group"
+                                    onchange="fetchPeople(this.options[this.selectedIndex].value, 0);">
+                            <option value="@all">読み込み中
+                            </option>
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <th>フィルタ
+                        </th>
+                        <td><input type="text" class="text w25" name="keyword" onkeyup="autoSearch()"/>&nbsp;
+                            <select name="filterOp" onchange="fetchPeople(currentGroupId, currentStartIndex)">
+                                <option value="contains">含む</option>
+                                <option value="equals">完全一致
+                                </option>
+                                <option value="startsWith">前方一致</option>
+                            </select></td>
+                    </tr>
+                    <tr>
+                        <th>ソート
+                        </th>
+                        <td><select name="sortOrder" onchange="fetchPeople(currentGroupId, currentStartIndex)">
+                            <option value="ascending">昇順</option>
+                            <option value="descending">降順</option>
+                        </select></td>
+                    </tr>
+                </table>
+                <div id="peopleResult" style="padding-bottom:10px"></div>
+                <div id="tab2Container">
+                    <div id="activityContent" style="display:none;">
+                        <table class="form wide">
+                            <tr>
+                                <th>タイトル
+                                </th>
+                                <td><input type="text" name="title" style="width:200px"/></td>
+                            </tr>
+                            <tr>
+                                <th>externalId
+                                </th>
+                                <td><input type="text" name="externalId" style="width:200px"/></td>
+                            </tr>
+                            <tr>
+                                <th>対象</th>
+                                <td><select name="priority">
+                                    <option value="0">更新情報</option>
+                                    <option value="1">あなた宛のお知らせ
+                                    </option>
+                                </select></td>
+                            </tr>
+                        </table>
+                        <div class="center"><input type="submit" name="submit" value="送信する"/></div>
+                    </div>
+                    <div id="appdataContent" style="display:none;">
+                        <table class="form wide">
+                            <tr>
+                                <th>キー
+                                </th>
+                                <td><select name="key">
+                                    <option value="key1">key1
+                                    </option>
+                                    <option value="key2">key2
+                                    </option>
+                                    <option value="key3">key3
+                                    </option>
+                                </select></td>
+                            </tr>
+                            <tr>
+                                <th>値
+                                </th>
+                                <td><input type="text" name="value" style="width:200px"/></td>
+                            </tr>
+                            <tr>
+                                <th>
+                                </th>
+                                <td><input type="checkbox" name="admin" value="1" id="adminCheck"/><label
+                                        for="adminCheck">@admin として保存</label></td>
+                            </tr>
+                        </table>
+                        <div class="center"><input type="submit" name="submit" value="保存する"/></div>
+                    </div>
+                </div>
+                <h4>@admin のアプリデータ</h4>
+
+                <div id="appdata-@admin"></div>
+            </form>
+        </div>
+        <div id="viewsContent" style="display:none">
+
+            <div style="padding-top:5px">
+                <h3>現在のビュー</h3>
+                <span id="currentView"></span><br/><br/>
+
+                <h3>画面遷移</h3>
+
+                <form action="#" name="view">
+                    <table class="form wide">
+                        <tr>
+                            <th>パラメータ1（param1）
+                            </th>
+                            <td><input type="text" name="param1" style="width:200px"/></td>
+                        </tr>
+                        <tr>
+                            <th>パラメータ2（param2）
+                            </th>
+                            <td><input type="text" name="param2" style="width:200px"/></td>
+                        </tr>
+                    </table>
+                </form>
+                <ul>
+                    <li><a href="javascript:void(0);" onclick="changeView('home');">通常画面に遷移する。</a></li>
+                    <li><a href="javascript:void(0);" onclick="changeView('canvas');">最大化画面に遷移する。</a></li>
+                </ul>
+            </div>
+        </div>
+        <div id="aipostyleContent" style="display:none;">
+
+            <hr/>
+
+            <h3>見出しh3</h3>
+
+            テキストテキストテキストテキストテキストテキスト
+
+            <hr/>
+
+            <h4>見出しh4</h4>
+
+            テキストテキストテキストテキストテキストテキスト
+
+            <hr/>
+
+            <ul>
+                <li>行1
+                </li>
+                <li>行2
+                </li>
+                <li>行3
+                </li>
+                <li>行4</li>
+            </ul>
+
+            <hr/>
+
+            <a href="#">テキストアンカー</a>
+
+            <hr/>
+
+            <blockquote>引用 引用 引用 引用 引用 引用 引用<br/>
+                引用 引用 引用 引用 引用 引用 引用 引用
+            </blockquote>
+
+            <hr/>
+
+            <table class="form wide">
+                <tr>
+                    <th>項目1</th>
+                    <td><input class="text w75" type="text" name="text"/></td>
+                </tr>
+                <tr>
+                    <th>項目2
+                    </th>
+                    <td><textarea class="text w75" col="5" row="10"></textarea></td>
+                </tr>
+                <tr>
+                    <th>項目3
+                    </th>
+                    <td>テキストテキストテキスト
+                    </td>
+                </tr>
+            </table>
+
+            <hr/>
+
+            <table class="list wide">
+                <tr>
+                    <th class="thin">&nbsp
+                    </th>
+                    <th>項目1
+                    </th>
+                    <th>項目2</th>
+                    <th class="thin">項目3
+                    </th>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="check"/></td>
+                    <td>テキスト</td>
+                    <td><a href="#">テキストリンク</a></td>
+                    <td nowrap="nowrap"><a href="#" class="button">ボタンリンク</a></td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="check"/></td>
+                    <td>テキスト
+                    </td>
+                    <td><a href="#">テキストリンク</a></td>
+                    <td nowrap="nowrap"><a href="#" class="button">ボタンリンク</a></td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="check"/></td>
+                    <td>テキスト
+                    </td>
+                    <td><a href="#">テキストリンク</a></td>
+                    <td nowrap="nowrap"><a href="#" class="button">ボタンリンク</a></td>
+                </tr>
+            </table>
+        </div>
+        </div>
+        </div>
+
+        <script type="text/javascript">
+
+        var prefs = new gadgets.Prefs();
+        var msg = new gadgets.MiniMessage();
+        var tabs1 = new gadgets.TabSet(__MODULE_ID__, null, document.getElementById("tab1Container"));
+        tabs1.alignTabs("left");
+        var tabs2 = new gadgets.TabSet(__MODULE_ID__, null, document.getElementById("tab2Container"));
+        tabs2.alignTabs("left");
+
+        var currentGroupId = '@all';
+        var currentStartIndex = 0;
+        var viewerId;
+        var dispayName;
+        var rows = 5;
+
+        var timer;
+        var doSearch = false;
+        function autoSearch() {
+            doSearch = true;
+            clearTimeout(timer);
+            timer = setTimeout(function() {
+                doSearch = false;
+                fetchPeople(currentGroupId, currentStartIndex);
+            }, 500);
+        }
+
+        function fetchGroups(startIndex) {
+            var callback = function(response) {
+                var mygroups = response.mygroup.list;
+                var units = response.unit.list;
+                var html = new Array();
+                html.push('<option value="@all">（全体）</option>');
+                for (var i = 0; i < mygroups.length; i++) {
+                    var group = mygroups[i];
+                    html.push('<option value="' + group.id.groupId + '">');
+                    html.push(gadgets.util.escapeString(group.title));
+                    html.push('</option>');
+                    gadgets.log("mygroup:" + i);
+                    gadgets.log(group);
+                }
+                if (mygroups.length > 0) {
+                    html.push('<option value="@all">----------</option>');
+                }
+                for (var i = 0; i < units.length; i++) {
+                    var group = units[i];
+                    html.push('<option value="' + group.id.groupId + '">');
+                    html.push(gadgets.util.escapeString(group.title));
+                    html.push('</option>');
+                    gadgets.log("unit:" + i);
+                    gadgets.log(group);
+                }
+                document.getElementById('groupSelect').innerHTML = html.join('');
+            };
+            var batch = osapi.newBatch()
+                    .add('unit', osapi.groups.get({ userId: '@viewer', startIndex: startIndex, count: 50, filterBy: 'type', filterValue: 'unit' }))
+                    .add('mygroup', osapi.groups.get({ userId: '@viewer', startIndex: startIndex, count: 50, filterBy: 'type', filterValue: 'mygroup' }));
+            batch.execute(callback);
+        }
+
+        function fetchPeople(groupId, startIndex) {
+            var callback = function(response) {
+                var people = response.people.list;
+                viewerId = response.viewer.id;
+                dispayName = response.viewer.dispayName;
+                var html = new Array();
+                if (people.length == 0) {
+                    html.push('<div>ユーザーが見つかりませんでした。</div>');
+                } else {
+                    html.push('<table class="list wide"><tr><th>&nbsp;</th><th>ID</th><th>氏名</th><th>アプリデータ</th></tr>');
+                }
+                var userIds = new Array();
+                for (var i = 0; i < people.length; i++) {
+                    var person = people[i];
+                    userIds.push(person.id);
+                    html.push('<tr><td nowrap="nowrap" class="thin center"><input type="checkbox" name="check" value="' + person.id + '"/></td>');
+                    html.push('<td nowrap="nowrap" class="thin">' + person.id + "</td>");
+                    html.push('<td>' + gadgets.util.escapeString(person.displayName) + "</td>");
+                    html.push('<td><div id="appdata-' + person.id + '"></div></td></tr>');
+                    gadgets.log("person:" + i);
+                    gadgets.log(person);
+                }
+                if (people.length > 0) {
+                    html.push('</table>');
+                }
+                var totalResults = response.people.totalResults;
+                var startIndex = response.people.startIndex;
+                currentStartIndex = startIndex;
+                var currentPage = Math.ceil(startIndex / rows);
+                var page = Math.ceil(totalResults / rows);
+                if (page > 1) {
+                    html.push('<div class="clearfix"><ul class="pagination">');
+
+                    for (var i = 0; i < page; i++) {
+                        var next = i * rows;
+                        if (i == currentPage) {
+                            html.push('<li class="selected">');
+                        } else {
+                            html.push('<li>');
+                        }
+                        html.push('<a href="javascript:void(0);" onclick="fetchPeople(\'' + currentGroupId + '\',' + next + ');">');
+                        html.push(i + 1);
+                        html.push('</a></li>');
+                    }
+                    html.push('</ul></div>');
+                }
+                document.getElementById('peopleResult').innerHTML = html.join('');
+
+                if (people.length > 0) {
+                    fetchAppData(userIds);
+                }
+                gadgets.window.adjustHeight();
+            };
+            var filterValue = document.form.keyword.value;
+            var filterOp = document.form.filterOp.value;
+            var sortOrder = document.form.sortOrder.value;
+            var params = { userId: '@viewer', groupId: groupId, startIndex: startIndex, count: rows, sortOrder: sortOrder, sortBy: 'position' };
+            if (filterValue) {
+                params['filterBy'] = 'name';
+                params['filterOp'] = filterOp;
+                params['filterValue'] = filterValue;
+            }
+            var batch = osapi.newBatch()
+                    .add('people', osapi.people.get(params))
+                    .add('viewer', osapi.people.getViewer());
+            batch.execute(callback);
+            currentGroupId = groupId;
+        }
+
+        function fetchAppData(userIds) {
+            userIds.push("@admin");
+            document.getElementById('appdata-@admin').innerHTML = "";
+            var callback = function(response) {
+                for (var id in response) {
+                    var data = response[id];
+                    var html = new Array();
+                    html.push('<ul>');
+                    for (var key in data) {
+                        var value = data[key];
+                        html.push('<li>');
+                        html.push(gadgets.util.escapeString(key) + "=" + gadgets.util.escapeString(value));
+                        if (viewerId == id) {
+                            html.push('<a href="javascript:void(0);" onclick="deleteAppData(\'@viewer\', \'' + key + '\')">[削除]</a>');
+                        }
+                        if ('@admin' == id) {
+                            html.push('<a href="javascript:void(0);" onclick="deleteAppData(\'@admin\', \'' + key + '\')">[削除]</a>');
+                        }
+                        html.push('</li>');
+                    }
+                    html.push('</ul>');
+                    document.getElementById('appdata-' + id).innerHTML = html.join('');
+                    gadgets.window.adjustHeight();
+                }
+            };
+            osapi.appdata.get({ userId: userIds ,fields: ['key1', 'key2','key3'] }).execute(callback);
+        }
+
+        function deleteAppData(userId, key) {
+            var callback = function(response) {
+                msg.createTimerMessage("アプリデータを削除しました。", 5);
+                gadgets.window.adjustHeight();
+                fetchPeople(currentGroupId, currentStartIndex);
+            };
+            osapi.appdata["delete"]({ userId: userId ,fields: [key] }).execute(callback);
+        }
+
+        function changeView(viewName) {
+            var param1 = document.view.param1.value;
+            var param2 = document.view.param2.value;
+            var params = { param1: param1, param2: param2 };
+            var view = gadgets.views.getSupportedViews()[viewName];
+            if (view) {
+                gadgets.views.requestNavigateTo(view, params);
+            }
+        }
+        function initTabs() {
+            var callback = function(tabId) {
+                gadgets.window.adjustHeight();
+            };
+            tabs1.addTab("OSAPI", {
+                contentContainer: document.getElementById("ospaiContent"),
+                callback: callback
+            });
+            tabs1.addTab("ビュー", {
+                contentContainer: document.getElementById("viewsContent"),
+                callback: callback
+            });
+            tabs1.addTab("デザイン", {
+                contentContainer: document.getElementById("aipostyleContent"),
+                callback: callback
+            });
+            tabs2.addTab("アクティビティ", {
+                contentContainer: document.getElementById("activityContent"),
+                callback: callback
+            });
+            tabs2.addTab("アプリデータ", {
+                contentContainer: document.getElementById("appdataContent"),
+                callback: callback
+            });
+        }
+
+        function initForm() {
+            document.form.onsubmit = function() {
+                var tab = tabs2.getSelectedTab();
+                if (tab.getIndex() == 0) {
+                    var callback = function(response) {
+                        if (response.error) {
+                            msg.createTimerMessage("アクティビティの保存に失敗しました。", 5);
+                        } else {
+                            msg.createTimerMessage("アクティビティを送信しました。", 5);
+                            gadgets.window.adjustHeight();
+                            document.form.title.value = "";
+                            var checks = document.form.check;
+                            for (var i = 0; i < checks.length; i++) {
+                                checks[i].checked = false;
+                            }
+                        }
+                    };
+                    var title = document.form.title.value;
+                    if (!title) {
+                        msg.createTimerMessage("タイトルを入力してください。", 5);
+                        gadgets.window.adjustHeight();
+                        return false;
+                    }
+                    var priority = document.form.priority.value;
+                    var checks = document.form.check;
+                    var recipients = new Array();
+                    for (var i = 0; i < checks.length; i++) {
+                        if (checks[i].checked) {
+                            recipients.push(checks[i].value);
+                        }
+                    }
+                    var activity = {};
+                    activity['title'] = title;
+                    activity['priority'] = priority;
+                    activity['recipients'] = recipients;
+                    var externalId = document.form.externalId.value;
+                    if (externalId) {
+                        activity['externalId'] = externalId;
+                    }
+                    osapi.activities.create({
+                        userId: '@viewer', activity: activity
+                    }).execute(callback);
+                    return false;
+                } else {
+                    var callback = function(response) {
+                        if (response.error) {
+                            msg.createTimerMessage("アプリデータの保存に失敗しました。", 5);
+                        } else {
+                            msg.createTimerMessage("アプリデータを保存しました。", 5);
+                            document.form.key.value = "";
+                            document.form.value.value = "";
+                            gadgets.window.adjustHeight();
+                            fetchPeople(currentGroupId, currentStartIndex);
+                        }
+                    };
+                    var key = document.form.key.value;
+                    var value = document.form.value.value;
+                    var data = {};
+                    data[key] = value;
+                    osapi.appdata.update({ userId: document.form.admin.checked ? '@admin' : '@viewer', data: data, appId: '@app' }).execute(callback);
+                    return false;
+                }
+            }
+        }
+
+        function initViews() {
+            var currentView = gadgets.views.getCurrentView();
+            var supportViews = gadgets.views.getSupportedViews();
+            if (currentView.getName() == 'canvas') {
+                rows = prefs.getInt("p2-canvasRows");
+            } else {
+                rows = prefs.getInt("p1-homeRows");
+            }
+            var params = gadgets.views.getParams();
+            var param1 = params["param1"];
+            var param2 = params["param2"];
+            if (param1) {
+                document.view.param1.value = param1;
+            } else {
+                param1 = "";
+            }
+            if (param2) {
+                document.view.param2.value = param2;
+            } else {
+                param2 = "";
+            }
+            document.getElementById('currentView').innerHTML = currentView.getName() + " [param1=" + gadgets.util.escapeString(param1) + ",param2=" + gadgets.util.escapeString(param2) + "]";
+        }
+
+        function init() {
+            initTabs();
+            initForm();
+            initViews();
+            fetchGroups(0);
+            fetchPeople(currentGroupId, 0);
+            gadgets.window.adjustHeight();
+        }
+
+        gadgets.util.registerOnLoadHandler(init);
+
+        </script>
+        ]]></Content>
+</Module>
