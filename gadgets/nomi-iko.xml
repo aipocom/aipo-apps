@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs title="飲みイコ!">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Require feature="osapi"/>
+        <Require feature="setprefs"/>
+        <Require feature="jquery"/>
+        <Optional feature="aipostyle"/>
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+        <span id="user"></span>さん、企画を入力してください。<br><br>
+
+        <div id="suggestion" style="display:block; float:left;">
+        企画<br>
+        <textarea id="suggestion" width="400px" height="30px">test</textarea><br><br>
+        誘う人・グループ
+        <div class="memberlistChoosing"><select size="5" multiple="multiple" style="width:100%" name="group_to" id="group_to"></select></div><div class="memberToChoose"><select size="5" multiple="multiple" style="width:100%" name="tmp_group_from" id="tmp_group_from"></select</div>
+        締切り日時<br>
+        <input type="text" size="6" maxlength="2" name="mm">
+        月
+        <input type="text" size="6" maxlength="2" name="dd">
+        日 
+        </div>
+        
+
+        
+
+        <script type="text/javascript">
+
+            function init() {
+                osapi.people.getViewer().execute(function (response) {
+                    document.getElementById("user").innerHTML = response.displayName;
+                });
+
+                osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
+                    var groups = response.list;
+                    var grouplist = "";
+                    for (var i in groups) {
+                        grouplist = grouplist + '<option value="groups[i].id.groupId">' + groups[i].title + '</option>';
+//                        var groupId = groups[i].id.groupId;
+//                        var title = groups[i].title;
+//                        var type = groups[i].type;
+                    }
+                    document.getElementById("tmp_group_from").innerHTML = grouplist;
+                });
+            }
+
+            gadgets.util.registerOnLoadHandler(init);
+
+        </script>
+        ]]>
+    </Content>
+</Module>
