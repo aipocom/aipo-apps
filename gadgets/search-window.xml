@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+  <ModulePrefs title="検索窓" description="検索用の窓です。" scrolling="false">
+    <Require feature="dynamic-height" />
+    <Require feature="minimessage" />
+    <Optional feature="aipostyle" />
+  </ModulePrefs>
+  <UserPref name="1_title" display_name="検索1 タイトル" datatype="string" default_value="google" />
+  <UserPref name="1_url" display_name="検索1 url" datatype="string"
+            default_value="" />
+  <Content type="html" preferred_height="300">
+    <![CDATA[
+    <style type="text/css">
+      .timeline {
+        width: 98%;
+      }
+
+      .timeline_on {
+        background:#FFF4D5 !important;
+      }
+
+      .timeline .main {
+        float:right;
+        display:block;
+        width: 100%;
+        margin:0;
+      }
+
+      .timeline .name {
+        padding-right:5px;
+      }
+
+      .timeline .name a {
+        text-decoration:none;
+        color:#ff9900;
+        font-weight:bold;
+      }
+
+      .timeline .name a:hover {
+        text-decoration:underline;
+        color:#ff9900;
+      }
+
+      .timeline .body {
+        display:block;
+        min-height:35px;
+        padding-bottom:5px;
+      }
+
+      .timeline .single .body {
+        width:570px !important;
+        min-height:50px;
+        margin:10px 0 10px 0;
+      }
+
+      .timeline .time {
+        float:left;
+        font-size:80%;
+        *font-size:75%;
+        color:#909090;
+        width:350px;
+      }
+
+      .timeline .single .time {
+        width:400px !important;
+      }
+
+      .timeline ul {
+        float:right;
+        list-style:none;
+        width:170px;
+        margin:0 !important;
+        padding:0 !important;
+      }
+
+      .timeline ul li{
+        display:block;
+        float:right;
+        margin:0;
+        padding:0;
+        background:none !important;
+        font-size:80%;
+        *font-size:75%;
+      }
+      .timeline strong{
+      	font-size:110%;
+      }
+    </style>
+    <div id="content" class="aipostyle">
+        <form>
+            <input type="text" name="q" />
+            <select id="engines" name="engine">
+            </select>
+            <imput type="button" onclick="ToSerch()" />
+        </form>
+
+    </div>
+    <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js" >
+    </script>
+    <script type="text/javascript">
+      prefs = new gadgets.Prefs();//設定リスト
+
+      function SetEngine(){
+        var resultHtml = "";
+        for (var i = 0; i <1; i++){
+          resultHtml += "\
+          <option name='"+prefs.getString("1_title")+"'+'"prefs.getString("1_url")"'><\/option>";
+        }
+        document.getElementById("engines").innerHTML = resultHtml;
+      }
+
+      function toSearch(){
+        var url= document.getElementById("engines").value+document.getElementById("q").value;
+        location.href=url;
+      }
+      function init() {
+        SetEngine();
+      }
+      gadgets.util.registerOnLoadHandler(init);
+    </script>
+    ]]>
+
+  </Content>
+</Module>
