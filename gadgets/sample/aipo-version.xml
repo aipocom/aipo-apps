@@ -5,12 +5,18 @@
 <Require feature="dynamic-height" />
 </ModulePrefs>
 <Content type="html"><![CDATA[
-<script type="text/javascript">
-osapi.aipo.version().execute(function(response) {
-document.getElementById('result').innerHTML = response;
-gadgets.window.adjustHeight();
- });
-</script>
 <div id="result"></div>
+<script type="text/javascript">
+var callback = function(response){
+     var version = response;
+    document.getElementById('result').innerHTML = version;
+    gadgets.window.adjustHeight();
+}
+try{
+    osapi.aipo.version().execute(callback);
+}catch( e ){
+  callback( '6.0.0.0' );
+}
+</script>
 ]]></Content>
 </Module>
