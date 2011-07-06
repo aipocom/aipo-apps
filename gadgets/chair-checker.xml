@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs
+            title="簡易在席確認"
+            description="ユーザーの在席状態を確認できる簡易アプリです。">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Require feature="tabs"/>
+        <Require feature="aipostyle"/>
+        <Require feature="osapi"/>
+    </ModulePrefs>
+    <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="2">
+        <EnumValue value="2"/>
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <UserPref name="p2-canvasRows" display_name="表示件数（最大化時）" datatype="enum" default_value="10">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <Content type="html"><![CDATA[
+        <div class="aipostyle">
+            <div>
+                <label>コメント：<input type="text" id="comment" /></label>
+                <button onclick="clickSubmit('在席')">在席</button>
+                <button onclick="clickSubmit('外出')">外出</button>
+                <button onclick="repaint()">更新する</button>
+            </div>
+            <div align="right">
+                <a href="#" onclick="clickPageChange('pre')" id="page_pre">&lt;&lt;前のページ</a>
+                <a href="#" onclick="clickPageChange('next')" id="page_next">次のページ&gt;&gt;</a>
+                <table class="form wide" id="status">
+                    <tr>
+                        <th>ユーザー</th>
+                        <th>状態</th>
+                        <th>コメント</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            gadgets.util.registerOnLoadHandler(init);
+
+            var viewer=null;
+            var table=null;
+            var page_pre=null;
+            var page_next=null;
+            var prefs = new gadgets.Prefs();
+            var page=0;
+            var pref_rows=0;
+
+            /*
+             * init
+             */
+            function init(){
+                // テーブルの取得
+                table = document.getElementById("status");
+                // ページリンク要素
+                page_pre = document.getElementById("page_pre");
+                page_next = document.getElementById("page_next");
+
+                // 設定の読み込み
+                var currentView = gadgets.views.getCurrentView();
+                if(currentView.getName()=="home"){
+                    pref_rows = prefs.getInt("p1-homeRows");
+                }else{
+                    pref_rows = prefs.getInt("p2-canvasRows");
+                }
+
+                // 現在のユーザーの読み込み
+                osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+                    viewer = response;
+                });
+                // ページの変更(データの表示)
+                clickPageChange(0);
+            }
+
+            /*
+             * submit
+             */
+            function clickSubmit(type){
+                // フォームから値の取得
+                var comment = document.getElementById("comment").value;
+                // 時間の取得
+                var date = (new Date()).getTime()+"";
+                // データの作成
+                var data = { type: type, comment: comment, date: date };
+
+                // データの保存
+                osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
+                    // データの再表示
+                    repaint();
+                });
+            }
+
+            /*
+             * ページの変更
+             */
+            function clickPageChange(value){
+                if(value=="pre"){
+                    page-=1;
+                }else if(value=="next"){
+                    page+=1;
+                }
+                // validation
+                if(page<0){page=0;}
+                // リンクの表示変更
+                if(page==0){page_pre.style.display = "none";}
+                else{page_pre.style.display = "";}
+
+                page_next.style.display = "none";
+                var index = (page+1) * pref_rows;
+                osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex:index, count:pref_rows }).execute(function(response) {
+                    var i=0;
+                    for(var list in response.list){
+                        i++;
+                    }
+                    if(i>0){ page_next.style.display = ""; }
+                });
+                
+                // 再描画
+                repaint();
+            }
+
+            /*
+             * テーブルの再描画
+             */
+            function repaint(){
+                // ユーザーの読み込み
+                var index = page * pref_rows;
+                osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex:index, count:pref_rows }).execute(function(response) {
+                    var users=[];
+                    var userIds=[];
+                    
+                    var list = response.list;
+                    for(var i in list){
+                        users[list[i].id] = list[i];
+                        userIds.push(list[i].id);
+                    }
+                    // データの取得
+                    osapi.appdata.get({ userId: userIds ,fields: ['type','comment','date'] }).execute(function(response) {
+                        // テーブルの初期化
+                        table.innerHTML = "\
+                            <tr>\
+                                <th>ユーザー</th>\
+                                <th>状態</th>\
+                                <th>日時</th>\
+                                <th>コメント</th>\
+                            </tr>\
+                        ";
+                        // ユーザーID、アプリデータの連想配列
+                        for (var userId in response) {
+                            var data = response[userId];
+                            // データの表示
+                            table.innerHTML += "\
+                                <tr>\
+                                    <td>"+users[userId].displayName+"</td>\
+                                    <td>"+data["type"]+"</td>\
+                                    <td>"+getDate(data["date"])+"</td>\
+                                    <td>"+data["comment"]+"</td>\
+                                </tr>\
+                            ";
+                        }
+                        // ウインドウの幅再調整
+                        gadgets.window.adjustHeight();
+                    });
+                });
+            }
+
+            /*
+             * 引数で与えられた時刻を整形して返す
+             * @param time 1900年からのms
+             */
+            function getDate(time){
+                var weeks = new Array('日','月','火','水','木','金','土');
+
+                var date = new Date();
+                date.setTime(time);
+
+                var year = date.getYear();
+                var month = date.getMonth() + 1;
+                var day = date.getDate();
+                var week = weeks[ date.getDay() ];
+                var hour = date.getHours();
+                var minute = date.getMinutes();
+
+                if(year < 2000) { year += 1900; }
+
+                // 頭に0を付ける
+                if(month < 10) { month = "0" + month; }
+                if(day < 10) { day = "0" + day; }
+                if(hour < 10) { hour = "0" + hour; }
+                if(minute < 10) { minute = "0" + minute; }
+
+                // 整形して返す
+                return year+"年"+month+"月"+day+"日（"+week+"）"+hour+"時"+minute+"分";
+            }
+        </script>
+    ]]></Content>
+</Module>
