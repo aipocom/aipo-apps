@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-  <ModulePrefs title="検索窓" description="検索用の窓です。" scrolling="false">
-    <Require feature="dynamic-height" />
-    <Require feature="minimessage" />
-    <Optional feature="aipostyle" />
-  </ModulePrefs>
-  <UserPref name="1_title" display_name="検索1 タイトル" datatype="string" default_value="google" />
-  <UserPref name="1_url" display_name="検索1 url" datatype="string"
-            default_value="" />
-  <Content type="html" preferred_height="300">
-    <![CDATA[
+    <ModulePrefs title="マルチ検索窓" description="検索用の窓です。" scrolling="false">
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Optional feature="aipostyle"/>
+    </ModulePrefs>
+    <UserPref name="1_title" display_name="検索1 タイトル" datatype="string" default_value="google"/>
+    <UserPref name="1_url" display_name="検索1 url" datatype="string"
+              default_value="http://www.google.co.jp/search"/>
+    <UserPref name="2_title" display_name="検索2 タイトル" datatype="string" default_value="yahoo"/>
+    <UserPref name="2_url" display_name="検索2 url" datatype="string"
+              default_value="http://search.yahoo.co.jp/search"/>
+    <UserPref name="3_title" display_name="検索3 タイトル" datatype="string" default_value="bing"/>
+    <UserPref name="3_url" display_name="検索3 url" datatype="string"
+              default_value="http://www.bing.com/search"/>
+    <Content type="html"><![CDATA[
+
     <style type="text/css">
       .timeline {
         width: 98%;
@@ -86,39 +92,116 @@
       	font-size:110%;
       }
     </style>
-    <div id="content" class="aipostyle">
-        <form>
-            <input type="text" name="q" />
-            <select id="engines" name="engine">
-            </select>
-            <imput type="button" onclick="ToSerch()" />
-        </form>
 
-    </div>
-    <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js" >
-    </script>
+        <div class="aipostyle">
+            <div id="content"></div>
+            <div id="formContent">
+                <form id="form" name="form" action="#">
+                    <table class="wide">
+                        <tr>
+                            <select id="engines" name="engine">
+                            </select>
+                        </tr>
+                        <tr>
+                            <td><input type="text" class="text w90" name="query" value=""/></td>
+                            <td class="thin"><input type="submit" name="submit" value="検索する"/></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+
+
+
+
+
+    <!--<div id="content" class="aipostyle">-->
+        <!--<form>-->
+            <!--<input type="text" name="q" />-->
+
+            <!--<imput type="button" onclick="ToSerch()" />-->
+        <!--</form>-->
+    <!--</div>-->
+
+    
+    <!--<script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js" >-->
+    <!--</script>-->
+
     <script type="text/javascript">
-      prefs = new gadgets.Prefs();//設定リスト
+
+      var prefs = new gadgets.Prefs();
+      var msg = new gadgets.MiniMessage();
 
       function SetEngine(){
         var resultHtml = "";
-        for (var i = 0; i <1; i++){
-          resultHtml += "\
-          <option name='"+prefs.getString("1_title")+"'+'"prefs.getString("1_url")"'><\/option>";
+        for (var i = 1; i <= 10; i++){
+
+          var url = prefs.getString(i + "_url");
+          var title = prefs.getString(i + "_title");
+
+          if(url)
+          {
+            resultHtml += "\
+            <option value=" + url + ">" + title + "<\/option>";
+          }
+
         }
-        document.getElementById("engines").innerHTML = resultHtml;
+       document.form.engines.innerHTML = resultHtml;
       }
 
-      function toSearch(){
-        var url= document.getElementById("engines").value+document.getElementById("q").value;
-        location.href=url;
+      <!--function toSearch(){-->
+        <!--var url= document.getElementById("engines").value+document.getElementById("q").value;-->
+        <!--location.href=url;-->
+      <!--}-->
+
+      function showValidateErrorMessage(text) {
+            var timerMsg = msg.createTimerMessage(text, 3, function() {
+                msg.dismissMessage(timerMsg);
+                gadgets.window.adjustHeight();
+            });
+            gadgets.window.adjustHeight();
       }
+
+      function initForm() {
+
+        document.form.onsubmit = function() {
+
+            var query = document.form.query.value;
+                if (!query) {
+                    showValidateErrorMessage("検索ワードを入力してください。");
+                    return false;
+                }
+
+            var url = document.form.engines.value;
+
+            if(url.indexOf("yahoo"))
+            {
+              url += "?p=" + query;
+            }
+            else
+            {
+              url += "?q=" + query;
+            }
+
+            alert(url);
+
+            window.open(url);
+
+            gadgets.window.adjustHeight();
+            return false;
+        }
+        
+
+      }
+
       function init() {
+        initForm();
         SetEngine();
+        gadgets.window.adjustHeight();
       }
+
       gadgets.util.registerOnLoadHandler(init);
     </script>
-    ]]>
-
-  </Content>
+    
+    ]]></Content>
 </Module>
