@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<ModulePrefs title="Aipo Version">
+<Require feature="osapi" />
+<Require feature="dynamic-height" />
+</ModulePrefs>
+<Content type="html"><![CDATA[
+<script type="text/javascript">
+osapi.aipo.version().execute(function(response) {
+document.getElementById('result').innerHTML = response;
+gadgets.window.adjustHeight();
+ });
+</script>
+<div id="result"></div>
+]]></Content>
+</Module>
