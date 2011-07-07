@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs title="備品管理" description="備品管理" height="200">
+        <Require feature="osapi"/>
+        <Optional feature="aipostyle" />
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+
+
+<div class="aipostyle">
+    <form name="form" action="#" id="form">
+
+<table class="form wide">
+<tr>
+<th>もの</th>
+<td><input class="text w75" type="text" name="equipment" /></td>
+</tr>
+<tr>
+<th>個数</th>
+<td><input class="text w75" type="number" name="number" style="width:40px;" />
+<input type="submit" name="submit" value="追加" />
+
+</td>
+</tr>
+追加者：<span id="user"></span>
+
+</table>
+<table class="list wide">
+<tr>
+<th>もの</th>
+<th>個数</th>
+</tr>
+<tr>
+<td>aaaaaa</td>
+<td>aaaaa</td>
+</tr>
+
+</table>
+    </form>
+
+</div>
+
+
+
+
+
+<script type="text/javascript">
+
+function aaa(){
+  osapi.appdata.get({ userId: '@admin' ,fields: ['key1', 'key2'] }).execute(callback);
+}
+function initForm() {
+
+document.form.onsubmit = function() {
+
+    alert('hoge');
+osapi.appdata.update({ userId: '@viewer', data: { key1: 'document.form.equipment.value', key2: 'document.form.number.value' } }).execute(function(response){
+    alert('hoge2');
+  osapi.appdata.get({ userId: [ '@viewer'] ,fields: ['key1', 'key2'] }).execute(function(response2){
+////    ユーザーID、アプリデータの連想配列  document.form.equipment.value
+    console.error(response2);
+});
+    return false;
+    }
+  }
+ }
+
+function init() {
+                osapi.people.getViewer().execute(function (response) {
+                    document.getElementById("user").innerHTML = response.displayName;
+                });
+    initForm();
+            }
+            gadgets.util.registerOnLoadHandler(init);
+</script>
+      ]]>
+    </Content>
+</Module>
