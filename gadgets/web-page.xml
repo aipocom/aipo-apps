@@ -1,0 +1,99 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs
+            title="Webページ"
+            description="お好きなWebページを表示します。" height="35">
+        <Require feature="views" />
+        <Require feature="dynamic-height" />
+        <Require feature="minimessage" />
+        <Require feature="osapi" />
+        <Require feature="setprefs" />
+        <Optional feature="aipostyle" />
+    </ModulePrefs>
+    <UserPref name="p1url" display_name="URL" datatype="string" />
+    <UserPref name="p2homeHeight" display_name="ページの高さ（通常時）" datatype="string"  default_value="400" />
+    <UserPref name="p3canvasHeight" display_name="ページの高さ（最大化時）" datatype="string"  default_value="800" />
+    <Content type="html"><![CDATA[
+        <div class="aipostyle">
+            <div id="content"></div>
+            <div id="formContent" style="display:none">
+                <form id="form" name="form" action="#">
+                    URL を入力してください。
+                    <table class="wide">
+                        <tr>
+                            <td><input type="text" class="text w90" name="webUrl" value=""/></td>
+                            <td class="thin"><input type="submit" name="submit" value="保存する"/></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+
+        <div class="aipostyle">
+            <iframe id="iframeContent" style="display:none" src="http://google.co.jp/" name="pagecontent"  width="100%" height="400" border="0">
+            </iframe>
+        </div>
+
+        <script type="text/javascript">
+
+        gadgets.util.registerOnLoadHandler(init);
+
+        var msg = new gadgets.MiniMessage();
+        var prefs = new gadgets.Prefs();
+        var url;
+        var webPageHeight;
+
+        function showValidateErrorMessage(text) {
+            var timerMsg = msg.createTimerMessage(text, 3, function() {
+                msg.dismissMessage(timerMsg);
+                gadgets.window.adjustHeight();
+            });
+            gadgets.window.adjustHeight();
+        }
+
+        function viewPage() {
+            pagecontent.location = url;
+            document.getElementById("iframeContent").height = webPageHeight;
+            document.getElementById("iframeContent").style.display = "";
+            document.getElementById("formContent").style.display = "none";
+            gadgets.window.adjustHeight();
+        }
+
+        function initForm() {
+            document.getElementById("formContent").style.display = "";
+            document.form.webUrl.value = url;
+            document.form.onsubmit = function() {
+                var webUrl = document.form.webUrl.value;
+                if (!webUrl) {
+                    showValidateErrorMessage("URL を入力して下さい。");
+                    return false;
+                }
+
+                prefs.set("p1url", webUrl);
+                gadgets.window.adjustHeight();
+                url = webUrl;
+                viewPage();
+                return false;
+            }
+        }
+
+        function init() {
+            var currentView = gadgets.views.getCurrentView();
+            var supportViews = gadgets.views.getSupportedViews();
+            url = prefs.getString("p1url");
+            if (currentView.getName() == 'canvas') {
+                webPageHeight = prefs.getString("p3canvasHeight");
+            } else {
+                webPageHeight = prefs.getString("p2homeHeight");
+            }
+            if (!url) {
+                initForm();
+            } else {
+                viewPage();
+            }
+            gadgets.window.adjustHeight();
+        }
+
+        </script>]]></Content>
+</Module>
