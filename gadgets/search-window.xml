@@ -14,88 +14,17 @@
     <UserPref name="3_title" display_name="検索3 タイトル" datatype="string" default_value="bing"/>
     <UserPref name="3_url" display_name="検索3 url" datatype="string"
               default_value="http://www.bing.com/search"/>
+    <UserPref name="4_title" display_name="検索4 タイトル" datatype="string" default_value=""/>
+    <UserPref name="4_url" display_name="検索4 url" datatype="string"
+              default_value=""/>
+    <UserPref name="5_title" display_name="検索5 タイトル" datatype="string" default_value=""/>
+    <UserPref name="5_url" display_name="検索5 url" datatype="string"
+              default_value=""/>
     <Content type="html"><![CDATA[
 
-    <style type="text/css">
-      .timeline {
-        width: 98%;
-      }
-
-      .timeline_on {
-        background:#FFF4D5 !important;
-      }
-
-      .timeline .main {
-        float:right;
-        display:block;
-        width: 100%;
-        margin:0;
-      }
-
-      .timeline .name {
-        padding-right:5px;
-      }
-
-      .timeline .name a {
-        text-decoration:none;
-        color:#ff9900;
-        font-weight:bold;
-      }
-
-      .timeline .name a:hover {
-        text-decoration:underline;
-        color:#ff9900;
-      }
-
-      .timeline .body {
-        display:block;
-        min-height:35px;
-        padding-bottom:5px;
-      }
-
-      .timeline .single .body {
-        width:570px !important;
-        min-height:50px;
-        margin:10px 0 10px 0;
-      }
-
-      .timeline .time {
-        float:left;
-        font-size:80%;
-        *font-size:75%;
-        color:#909090;
-        width:350px;
-      }
-
-      .timeline .single .time {
-        width:400px !important;
-      }
-
-      .timeline ul {
-        float:right;
-        list-style:none;
-        width:170px;
-        margin:0 !important;
-        padding:0 !important;
-      }
-
-      .timeline ul li{
-        display:block;
-        float:right;
-        margin:0;
-        padding:0;
-        background:none !important;
-        font-size:80%;
-        *font-size:75%;
-      }
-      .timeline strong{
-      	font-size:110%;
-      }
-    </style>
-
-        <div class="aipostyle">
+        <div class = "aipostyle">
             <div id="content"></div>
-            <div id="formContent">
+            <div id = "formContent">
                 <form id="form" name="form" action="#">
                     <table class="wide">
                         <tr>
@@ -103,105 +32,110 @@
                             </select>
                         </tr>
                         <tr>
-                            <td><input type="text" class="text w90" name="query" value=""/></td>
-                            <td class="thin"><input type="submit" name="submit" value="検索する"/></td>
+                            <td>
+                                <input type="text" class="text w90" name="query" value=""/>
+                            </td>
+                            <td class="thin">
+                                <input type="submit" name="submit" value="検索する"/>
+                            </td>
                         </tr>
                     </table>
                 </form>
             </div>
         </div>
 
+        <style type="text/css">
+        
+        </style>
 
+        <script type="text/javascript">
 
+            var prefs = new gadgets.Prefs();
+            var msg = new gadgets.MiniMessage();
 
+            function SetEngine()
+            {
+                var resultHtml = "\<option value='all'>（全て）<\/option>";
+                for (var i = 1; i <= 10; i++)
+                {
 
-    <!--<div id="content" class="aipostyle">-->
-        <!--<form>-->
-            <!--<input type="text" name="q" />-->
+                    var url = prefs.getString(i + "_url");
+                    var title = prefs.getString(i + "_title");
 
-            <!--<imput type="button" onclick="ToSerch()" />-->
-        <!--</form>-->
-    <!--</div>-->
+                    if(url)
+                    {
+                    resultHtml += "\<option value=" + url + ">" + title + "<\/option>";
+                    }
 
-    
-    <!--<script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js" >-->
-    <!--</script>-->
+                }
+                document.form.engines.innerHTML = resultHtml;
+            }
 
-    <script type="text/javascript">
-
-      var prefs = new gadgets.Prefs();
-      var msg = new gadgets.MiniMessage();
-
-      function SetEngine(){
-        var resultHtml = "";
-        for (var i = 1; i <= 10; i++){
-
-          var url = prefs.getString(i + "_url");
-          var title = prefs.getString(i + "_title");
-
-          if(url)
-          {
-            resultHtml += "\
-            <option value=" + url + ">" + title + "<\/option>";
-          }
-
-        }
-       document.form.engines.innerHTML = resultHtml;
-      }
-
-      <!--function toSearch(){-->
-        <!--var url= document.getElementById("engines").value+document.getElementById("q").value;-->
-        <!--location.href=url;-->
-      <!--}-->
-
-      function showValidateErrorMessage(text) {
-            var timerMsg = msg.createTimerMessage(text, 3, function() {
-                msg.dismissMessage(timerMsg);
-                gadgets.window.adjustHeight();
-            });
+            function showValidateErrorMessage(text) {
+                    var timerMsg = msg.createTimerMessage(text, 3, function() {
+                    msg.dismissMessage(timerMsg);
+                    gadgets.window.adjustHeight();
+                    });
             gadgets.window.adjustHeight();
-      }
+            }
 
-      function initForm() {
+            function initForm() {
 
-        document.form.onsubmit = function() {
+                    document.form.onsubmit = function()
+                    {
 
-            var query = document.form.query.value;
-                if (!query) {
-                    showValidateErrorMessage("検索ワードを入力してください。");
-                    return false;
+                        var query = document.form.query.value;
+                        if (!query)
+                        {
+                            showValidateErrorMessage("検索ワードを入力してください。");
+                            return false;
+                        }
+
+                        var url = document.form.engines.value;
+
+                        if(url == "all")
+                        {
+                            for(var i = 1; i <= 10; i++)
+                            {
+                                var _url = prefs.getString(i + "_url");
+                                if(_url)
+                                {
+                                    window.open(getSearchUrl(_url, query), '_blank');
+                                }
+                            }
+                        }
+                        else
+                        {
+                            window.open(getSearchUrl(url, query), '_blank');
+                        }
+
+                        return false;
+                    }
+            }
+
+            function getSearchUrl(url, query)
+            {
+            
+                if(url.indexOf("yahoo") != -1)
+                {
+                        url += "?p=" + encodeURI(query);
+                }
+                else
+                {
+                        url += "?q=" + encodeURI(query);
                 }
 
-            var url = document.form.engines.value;
-
-            if(url.indexOf("yahoo"))
-            {
-              url += "?p=" + query;
-            }
-            else
-            {
-              url += "?q=" + query;
+                return url;
             }
 
-            alert(url);
+            function init()
+            {
+                initForm();
+                SetEngine();
+                gadgets.window.adjustHeight();
+            }
 
-            window.open(url);
-
-            gadgets.window.adjustHeight();
-            return false;
-        }
-        
-
-      }
-
-      function init() {
-        initForm();
-        SetEngine();
-        gadgets.window.adjustHeight();
-      }
-
-      gadgets.util.registerOnLoadHandler(init);
-    </script>
-    
-    ]]></Content>
+            gadgets.util.registerOnLoadHandler(init);
+        </script>
+        ]]></Content>
 </Module>
