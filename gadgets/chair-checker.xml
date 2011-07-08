@@ -23,12 +23,28 @@
     </UserPref>
     <Content type="html"><![CDATA[
         <div class="aipostyle">
-            <div>
-                <label>コメント：<input type="text" id="comment" /></label>
-                <button onclick="clickSubmit('在席')">在席</button>
-                <button onclick="clickSubmit('外出')">外出</button>
-                <button onclick="repaint()">更新する</button>
-            </div>
+<style>
+.borderNone{border:none;}
+.borderNone th{border:none;}
+.borderNone td{border:none;}
+.pb5{padding-bottom:5px;}
+.mb5{margin-bottom:5px;}
+.fs10_g{font-size:10px; color:#555;}
+.middle{vertical-align:middle;}
+</style>
+<table class="wide borderNone">
+<tbody>
+<tr>
+<td class="borderNone pb5" nowrap><button style="margin-right:10px;" onclick="clickSubmit('在席')">在席</button><button onclick="clickSubmit('外出')">外出</button></td>
+<td style="border:none; padding-bottom:5px;" align="right" nowrap><button onclick="repaint()">更新</button></td>
+</tr>
+<tr>
+<td class="borderNone pb5" colspan="2" nowrap><input type="text" id="comment" style="width:98%;" onfocus="if (this.value == 'コメントを書く') this.value = '';" onblur="if (this.value == '') this.value = 'コメントを書く';" value="コメントを書く" /></td>
+</tr>
+</tbody>
+</table>
+<hr />
+
             <div align="right">
                 <a href="#" onclick="clickPageChange('pre')" id="page_pre">&lt;&lt;前のページ</a>
                 <a href="#" onclick="clickPageChange('next')" id="page_next">次のページ&gt;&gt;</a>
