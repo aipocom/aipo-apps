@@ -103,10 +103,7 @@
                 margin:0 10px 10px 0;
                 }
         </style>
-        < div
-        id = "content"
-        class = "aipostyle"
-        style = "height:432px;overflow: scroll;overflow-x: hidden;" > </div>
+        < div id = "content" class = "aipostyle" style = "height:432px;overflow: scroll;overflow-x: hidden;" > </div>
             <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
             </script>
             <script type="text/javascript">
