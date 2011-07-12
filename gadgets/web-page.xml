@@ -11,7 +11,7 @@
         <Optional feature="aipostyle" />
     </ModulePrefs>
     <UserPref name="p1url" display_name="URL" datatype="string" />
-    <UserPref name="p2homeHeight" display_name="ページの高さ（通常時）" datatype="string"  default_value="400" />
+    <UserPref name="p2homeHeight" display_name="ページの高さ（通常時）" datatype="string"  default_value="300" />
     <UserPref name="p3canvasHeight" display_name="ページの高さ（最大化時）" datatype="string"  default_value="800" />
     <Content type="html"><![CDATA[
         <div class="aipostyle">
@@ -30,7 +30,7 @@
         </div>
 
         <div class="aipostyle">
-            <iframe id="iframeContent" style="display:none" src="" name="pagecontent"  width="100%" height="400" border="0">
+            <iframe id="iframeContent" style="display:none;border:none;" frameborder="0" src="about:blank" name="pagecontent"  width="100%" height="400" border="0">
             </iframe>
         </div>
 
