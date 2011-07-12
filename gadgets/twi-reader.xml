@@ -1,221 +1,242 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-  <ModulePrefs title="twiリーダー" description="超簡単なtwitter検索クライアントです" scrolling="false">
-    <Require feature="dynamic-height" />
-    <Require feature="minimessage" />
-    <Require feature="tabs" />
-    <Optional feature="aipostyle" />
-  </ModulePrefs>
-  <UserPref name="query1" display_name="検索ワード1" datatype="string" default_value="Aipo OR アイポ" />
-  <UserPref name="query2" display_name="検索ワード2" datatype="string" default_value="ニュース" />
-  <UserPref name="query3" display_name="検索ワード3" datatype="string" default_value="テスト" />
-   <UserPref name="reloadspan" display_name="更新間隔" datatype="enum" default_value="30" >
-  	<EnumValue display_value="30秒" value="30"/>
-  	<EnumValue display_value="1分" value="60"/>
-  	<EnumValue display_value="2分" value="120"/>
-  	<EnumValue display_value="5分" value="600"/>
-  	<EnumValue display_value="10分" value="1200"/>
-  </UserPref>
-  <UserPref name="lang" display_name="言語" datatype="enum" default_value="default" >
-  	<EnumValue display_value="日本語" value="ja"/>
-  	<EnumValue display_value="英語" value="en"/>
-  	<EnumValue display_value="全て" value="all"/>
-	<EnumValue display_value="デフォルト(通常使用言語)" value="default"/>
-  </UserPref>
-  <Content type="html" preferred_height="300">
+    <ModulePrefs title="twiリーダー" description="超簡単なtwitter検索クライアントです" scrolling="false">
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Require feature="tabs"/>
+        <Optional feature="aipostyle"/>
+    </ModulePrefs>
+    <UserPref name="query1" display_name="検索ワード1" datatype="string" default_value="Aipo OR アイポ"/>
+    <UserPref name="query2" display_name="検索ワード2" datatype="string" default_value="ニュース"/>
+    <UserPref name="query3" display_name="検索ワード3" datatype="string" default_value="テスト"/>
+    <UserPref name="reloadspan" display_name="更新間隔" datatype="enum" default_value="30">
+        <EnumValue display_value="30秒" value="30"/>
+        <EnumValue display_value="1分" value="60"/>
+        <EnumValue display_value="2分" value="120"/>
+        <EnumValue display_value="5分" value="600"/>
+        <EnumValue display_value="10分" value="1200"/>
+    </UserPref>
+    <UserPref name="lang" display_name="言語" datatype="enum" default_value="default">
+        <EnumValue display_value="日本語" value="ja"/>
+        <EnumValue display_value="英語" value="en"/>
+        <EnumValue display_value="全て" value="all"/>
+        <EnumValue display_value="デフォルト(通常使用言語)" value="default"/>
+    </UserPref>
+    <Content type="html" preferred_height="300">
     <![CDATA[
-    <style type="text/css">
-      .timeline {
-        width: 98%;
-      }
+        <style type="text/css">
+        .timeline {
+                width: 98%;
+                }
 
-      .timeline_on {
-        background:#FFF4D5 !important;
-      }
+        .timeline_on {
+                background:#FFF4D5 !important;
+                }
 
-      .timeline .main {
-        float:right;
-        display:block;
-        width: 100%;
-        margin:0;
-      }
+        .timeline .main {
+                float:right;
+                display:block;
+                width: 100%;
+                margin:0;
+                }
 
-      .timeline .name {
-        padding-right:5px;
-      }
+        .timeline .name {
+                padding - right:5px;
+                }
 
-      .timeline .name a {
-        text-decoration:none;
-        color:#ff9900;
-        font-weight:bold;
-      }
+        .timeline .name a {
+                text - decoration:none;
+                color:#ff9900;
+                font-weight:bold;
+                }
 
-      .timeline .name a:hover {
-        text-decoration:underline;
-        color:#ff9900;
-      }
+        .timeline .name a:hover {
+                text - decoration:underline;
+                color:#ff9900;
+                }
 
-      .timeline .body {
-        display:block;
-        min-height:35px;
-        padding-bottom:5px;
-      }
+        .timeline .body {
+                display:block;
+                min-height:35px;
+                padding-bottom:5px;
+                }
 
-      .timeline .single .body {
-        width:570px !important;
-        min-height:50px;
-        margin:10px 0 10px 0;
-      }
+        .timeline .single .body {
+                width:570px !important;
+                min-height:50px;
+                margin:10px 0 10px 0;
+                }
 
-      .timeline .time {
-        float:left;
-        font-size:80%;
-        *font-size:75%;
-        color:#909090;
-        width:350px;
-      }
+        .timeline .time {
+            float:left;
+            font-size:80%;
+                *font-size:75%;
+                color:#434343;
+                width:350px;
+                }
 
-      .timeline .single .time {
-        width:400px !important;
-      }
+        .timeline .single .time {
+                width:400px !important;
+                }
 
-      .timeline ul {
-        float:right;
-        list-style:none;
-        width:170px;
-        margin:0 !important;
-        padding:0 !important;
-      }
+        .timeline ul {
+                float:right;
+                list-style:none;
+                width:170px;
+                margin:0 !important;
+                padding:0 !important;
+                }
 
-      .timeline ul li{
-        display:block;
-        float:right;
-        margin:0;
-        padding:0;
-        background:none !important;
-        font-size:80%;
-        *font-size:75%;
-      }
-      .timeline strong{
-      	font-size:110%;
-      }
-    </style>
-    <div id="content" class="aipostyle" style="height:432px;overflow: scroll;overflow-x: hidden;"></div>
-    <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js" >
-    </script>
-    <script type="text/javascript">
-      prefs = new gadgets.Prefs();//設定リスト
-      reloadspan=prefs.getString("reloadspan")*1000;//ミリ秒
-      newestid=0;//最新id
+        .timeline ul li{
+                display:block;
+                float:right;
+                margin:0;
+                padding:0;
+                background:none !important;
+                font-size:80%;
+                *font-size:75%;
+                }
+        .timeline strong{
+                font - size:110%;
+                }
+        .twicon{
+                margin:0 10px 10px 0;
+                }
+        </style>
+        < div
+        id = "content"
+        class = "aipostyle"
+        style = "height:432px;overflow: scroll;overflow-x: hidden;" > </div>
+            <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
+            </script>
+            <script type="text/javascript">
+            prefs = new gadgets.Prefs();//設定リスト
+            reloadspan=prefs.getString("reloadspan")*1000;//ミリ秒
+            newestid=0;//最新id
 
-      function link(src) {
-        return src.replace(/(http:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
-      }
-      function browserLanguage() {
-         try {
-           return (navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0,2)
-         }catch(e) {
-	         throw e;
-         }
-	  }
-	  function ReloadEvent(tabparent){
-		SearchForTwitter(tabparent.getSelectedTab().getName());
-		console.info("twittertimeline is refleshed");
-	  }
-	  function SearchForTwitter(query){
-        var rowUrl = "https://search.twitter.com/search.json?";
-        var lang =prefs.getString("lang");
-        if(lang=="default"){
-        	try{
-        		lang=browserLanguage();
-        	}catch(e){
-        		lang="all";
-        	}
-        }
-        var values = {"q":query,"lang":lang};
-        var length =prefs.getString("length");
-        var fetchUrl = rowUrl + gadgets.io.encodeValues(values);
-        var profileURL = "http://twitter.com/#!/";
-      	  $.ajax({
-          type: "GET",
-          url: rowUrl,
-          data: values,
-          cache: false,
-          dataType: "json",
-          success: function(jsonData){
-            var resultHtml = "<div id='top_message_rs' class='lc_ajax'><div id='pageElement'>";
-            var length = jsonData.results.length;
-            for (var i = 0; i <length; i++){
-              var res = jsonData.results[i];
-              if(i==0){
-                var new_newestid=res.id;
-              }
-              if(res.id<=newestid){
-               break;
-              }
-               var text=link(res.text);
-              text=text.split(query).join("\<strong>"+query+"\<\/strong>");
-              var createdAt = new Date(res.created_at);//res.created_at
-              var createdAtStr = (createdAt.getFullYear())
-                  + "/" + (createdAt.getMonth()+1)
-                  + "/" + createdAt.getDate() + " ";
-              var hours=createdAt.getHours().toString().length==2 ?createdAt.getHours():"0"+createdAt.getHours();
-              var minutes=createdAt.getMinutes().toString().length==2 ?createdAt.getMinutes():"0"+createdAt.getMinutes();
-              createdAtStr +=hours + ":" + minutes ;
-              resultHtml += "\
-<hr id='" + res.id_str + "'>\
-<div class='timeline clearfix' id='post_" + res.id_str + "'>\
-<div class='main'>\
-<div class='body'><img src=' "+res.profile_image_url+"' alt='アイコン' align='left' /><span class='name'>\
-<a target='_blank' href='" + profileURL + res.from_user + "'>" + res.from_user + "<\/a><\/span>" + text + "\
-<\/div>\
-<div class='clearfix'>\
-<div class='time'><a target='_blank' href='" + profileURL + res.from_user + "\/status\/" + res.id_str + "'>" + createdAtStr + "<\/a><\/div>\
-<\/div>\
-<\/div>\
-<\/div>";
-              resultHtml += "<\/div><\/div>";
+            function link(src) {
+                    return src.replace(/(http:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
+                    }
+            function browserLanguage() {
+                    try {
+                    return (navigator.browserLanguage || navigator.language || navigator.userLanguage).substr(0,2)
+                    }catch(e) {
+                    throw e;
+                    }
             }
-            if(new_newestid){
-            	newestid=new_newestid;
+            function ReloadEvent(tabparent){
+                    SearchForTwitter(tabparent.getSelectedTab().getName());
+                    console.info("twittertimeline is refleshed");
+                    }
+            function SearchForTwitter(query){
+                    var rowUrl = "https://search.twitter.com/search.json?";
+                    var lang =prefs.getString("lang");
+                    if(lang=="default"){
+                    try{
+                    lang=browserLanguage();
+                    }catch(e){
+                    lang = "all";
+                    }
             }
-            document.getElementById("content").innerHTML = resultHtml +document.getElementById("content").innerHTML;
-            gadgets.window.adjustHeight();
-          },
-          error: function(xhr, status, e) {
-            console.info(xhr, status, e);
-          }
-        });
-      }
-      function SearchForTwitterInit(tabparent,query){
-        newestid=0;
-		document.getElementById("content").innerHTML="";
-		SearchForTwitter(query);
-        if( typeof settedtimer != "undefined"){
-            clearInterval(settedtimer);
-        }
-        settedtimer=setInterval(function(){ReloadEvent(tabparent);},reloadspan);
-      }
-      function init() {
-        document.getElementById("content").innerHTML="";
-      	var tabs = new gadgets.TabSet(__MODULE_ID__, null, document.getElementById("tabs"));
-		for(var i=1;i<=3;i++){
-			tabInitSet(tabs,i);
-		}
-      }
-	function tabInitSet(tabparent,query_no){
-		var query=prefs.getString("query"+query_no.toString());
-			var tab = {
-			contentContainer: document.getElementById("tab"+query_no.toString()),
-				callback: function(){
-					SearchForTwitterInit(tabparent,query);
-				}
-			};
-		tabparent.addTab(query, tab);
-	}
-      gadgets.util.registerOnLoadHandler(init);
-    </script>
-    ]]>
+            var values = {"q":query,"lang":lang};
+            var length =prefs.getString("length");
+            var fetchUrl = rowUrl + gadgets.io.encodeValues(values);
+            var profileURL = "http://twitter.com/#!/";
+            $.ajax({
+                    type: "GET",
+                    url: rowUrl,
+                    data: values,
+                    cache: false,
+                    dataType: "json",
+                    success: function(jsonData){
+                    var resultHtml = "
+                    <div id='top_message_rs' class='lc_ajax'>
+                    <div id='pageElement'>";
+                    var length = jsonData.results.length;
+                    for (var i = 0; i<length; i++){
+                    var res = jsonData.results[i];
+                    if(i==0){
+                    var new_newestid=res.id;
+                    }
+            if(res.id
+                <=newestid){
+                        break;
+                        }
+                var text=link(res.text);
+                text=text.split(query).join("\
+                    <strong>"+query+"\
+                        <\/strong>");
+                        var createdAt = new Date(res.created_at);//res.created_at
+                        var createdAtStr = (createdAt.getFullYear())
+                        + "/" + (createdAt.getMonth()+1)
+                        + "/" + createdAt.getDate() + " ";
+                        var hours=createdAt.getHours().toString().length==2 ?createdAt.getHours():"0"+createdAt.getHours();
+                        var minutes=createdAt.getMinutes().toString().length==2 ?createdAt.getMinutes():"0"+createdAt.getMinutes();
+                        createdAtStr +=hours + ":" + minutes ;
+                        resultHtml += "\
+                            <hr id='" + res.id_str + "'>\
+                                <div class='timeline clearfix' id='post_" + res.id_str + "'>\
+                                    <div class='main'>\
+                                        <div class='body'>
+                                            <img src=' "+res.profile_image_url+"' alt='アイコン' align='left' class='twicon'/>
+                                            <span class='name'>\
+                                                <a target='_blank' href='" + profileURL + res.from_user + "'>" + res.from_user + "
+                                                    <\/a>
+                                                        <\/span>" + text + "\
+                                                            <\/div>\
+                                                                <div class='clearfix'>\
+                                                                    <div class='time'>
+                                                                        <a target='_blank' href='" + profileURL + res.from_user + "\/status\/" + res.id_str + "'>" + createdAtStr + "
+                                                                            <
+                                                                            \/a>
+                                                                                <\/div>\
+                                                                                    <\/div>\
+                                                                                        <\/div>\
+                                                                                            <\/div>";
+                                                                                            resultHtml += "
+                                                                                                <\/div>
+                                                                                                    <\/div>";
+                                                                                                    }
+                                                                                                    if(new_newestid){
+                                                                                                            newestid = new_newestid;
+                                                                                                            }
+                                                                                                    document.getElementById("content").innerHTML = resultHtml +document.getElementById("content").innerHTML;
+                                                                                                    gadgets.window.adjustHeight();
+                                                                                                    },
+                                                                                                    error: function(xhr, status, e) {
+                                                                                                            console.info(xhr, status, e);
+                                                                                                            }
+                                                                                                    });
+                                                                                                    }
+                                                                                                    function SearchForTwitterInit(tabparent,query){
+                                                                                                            newestid = 0;
+                                                                                                            document.getElementById("content").innerHTML="";
+                                                                                                            SearchForTwitter(query);
+                                                                                                            if( typeof settedtimer != "undefined"){
+                                                                                                            clearInterval(settedtimer);
+                                                                                                            }
+                                                                                                    settedtimer=setInterval(function(){ReloadEvent(tabparent);},reloadspan);
+                                                                                                    }
+                                                                                                    function init() {
+                                                                                                            document.getElementById("content").innerHTML = "";
+                                                                                                            var tabs = new gadgets.TabSet(__MODULE_ID__, null, document.getElementById("tabs"));
+                                                                                                            for(var i=1;i<=3;i++){
+                                                                                                            tabInitSet(tabs,i);
+                                                                                                            }
+                                                                                                    }
+                                                                                                    function tabInitSet(tabparent,query_no){
+                                                                                                            var query=prefs.getString("query"+query_no.toString());
+                                                                                                            var tab = {
+                                                                                                            contentContainer: document.getElementById("tab"+query_no.toString()),
+                                                                                                            callback: function(){
+                                                                                                            SearchForTwitterInit(tabparent,query);
+                                                                                                            }
+                                                                                                    };
+                                                                                                    tabparent.addTab(query, tab);
+                                                                                                    }
+                                                                                                    gadgets.util.registerOnLoadHandler(init);
+                                                                                                    </script>
+        ]]>
 
   </Content>
 </Module>
