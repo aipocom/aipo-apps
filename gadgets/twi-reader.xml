@@ -71,7 +71,7 @@
         float:left;
         font-size:80%;
         *font-size:75%;
-        color:#909090;
+        color:#434343;
         width:350px;
       }
 
@@ -98,6 +98,9 @@
       }
       .timeline strong{
       	font-size:110%;
+      }
+      .twi_icon{
+      margin:0 5px 0 5px;
       }
     </style>
     <div id="content" class="aipostyle" style="height:432px;overflow: scroll;overflow-x: hidden;"></div>
@@ -166,7 +169,7 @@
 <hr id='" + res.id_str + "'>\
 <div class='timeline clearfix' id='post_" + res.id_str + "'>\
 <div class='main'>\
-<div class='body'><img src=' "+res.profile_image_url+"' alt='アイコン' align='left' /><span class='name'>\
+<div class='body'><img class='twi_icon' src=' "+res.profile_image_url+"' alt='アイコン' align='left' /><span class='name'>\
 <a target='_blank' href='" + profileURL + res.from_user + "'>" + res.from_user + "<\/a><\/span>" + text + "\
 <\/div>\
 <div class='clearfix'>\
