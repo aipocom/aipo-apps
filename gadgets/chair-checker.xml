@@ -23,47 +23,24 @@
     </UserPref>
     <Content type="html"><![CDATA[
         <div class="aipostyle">
-<style>
-.borderNone{border:none;}
-.borderNone th{border:none;}
-.borderNone td{border:none;}
-.pb5{padding-bottom:5px;}
-.mb5{margin-bottom:5px;}
-.fs10_g{font-size:10px; color:#555;}
-.middle{vertical-align:middle;}
-</style>
-<table class="wide borderNone">
-<tbody>
-<tr>
-<td class="borderNone pb5" nowrap><button style="margin-right:10px;" onclick="clickSubmit('在席')">在席</button><button onclick="clickSubmit('外出')">外出</button></td>
-<td style="border:none; padding-bottom:5px;" align="right" nowrap><button onclick="repaint()">更新</button></td>
-</tr>
-<tr>
-<td class="borderNone pb5" colspan="2" nowrap><input type="text" id="comment" style="width:100%;" onfocus="if (this.value == 'コメントを書く') this.value = '';" onblur="if (this.value == '') this.value = 'コメントを書く';" value="コメントを書く" /></td>
-</tr>
-</tbody>
-</table>
-<hr />
-
-<select style="margin:7px 0 10px;">
-<option>（全体）</option>
-<option>営業本部</option>
-<option>開発本部</option>
-<option>企画本部</option>
-<option>アルバイトグループA</option>
-</select>
-
-<table class="borderNone form wide" id="status">
-<tbody>
-
-</tbody>
-</table>
-<div>
-<a href="#" onclick="clickPageChange('pre')" id="page_pre">&lt;&lt;前のページ</a>
-<a href="#" onclick="clickPageChange('next')" id="page_next">次のページ&gt;&gt;</a>
-</div>
-</div>
-</div>
+            <div>
+                <label>コメント：<input type="text" id="comment" /></label>
+                <button onclick="clickSubmit('在席')">在席</button>
+                <button onclick="clickSubmit('外出')">外出</button>
+                <button onclick="repaint()">更新</button>
+            </div>
+            <div align="right">
+                <a href="#" onclick="clickPageChange('pre')" id="page_pre">&lt;&lt;前のページ</a>
+                <a href="#" onclick="clickPageChange('next')" id="page_next">次のページ&gt;&gt;</a>
+                <table class="form wide" id="status">
+                    <tr>
+                        <th>ユーザー</th>
+                        <th>状態</th>
+                        <th>コメント</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
 
         <script type="text/javascript">
             gadgets.util.registerOnLoadHandler(init);
@@ -168,19 +145,24 @@
                     osapi.appdata.get({ userId: userIds ,fields: ['type','comment','date'] }).execute(function(response) {
                         // テーブルの初期化
                         table.innerHTML = "\
-
+                            <tr>\
+                                <th>ユーザー</th>\
+                                <th>状態</th>\
+                                <th>日時</th>\
+                                <th>コメント</th>\
+                            </tr>\
                         ";
                         // ユーザーID、アプリデータの連想配列
                         for (var userId in response) {
                             var data = response[userId];
                             // データの表示
                             table.innerHTML += "\
-																												<tr>\
-<td valign="top" class="pb5" width="15" nowrap><img src="img/icon/icon_zaiseki_off.png" alt=""+data["type"]+"" width="15" height="15" class="middle" /></td>\
-<td valign="top" style="padding:0 5px 5px 0;" nowrap>"+users[userId].displayName+"</td>\
-<td valign="top" class="pb5 fs10_g" nowrap>"+getDate(data["date"])+"</td>\
-<td valign="top" class="pb5 fs10_g">（"+data["comment"]+"）</td>\
-</tr>\
+                                <tr>\
+                                    <td>"+users[userId].displayName+"</td>\
+                                    <td>"+data["type"]+"</td>\
+                                    <td>"+getDate(data["date"])+"</td>\
+                                    <td>"+data["comment"]+"</td>\
+                                </tr>\
                             ";
                         }
                         // ウインドウの幅再調整
