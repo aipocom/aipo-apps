@@ -1,22 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-<ModulePrefs title="Aipo Version">
-<Require feature="osapi" />
-<Require feature="dynamic-height" />
-</ModulePrefs>
-<Content type="html"><![CDATA[
-<div id="result"></div>
-<script type="text/javascript">
-var callback = function(response){
-     var version = response;
-    document.getElementById('result').innerHTML = version;
-    gadgets.window.adjustHeight();
-}
-try{
-    osapi.aipo.version().execute(callback);
-}catch( e ){
-  callback( '6.0.0.0' );
-}
-</script>
-]]></Content>
+    <ModulePrefs
+            title="Aipoバージョン情報取得サンプル"
+            description="Aipoのバージョン情報を取得するためのサンプルガジェットです。" height="18">
+        <Require feature="osapi"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="aipostyle"/>
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+        <div class="aipostyle">
+            <div id="result"></div>
+        </div>
+        <script type="text/javascript">
+
+            function init() {
+                var callback = function(response) {
+                    var version = response;
+                    document.getElementById('result').innerHTML = version;
+                    gadgets.window.adjustHeight();
+                }
+                try {
+                    osapi.aipo.version().execute(callback);
+                } catch(e) {
+                    callback('6.0.0.0');
+                }
+            }
+
+            gadgets.util.registerOnLoadHandler(init);
+
+        </script>
+        ]]></Content>
 </Module>
