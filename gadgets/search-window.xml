@@ -21,10 +21,9 @@
     <UserPref name="5_url" display_name="検索5 url" datatype="string"
               default_value=""/>
     <Content type="html"><![CDATA[
-
-        <div class = "aipostyle">
+        <div class="aipostyle">
             <div id="content"></div>
-            <div id = "formContent">
+            <div id="formContent">
                 <form id="form" name="form" action="#">
                     <table class="wide">
                         <tr>
@@ -45,7 +44,7 @@
         </div>
 
         <style type="text/css">
-        
+
         </style>
 
         <script type="text/javascript">
@@ -53,18 +52,15 @@
             var prefs = new gadgets.Prefs();
             var msg = new gadgets.MiniMessage();
 
-            function SetEngine()
-            {
+            function SetEngine() {
                 var resultHtml = "\<option value='all'>（全て）<\/option>";
-                for (var i = 1; i <= 10; i++)
-                {
+                for (var i = 1; i <= 10; i++) {
 
                     var url = prefs.getString(i + "_url");
                     var title = prefs.getString(i + "_title");
 
-                    if(url)
-                    {
-                    resultHtml += "\<option value=" + url + ">" + title + "<\/option>";
+                    if (url) {
+                        resultHtml += "\<option value=" + url + ">" + title + "<\/option>";
                     }
 
                 }
@@ -72,64 +68,54 @@
             }
 
             function showValidateErrorMessage(text) {
-                    var timerMsg = msg.createTimerMessage(text, 3, function() {
+                var timerMsg = msg.createTimerMessage(text, 3, function() {
                     msg.dismissMessage(timerMsg);
                     gadgets.window.adjustHeight();
-                    });
-            gadgets.window.adjustHeight();
+                });
+                gadgets.window.adjustHeight();
             }
 
             function initForm() {
 
-                    document.form.onsubmit = function()
-                    {
+                document.form.onsubmit = function() {
 
-                        var query = document.form.query.value;
-                        if (!query)
-                        {
-                            showValidateErrorMessage("検索ワードを入力してください。");
-                            return false;
-                        }
-
-                        var url = document.form.engines.value;
-
-                        if(url == "all")
-                        {
-                            for(var i = 1; i <= 10; i++)
-                            {
-                                var _url = prefs.getString(i + "_url");
-                                if(_url)
-                                {
-                                    window.open(getSearchUrl(_url, query), '_blank');
-                                }
-                            }
-                        }
-                        else
-                        {
-                            window.open(getSearchUrl(url, query), '_blank');
-                        }
-
+                    var query = document.form.query.value;
+                    if (!query) {
+                        showValidateErrorMessage("検索ワードを入力してください。");
                         return false;
                     }
+
+                    var url = document.form.engines.value;
+
+                    if (url == "all") {
+                        for (var i = 1; i <= 10; i++) {
+                            var _url = prefs.getString(i + "_url");
+                            if (_url) {
+                                window.open(getSearchUrl(_url, query), '_blank');
+                            }
+                        }
+                    }
+                    else {
+                        window.open(getSearchUrl(url, query), '_blank');
+                    }
+
+                    return false;
+                }
             }
 
-            function getSearchUrl(url, query)
-            {
-            
-                if(url.indexOf("yahoo") != -1)
-                {
-                        url += "?p=" + encodeURI(query);
+            function getSearchUrl(url, query) {
+
+                if (url.indexOf("yahoo") != -1) {
+                    url += "?p=" + encodeURI(query);
                 }
-                else
-                {
-                        url += "?q=" + encodeURI(query);
+                else {
+                    url += "?q=" + encodeURI(query);
                 }
 
                 return url;
             }
 
-            function init()
-            {
+            function init() {
                 initForm();
                 SetEngine();
                 gadgets.window.adjustHeight();
