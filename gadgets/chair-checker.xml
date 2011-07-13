@@ -22,27 +22,56 @@
     </UserPref>
     <Content type="html"><![CDATA[
         <style>
-            .borderNone{border:none;}
-            .borderNone th{border:none;}
-            .borderNone td{border:none;}
-            .pb5{padding-bottom:5px;}
-            .mb5{margin-bottom:5px;}
-            .fs10_g{font-size:10px; color:#555;}
-            .middle{vertical-align:middle;}
+            .borderNone {
+                border: none;
+            }
+
+            .borderNone th {
+                border: none;
+            }
+
+            .borderNone td {
+                border: none;
+            }
+
+            .pb5 {
+                padding-bottom: 5px;
+            }
+
+            .mb5 {
+                margin-bottom: 5px;
+            }
+
+            .fs10_g {
+                font-size: 10px;
+                color: #555;
+            }
+
+            .middle {
+                vertical-align: middle;
+            }
         </style>
         <div class="aipostyle">
             <table class="wide borderNone">
                 <tbody>
                 <tr>
-                    <td class="borderNone pb5" nowrap><input type="button" style="margin-right:10px;" value="在席" onclick="eventSubmit('on')" /><input type="button" value="外出" onclick="eventSubmit('off')" /></td>
-                    <td style="border:none; padding-bottom:5px;" align="right" nowrap><input type="button" value="更新" onclick="repaint()" /></td>
+                    <td class="borderNone pb5" nowrap><input type="button" style="margin-right:10px;" value="在席"
+                                                             onclick="eventSubmit('on')"/><input type="button"
+                                                                                                 value="外出"
+                                                                                                 onclick="eventSubmit('off')"/>
+                    </td>
+                    <td style="border:none; padding-bottom:5px;" align="right" nowrap><input type="button" value="更新"
+                                                                                             onclick="repaint()"/></td>
                 </tr>
                 <tr>
-                    <td class="borderNone pb5" colspan="2" nowrap><input type="text" style="width:98%;color:gray;" onfocus="eventCommentFocus()" onblur="eventCommentBlur()" maxlength=100 id="comment" /></td>
+                    <td class="borderNone pb5" colspan="2" nowrap><input type="text" style="width:98%;color:gray;"
+                                                                         onfocus="eventCommentFocus()"
+                                                                         onblur="eventCommentBlur()" maxlength=100
+                                                                         id="comment"/></td>
                 </tr>
                 </tbody>
             </table>
-            <hr />
+            <hr/>
 
             <select style="margin:7px 0 10px;" id="groups" onchange="eventGroupSelect()">
             </select>
@@ -56,263 +85,296 @@
         <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
         </script>
         <script type="text/javascript">
-            gadgets.util.registerOnLoadHandler(init);
+        gadgets.util.registerOnLoadHandler(init);
 
-            var groups=null;
+        var groups = null;
 
-            var commentCheck=false;
-            var commentNotice="コメントを書く（100文字まで）";
+        var commentCheck = false;
+        var commentNotice = "コメントを書く（100文字まで）";
 
-            var table=null;
-            var page_pre=null;
-            var page_next=null;
-            var prefs = new gadgets.Prefs();
-            var page=0;
-            var pageCount=0;
+        var table = null;
+        var page_pre = null;
+        var page_next = null;
+        var prefs = new gadgets.Prefs();
+        var page = 0;
+        var pageCount = 0;
 
-            var icon_on="http://aipo-apps.googlecode.com/svn/trunk/gadgets/chair-checker/img/icon/icon_zaiseki_on.png" // 在席アイコン
-            var icon_off="http://aipo-apps.googlecode.com/svn/trunk/gadgets/chair-checker/img/icon/icon_zaiseki_off.png" // 外出アイコン
-            var icon_alt_on="在席";
-            var icon_alt_off="外出";
+        var icon_on = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_on.png" // 在席アイコン
+        var icon_off = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_off.png" // 外出アイコン
+        var icon_none = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_off.png" // 未打刻アイコン
+        var icon_alt_on = "在席";
+        var icon_alt_off = "外出";
+        var icon_alt_none = "未打刻";
 
-            /*
-             * init
-             */
-            function init(){
-                // コメント
-                eventCommentBlur();
-                // グループの読み込み
-                osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
-                    groups = response.list;
-                    groups.unshift({id:{groupId:'@all'},title:'全体'});
-                    changeGroupList();
-                    eventGroupSelect();
-                });
+        /*
+         * init
+         */
+        function init() {
+            // コメント
+            eventCommentBlur();
+            // グループの読み込み
+            osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
+                groups = response.list;
+                groups.unshift({id:{groupId:'@all'},title:'全体'});
+                changeGroupList();
+                eventGroupSelect();
+            });
+        }
+
+        /*
+         * submit
+         */
+        function eventSubmit(type) {
+            // フォームから値の取得
+            var comment = $("#comment").val();
+            if (!commentCheck && comment == commentNotice) {
+                comment = "";
             }
-
-            /*
-             * submit
-             */
-            function eventSubmit(type){
-                // フォームから値の取得
-                var comment = $("#comment").val();
-                if(!commentCheck && comment==commentNotice){comment="";}
-                // 時間の取得
-                var date = (new Date()).getTime()+"";
-                // バリデート
-                if(comment.length>100){comment=comment.substr(0,100);}
-                type = gadgets.util.escapeString(type);
-                comment = gadgets.util.escapeString(comment);
-                date = gadgets.util.escapeString(date);
-                // データの作成
-                var data = { type: type, comment: comment, date: date };
-                
-                // データの保存
-                osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
-                    // minimessage
-                    var msg = new gadgets.MiniMessage();
-                    msg.createTimerMessage("送信しました。",3,function(){gadgets.window.adjustHeight();return true;});
-                    // データの再表示
-                    repaint();
-                });
+            // 時間の取得
+            var date = (new Date()).getTime() + "";
+            // バリデート
+            if (comment.length > 100) {
+                comment = comment.substr(0, 100);
             }
+            type = gadgets.util.escapeString(type);
+            comment = gadgets.util.escapeString(comment);
+            date = gadgets.util.escapeString(date);
+            // データの作成
+            var data = { type: type, comment: comment, date: date };
 
-            /*
-             * ページの変更
-             */
-            function eventPageChange(num){
-                page=num;
-                // 再描画
+            // データの保存
+            osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
+                // minimessage
+                var msg = new gadgets.MiniMessage();
+                msg.createTimerMessage("送信しました。", 3, function() {
+                    gadgets.window.adjustHeight();
+                    return true;
+                });
+                // データの再表示
                 repaint();
-            }
-            /*
-             *
-             */
-            function eventGroupSelect(){
-                // ページの変更(データの表示)
-                setPageCount(function(){
-                    createPager(pageCount,0,eventPageChange);
-                    eventPageChange(0);
-                });
-            }
-            function eventCommentFocus(){
-                if(!commentCheck && $("#comment").val()==commentNotice){$("#comment").val("");commentCheck=true;}
-                $("#comment").css("color","black");
-            }
-            function eventCommentBlur(){
-                if($("#comment").val()==""){
-                    $("#comment").val(commentNotice);
-                    commentCheck=false;
-                    $("#comment").css("color","gray");
-                }
+            });
+        }
 
+        /*
+         * ページの変更
+         */
+        function eventPageChange(num) {
+            page = num;
+            // 再描画
+            repaint();
+        }
+        /*
+         *
+         */
+        function eventGroupSelect() {
+            // ページの変更(データの表示)
+            setPageCount(function() {
+                createPager(pageCount, 0, eventPageChange);
+                eventPageChange(0);
+            });
+        }
+        function eventCommentFocus() {
+            if (!commentCheck && $("#comment").val() == commentNotice) {
+                $("#comment").val("");
+                commentCheck = true;
             }
-            /*
-             * ページカウントを取得する
-             */
-            function setPageCount(callback){
-                var index = page * getPrefRows();
-                var groupId = groups[$("#groups").val()].id.groupId;
-                osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index }).execute(function(response) {
-                    var len = response.list.length;
-                    pageCount = len/getPrefRows();
-                    callback();
-                });
-            }
-            /*
-             * グループリストを変更
-             */
-            function changeGroupList(){
-                $("#groups").html("");
-                for(var i in groups){
-                    $("#groups").html($("#groups").html()+'<option value="'+i+'">'+groups[i].title+'</option>');
-                }
+            $("#comment").css("color", "black");
+        }
+        function eventCommentBlur() {
+            if ($("#comment").val() == "") {
+                $("#comment").val(commentNotice);
+                commentCheck = false;
+                $("#comment").css("color", "gray");
             }
 
-            /*
-             * テーブルの再描画
-             */
-            function repaint(){
-                // ユーザーの読み込み
-                var index = page * getPrefRows();
-                var groupId = groups[$("#groups").val()].id.groupId;
-                osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index, count:getPrefRows() }).execute(function(response) {
-                    var users=[];
-                    var userIds=[];
-                    var userData=[];
-                    
-                    var list = response.list;
-                    for(var i in list){
-                        users[list[i].id] = list[i];
-                        userIds.push(list[i].id);
-                        // 初期値
-                        userData[list[i].id] = '\
+        }
+        /*
+         * ページカウントを取得する
+         */
+        function setPageCount(callback) {
+            var index = page * getPrefRows();
+            var groupId = groups[$("#groups").val()].id.groupId;
+            osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index }).execute(function(response) {
+                var len = response.list.length;
+                pageCount = len / getPrefRows();
+                callback();
+            });
+        }
+        /*
+         * グループリストを変更
+         */
+        function changeGroupList() {
+            $("#groups").html("");
+            for (var i in groups) {
+                $("#groups").html($("#groups").html() + '<option value="' + i + '">' + groups[i].title + '</option>');
+            }
+        }
+
+        /*
+         * テーブルの再描画
+         */
+        function repaint() {
+            // ユーザーの読み込み
+            var index = page * getPrefRows();
+            var groupId = groups[$("#groups").val()].id.groupId;
+            osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index, count:getPrefRows() }).execute(function(response) {
+                var users = [];
+                var userIds = [];
+                var userData = [];
+
+                var list = response.list;
+                for (var i in list) {
+                    users[list[i].id] = list[i];
+                    userIds.push(list[i].id);
+                    // 初期値
+                    userData[list[i].id] = '\
 <tr>\
-    <td valign="top" class="pb5" width="15" nowrap>?</td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>'+users[list[i].id].displayName+'</td>\
+    <td valign="top" class="pb5" width="15" nowrap><img src="' + icon_none + '" alt="' + icon_alt_none + '" width="15" height="15" class="middle" /></td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[list[i].id].displayName + '</td>\
+</tr>\
+                            ';
+                }
+                // データの取得
+                osapi.appdata.get({ userId: userIds ,fields: ['type','comment','date'] }).execute(function(response) {
+                    // ユーザーID、アプリデータの連想配列
+                    for (var userId in response) {
+                        var data = response[userId];
+                        // 在席アイコン
+                        var icon = icon_off;
+                        var icon_alt = icon_alt_off;
+                        if (data["type"] == "on") {
+                            icon = icon_on;
+                            icon_alt = icon_alt_on;
+                        }
+                        else if (data["type"] == "off") {
+                            icon = icon_off;
+                            icon_alt = icon_alt_off;
+                        }
+                        // データの作成
+                        userData[userId] = '\
+<tr>\
+    <td valign="top" class="pb5" width="15" nowrap><img src="' + icon + '" alt="' + icon_alt + '" width="15" height="15" class="middle" /></td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[userId].displayName + '</td>\
+    <td valign="top" class="pb5 fs10_g" nowrap>' + getDate(data["date"]) + '</td>\
+    <td valign="top" class="pb5 fs10_g">' + data["comment"] + '</td>\
 </tr>\
                             ';
                     }
-                    // データの取得
-                    osapi.appdata.get({ userId: userIds ,fields: ['type','comment','date'] }).execute(function(response) {
-                        // ユーザーID、アプリデータの連想配列
-                        for (var userId in response) {
-                            var data = response[userId];
-                            // 在席アイコン
-                            var icon = icon_off;
-                            var icon_alt = icon_alt_off;
-                            if(data["type"]=="on"){icon=icon_on;icon_alt=icon_alt_on;}
-                            else if(data["type"]=="off"){icon=icon_off;icon_alt=icon_alt_off;}
-                            // データの作成
-                            userData[userId] = '\
-<tr>\
-    <td valign="top" class="pb5" width="15" nowrap><img src="'+icon+'" alt="'+icon_alt+'" width="15" height="15" class="middle" /></td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>'+users[userId].displayName+'</td>\
-    <td valign="top" class="pb5 fs10_g" nowrap>'+getDate(data["date"])+'</td>\
-    <td valign="top" class="pb5 fs10_g">'+data["comment"]+'</td>\
-</tr>\
-                            ';
-                        }
-                        // テーブルの初期化
-                        $("#status").html("");
-                        // データの表示
-                        for(var id in userData){
-                            $("#status").html($("#status").html()+userData[id]);
-                        }
-                        // ウインドウの幅再調整
-                        gadgets.window.adjustHeight();
-                    });
-                });
-            }
-
-            /*
-             * 引数で与えられた時刻を整形して返す
-             * @param time 1900年からのms
-             */
-            function getDate(time){
-                var date = getDateArray(time);
-                var date_now = getDateArray((new Date()).getTime());
-
-                // 整形して返す
-                if(date.year == date_now.year){
-                    if(date.month == date_now.month && date.day == date_now.day){
-                        return date.hour+"："+date.minute;
-                    }else{
-                        return date.month+"/"+date.day;
+                    // テーブルの初期化
+                    $("#status").html("");
+                    // データの表示
+                    for (var id in userData) {
+                        $("#status").html($("#status").html() + userData[id]);
                     }
-                }else{
-                    return date.year+"/"+date.month+"/"+date.day;
+                    // ウインドウの幅再調整
+                    gadgets.window.adjustHeight();
+                });
+            });
+        }
+
+        /*
+         * 引数で与えられた時刻を整形して返す
+         * @param time 1900年からのms
+         */
+        function getDate(time) {
+            var date = getDateArray(time);
+            var date_now = getDateArray((new Date()).getTime());
+
+            // 整形して返す
+            if (date.year == date_now.year) {
+                if (date.month == date_now.month && date.day == date_now.day) {
+                    return date.hour + "：" + date.minute;
+                } else {
+                    return date.month + "/" + date.day;
                 }
+            } else {
+                return date.year + "/" + date.month + "/" + date.day;
             }
-            /*
-             * 時刻を配列で返す
-             * @param time 1900年からの秒数
-             * @return date[] [time,year,month,day,week,hour,minute]
-             * ex) date.year
-             */
-            function getDateArray(time){
-                var r={};
-                var weeks = new Array('日','月','火','水','木','金','土');
+        }
+        /*
+         * 時刻を配列で返す
+         * @param time 1900年からの秒数
+         * @return date[] [time,year,month,day,week,hour,minute]
+         * ex) date.year
+         */
+        function getDateArray(time) {
+            var r = {};
+            var weeks = new Array('日', '月', '火', '水', '木', '金', '土');
 
-                var date = new Date();
-                date.setTime(time);
-                r.time = time;
+            var date = new Date();
+            date.setTime(time);
+            r.time = time;
 
-                r.year = date.getYear();
-                r.month = date.getMonth() + 1;
-                r.day = date.getDate();
-                r.week = weeks[ date.getDay() ];
-                r.hour = date.getHours();
-                r.minute = date.getMinutes();
+            r.year = date.getYear();
+            r.month = date.getMonth() + 1;
+            r.day = date.getDate();
+            r.week = weeks[ date.getDay() ];
+            r.hour = date.getHours();
+            r.minute = date.getMinutes();
 
-                if(r.year < 2000) { r.year += 1900; }
-
-                // 頭に0を付ける
-                if(r.month < 10) { r.month = "0" + r.month; }
-                if(r.day < 10) { r.day = "0" + r.day; }
-                if(r.hour < 10) { r.hour = "0" + r.hour; }
-                if(r.minute < 10) { r.minute = "0" + r.minute; }
-
-                return r;
+            if (r.year < 2000) {
+                r.year += 1900;
             }
-            /*
-             * 設定の読み込み
-             */
-            function getPrefRows(name){
-                // 設定の読み込み
-                var currentView = gadgets.views.getCurrentView();
-                if(currentView.getName()=="home"){
-                    return prefs.getInt("p1-homeRows");
-                }else{
-                    return prefs.getInt("p2-canvasRows");
-                }
+
+            // 頭に0を付ける
+            if (r.month < 10) {
+                r.month = "0" + r.month;
             }
-            /*
-             * id=pagerにページャを作成
-             * @param pageCount（ページ数）,currentPage（現在のページ番号）,callback
-             */
-            var pager_callback=function(){};
-            function createPager(pageCount,currentPage,callback){
-                pager_callback=callback;
+            if (r.day < 10) {
+                r.day = "0" + r.day;
+            }
+            if (r.hour < 10) {
+                r.hour = "0" + r.hour;
+            }
+            if (r.minute < 10) {
+                r.minute = "0" + r.minute;
+            }
+
+            return r;
+        }
+        /*
+         * 設定の読み込み
+         */
+        function getPrefRows(name) {
+            // 設定の読み込み
+            var currentView = gadgets.views.getCurrentView();
+            if (currentView.getName() == "home") {
+                return prefs.getInt("p1-homeRows");
+            } else {
+                return prefs.getInt("p2-canvasRows");
+            }
+        }
+        /*
+         * id=pagerにページャを作成
+         * @param pageCount（ページ数）,currentPage（現在のページ番号）,callback
+         */
+        var pager_callback = function() {
+        };
+        function createPager(pageCount, currentPage, callback) {
+            pager_callback = callback;
+            var str = '';
+            if (pageCount > 1) {
                 var str = '<div class="clearfix"><ul class="pagination">';
                 // 初期化
                 $("<div></div>")
-                for(var i=0;i<pageCount;i++){
+                for (var i = 0; i < pageCount; i++) {
                     if (i == currentPage) {
                         str += '<li class="selected">';
                     } else {
                         str += '<li>';
                     }
-                    str += '<a href="javascript:void(0);" onclick="eventPager(\''+i.toString()+'\')">';
-                    str += (i+1).toString()+'</a></li>';
+                    str += '<a href="javascript:void(0);" onclick="eventPager(\'' + i.toString() + '\')">';
+                    str += (i + 1).toString() + '</a></li>';
                 }
                 str += '</ul></div>';
-                // pagerに登録
-                $("#pager").html(str);
             }
-            function eventPager(page){
-                pager_callback(page);
-            }
+            // pagerに登録
+            $("#pager").html(str);
+        }
+        function eventPager(page) {
+            pager_callback(page);
+            createPager(pageCount, page, pager_callback);
+        }
         </script>
-    ]]></Content>
+        ]]></Content>
 </Module>
