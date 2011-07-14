@@ -5,6 +5,7 @@
         <Require feature="minimessage"/>
         <Require feature="tabs"/>
         <Optional feature="aipostyle"/>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/twi-reader/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <UserPref name="query1" display_name="検索ワード1" datatype="string" default_value="#nhk_news"/>
     <UserPref name="query2" display_name="検索ワード2" datatype="string" default_value="tenkijp"/>

@@ -4,6 +4,7 @@
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>
         <Optional feature="aipostyle"/>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/search-window/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <UserPref name="1_title" display_name="検索1 タイトル" datatype="string" default_value="google"/>
     <UserPref name="1_url" display_name="検索1 url" datatype="string"

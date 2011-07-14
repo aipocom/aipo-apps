@@ -9,6 +9,7 @@
         <Require feature="tabs"/>
         <Require feature="aipostyle"/>
         <Require feature="osapi"/>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/nomi-iko/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <Content type="html"><![CDATA[
         <style>

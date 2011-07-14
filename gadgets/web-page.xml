@@ -9,6 +9,7 @@
         <Require feature="osapi" />
         <Require feature="setprefs" />
         <Optional feature="aipostyle" />
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/web-page/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <UserPref name="p1url" display_name="URL" datatype="string" />
     <UserPref name="p2homeHeight" display_name="ページの高さ（通常時）" datatype="string"  default_value="300" />
