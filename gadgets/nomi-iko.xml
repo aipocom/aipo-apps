@@ -49,7 +49,7 @@
                                                       onfocus="eventCommentFocus()"
                                                       onblur="eventCommentBlur()" maxlength=100
                                                       id="comment"/><input type="button" value="投稿する"
-                                                      onclick="eventSubmit()"/>
+                                                                           onclick="eventSubmit()"/>
                     </td>
                 </tr>
                 </tbody>
