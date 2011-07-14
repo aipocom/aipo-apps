@@ -56,27 +56,31 @@
             <table class="wide borderNone">
                 <tbody>
                 <tr>
-                    <td class="borderNone pb5" nowrap><input type="button" style="margin-right:10px;" value="在席"
+                    <td class="borderNone pb5"><input type="text" style="width:98%;color:black;"
+                                                      onfocus="eventCommentFocus()"
+                                                      onblur="eventCommentBlur()" maxlength=100
+                                                      id="comment"/></td>
+                    <td class="borderNone pb5" nowrap><input type="button" style="margin-right:3px;" value="在席"
                                                              onclick="eventSubmit('on')"/><input type="button"
                                                                                                  value="外出"
                                                                                                  onclick="eventSubmit('off')"/>
                     </td>
-                    <td style="border:none; padding-bottom:5px;" align="right" nowrap><input type="button" value="更新"
-                                                                                             onclick="repaint()"/></td>
-                </tr>
-                <tr>
-                    <td class="borderNone pb5" colspan="2" nowrap><input type="text" style="width:98%;color:gray;"
-                                                                         onfocus="eventCommentFocus()"
-                                                                         onblur="eventCommentBlur()" maxlength=100
-                                                                         id="comment"/></td>
                 </tr>
                 </tbody>
             </table>
             <hr/>
-
-            <select style="margin:7px 0 10px;" id="groups" onchange="eventGroupSelect()">
-            </select>
-            <table class="borderNone">
+            <table class="wide borderNone" style="margin:5px 0 15px;">
+                <tbody>
+                <tr>
+                    <td nowrap="">
+                        <select style="margin:7px 0 10px;" id="groups" onchange="eventGroupSelect()">
+                        </select></td>
+                    <td nowrap="" align="right"><input type="button" value="更新"
+                                                       onclick="repaint()"/></td>
+                </tr>
+                </tbody>
+            </table>
+            <table class="borderNone" style="margin-bottom:15px;">
                 <tbody id="status">
                 </tbody>
             </table>
@@ -256,7 +260,7 @@
 <tr>\
     <td valign="top" class="pb5" width="15" nowrap><img src="' + icon + '" alt="' + icon_alt + '" width="15" height="15" class="middle" /></td>\
     <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[userId].displayName + '</td>\
-    <td valign="top" class="pb5 fs10_g" nowrap>' + getDate(data["date"]) + '</td>\
+    <td valign="top" class="pb5 fs10_g" nowrap style="padding-right:5px;">' + getDate(data["date"]) + '</td>\
     <td valign="top" class="pb5 fs10_g">' + data["comment"] + '</td>\
 </tr>\
                             ';
