@@ -1,366 +1,367 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-    <ModulePrefs title="飲みイコ!test">
+    <ModulePrefs
+            title="飲みイコ"
+            description="簡易アンケートアプリです。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>
-        <Require feature="osapi"/>
-        <Require feature="setprefs"/>
-        <Require feature="jquery"/>
         <Require feature="tabs"/>
-        <Optional feature="aipostyle"/>
+        <Require feature="aipostyle"/>
+        <Require feature="osapi"/>
     </ModulePrefs>
+    <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <UserPref name="p2-canvasRows" display_name="表示件数（最大化時）" datatype="enum" default_value="10">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
     <Content type="html"><![CDATA[
-        <span id="user"></span>さん、企画を入力してください。1808<br><br>
+        <style>
+            .borderNone {
+                border: none;
+            }
+
+            .borderNone th {
+                border: none;
+            }
+
+            .borderNone td {
+                border: none;
+            }
+
+            .pb5 {
+                padding-bottom: 5px;
+            }
+
+            .mb5 {
+                margin-bottom: 5px;
+            }
+
+            .fs10_g {
+                font-size: 10px;
+                color: #555;
+            }
+
+            .middle {
+                vertical-align: middle;
+            }
+        </style>
         <div class="aipostyle">
-            <div id="tabContainer"></div>
-            <div id="ospaiContent">
-                <form name="form" action="">
-                    <hr/>
-                    <table class="form wide">
-                        <tr>
-                            <th>企画</th>
-                            <td colspan="2"><input class="text 275" type="text" name="title"/></td>
-                        </tr>
-                        <tr>
-                            <th>内容</th>
-                            <td colspan="2"><textarea style="width:100%" rows="10" type = "text" name="content"></textarea></td>
-                        </tr>
-                        <tr>
-                            <th rowspan="3">誘う人・グループ</th>
-                            <!--              <td>&nbsp</td> <td><div class="memberToChoose"><select size="1" multiple="multiple" style="width:100%" name="tmp_group_from" id="tmp_group_from"></select></div></td>
-                            -->
-                            <td>&nbsp</td>
-                            <td><select id="groupSelect" name="group"
-                                        onchange="fetchPeople(this.options[this.selectedIndex].value, 0);">
-                                <!--                                    onchange="fetchPeople(this.options[this.selectedIndex].value, 0);">
-                                -->
-                                <option value="@all">読み込み中
-                                </option>
-                            </select></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="memberlistChoosed"><select size="5" multiple="multiple" style="width:100%"
-                                                                       name="memberlist"
-                                                                       id="memberlist"></select></div>
-                            </td>
-                            <td>
-                                <div class="memberlistChoosing"><select size="5" multiple="multiple" style="width:100%"
-                                                                        name="group_to"
-                                                                        id="group_to"></select></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="left"><input type="button" name="deletePerson" value="削除する"
-                                                         onclick="delete_person(memberlist.selectedIndex)"/></div>
-                            </td>
-                            <td>
-                                <div class="left"><input type="button" name="addPerson" value="＜＜追加する"
-                                                         onclick="add_person(group_to.selectedIndex)"/></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>締切り日時</th>
-                            <td colspan="2"><input type="text" size="6" maxlength="2" name="mm">月
-                                <input type="text" size="6" maxlength="2" name="dd">日
-                            </td>
-                        </tr>
-                    </table>
-                    <div class="center"><input type="submit" name="submit" value="送信する"/></div>
-                </form>
-            </div>
-            <div id="tab2">
-                <form name="form2" action="">
-                    <hr/>
-                    <table class="form wide">
-                        <tr>
-                            <th>企画</th>
-                            <td colspan="2"><text class="text 275" type="text" name="title" value=""/></td>
-                        </tr>
-                        <tr>
-                            <th>内容</th>
-                            <td colspan="2"><text style="width:100%" rows="10" type = "text" name="content"></textarea></td>
-                        </tr>
-                        <tr>
-                            <th rowspan="2">誘う人・グループ</th>
-                            <!--              <td>&nbsp</td> <td><div class="memberToChoose"><select size="1" multiple="multiple" style="width:100%" name="tmp_group_from" id="tmp_group_from"></select></div></td>
-                            -->
-                            <td>&nbsp</td>
-                            <td><text id="groupSelect" name="group"
-                                        onchange="fetchPeople(this.options[this.selectedIndex].value, 0);">
-                                <!--                                    onchange="fetchPeople(this.options[this.selectedIndex].value, 0);">
-                                -->
-                                <option value="@all">読み込み中
-                                </option>
-                            </select></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="memberlistChoosed"><text size="5" multiple="multiple" style="width:100%"
-                                                                       name="memberlist"
-                                                                       id="memberlist"></text></div>
-                            </td>
-                            <td>
-                                <div class="memberlistChoosing"><text size="5" multiple="multiple" style="width:100%"
-                                                                        name="group_to"
-                                                                        id="group_to"></text></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>締切り日時</th>
-                            <td colspan="2"><text type="text" size="6" maxlength="2" name="mm">月
-                                <text type="text" size="6" maxlength="2" name="dd">日
-                            </td>
-                        </tr>
-                    </table>
-                    <div class="center"><input type="submit" name="submit1" value="参加する"/></div>
-                    <div class="center"><input type="submit" name="submit2" value="参加しない"/></div>
-                </form>
-            </div>
-            <div id="tab3">
-                <form name="form3" action="">
-                    <hr/>
-                    <table class="form wide">
-                        <tr>
-                            <th>企画</th>
-                            <td colspan="2"><text class="text 275" type="text" name="title" value=""/></td>
-                        </tr>
-                        <tr>
-                            <th>内容</th>
-                            <td colspan="2"><text style="width:100%" rows="10" type = "text" name="content"></textarea></td>
-                        </tr>
-                        <tr>
-                            <th rowspan="2">誘う人・グループ</th>
-                            <!--              <td>&nbsp</td> <td><div class="memberToChoose"><select size="1" multiple="multiple" style="width:100%" name="tmp_group_from" id="tmp_group_from"></select></div></td>
-                            -->
-                            <td>&nbsp</td>
-                            <td><text id="groupSelect" name="group"
-                                        onchange="fetchPeople(this.options[this.selectedIndex].value, 0);">
-                                <!--                                    onchange="fetchPeople(this.options[this.selectedIndex].value, 0);">
-                                -->
-                                <option value="@all">読み込み中
-                                </option>
-                            </select></td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="memberlistChoosed"><text size="5" multiple="multiple" style="width:100%"
-                                                                       name="memberlist"
-                                                                       id="memberlist"></text></div>
-                            </td>
-                            <td>
-                                <div class="memberlistChoosing"><text size="5" multiple="multiple" style="width:100%"
-                                                                        name="group_to"
-                                                                        id="group_to"></text></div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>締切り日時</th>
-                            <td colspan="2"><text type="text" size="6" maxlength="2" name="mm">月
-                                <text type="text" size="6" maxlength="2" name="dd">日
-                            </td>
-                        </tr>
-                    </table>
-                </form>
-            </div>
+            <table class="wide borderNone">
+                <tbody>
+                <tr>
+                    <td class="borderNone pb5"><input type="text" style="color:gray;"
+                                                      onfocus="eventCommentFocus()"
+                                                      onblur="eventCommentBlur()" maxlength=100
+                                                      id="comment"/></td>
+                    <td class="borderNone pb5"><input type="button" value="投稿する"
+                                                      onclick="eventSubmit()"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <hr/>
+
+            <table class="borderNone">
+                <tbody id="status">
+                </tbody>
+            </table>
+            <div id="pager"></div>
         </div>
 
+        <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
+        </script>
         <script type="text/javascript">
+        gadgets.util.registerOnLoadHandler(init);
 
-            var msg = new gadgets.MiniMessage();
-            var currentGroupId = '@all';
-            var choosingList = new Array();
-            var choosedUserId;
-            var choosedUserName;
-            var tabs1 = new gadgets.TabSet(__MODULE_ID__, null, document.getElementById("tabContainer"));
-            tabs1.alignTabs("left");
+        var groups = null;
 
-            function add_person(selectedIndex) {
-//				alert(selectedIndex);	
-//        		document.form.memberlist.add(document.form.group_to[selectedIndex]);
-//				alert(document.form.memberlist.length);
-                choosedUserId = choosingList[selectedIndex].id;
-                choosedUserName = choosingList[selectedIndex].displayName;
-                var sameName = false;
-                for (var i = 0; i < memberlist.length; i++) {
-                    if (choosedUserName == memberlist[i].text) sameName = true;
-                }
-                if (!sameName) {
-                    document.form.memberlist.options[memberlist.length] = new Option(choosedUserName, choosedUserId);
-                }
-//				document.form.memberlist.add(choosedUserName);
-//        		document.form.memberlist.add(document.form.group_to[selectedIndex]);
+        var commentCheck = false;
+        var commentNotice = "コメントを書く（100文字まで）";
+
+        var table = null;
+        var page_pre = null;
+        var page_next = null;
+        var prefs = new gadgets.Prefs();
+        var page = 0;
+        var pageCount = 0;
+
+        /*
+         * init
+         */
+        function init() {
+            // コメント
+            eventCommentBlur();
+            // グループの読み込み
+            osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
+                groups = response.list;
+                groups.unshift({id:{groupId:'@all'},title:'全体'});
+            });
+            repaint();
+        }
+
+        /*
+         * submit
+         */
+        function eventSubmit() {
+            // フォームから値の取得
+            var comment = $("#comment").val();
+            if (!commentCheck && comment == commentNotice) {
+                comment = "";
             }
-
-            function delete_person(selectedIndex) {
-                document.form.memberlist.remove(selectedIndex);
+            // 時間の取得
+            var date = (new Date()).getTime() + "";
+            // バリデート
+            if (!comment) {
+                msg.createTimerMessage("コメントを入力してください。", 5);
+                gadgets.window.adjustHeight();
+                return false;
+            }
+            if (comment.length  > 100) {
+                msg.createTimerMessage("コメントは100文字までで入力してください。", 5);
+                gadgets.window.adjustHeight();
+                return false;
             }
             
-            function initForm() {
-                var externalId = gadgets.views.getParams()['externalId'];
-                var callback = function(tabId) {
+            comment = gadgets.util.escapeString(comment);
+            date = gadgets.util.escapeString(date);
+            // データの作成
+            var data = { comment: comment, date: date, id: date };
+
+            // データの保存
+            osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
+                // minimessage
+                var msg = new gadgets.MiniMessage();
+                msg.createTimerMessage("送信しました。", 3, function() {
                     gadgets.window.adjustHeight();
-                };
-                tabs1.addTab("タブ1",{
-                  contentContainer: document.getElementById("ospaiContent"),
-                  callback: callback
+                    return true;
                 });
+                // データの再表示
+                repaint();
+            });
+        }
+        function addSubmit(userId) {
 
-                tabs1.addTab("タブ2",{
-                  contentContainer: document.getElementById("tab2"),
-                  callback: callback
+            // データの作成
+            var s = String(userId);
+            var data = { add: s };
+
+            // データの保存
+            osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
+                // minimessage
+                var msg = new gadgets.MiniMessage();
+                msg.createTimerMessage("送信しました。", 3, function() {
+                    gadgets.window.adjustHeight();
+                    return true;
                 });
-                
-                tabs1.addTab("タブ3",{
-                  contentContainer: document.getElementById("tab3"),
-                  callback: callback
-                });
+                // データの再表示
+                repaint();
+            });
+        }
 
-                initOwner();
+        /*
+         * ページの変更
+         */
+        function eventPageChange(num) {
+            page = num;
+            // 再描画
+            repaint();
+        }
 
-                gadgets.window.adjustHeight();
+        function eventCommentFocus() {
+            if (!commentCheck && $("#comment").val() == commentNotice) {
+                $("#comment").val("");
+                commentCheck = true;
+            }
+            $("#comment").css("color", "black");
+        }
+        function eventCommentBlur() {
+            if ($("#comment").val() == "") {
+                $("#comment").val(commentNotice);
+                commentCheck = false;
+                $("#comment").css("color", "gray");
             }
 
-            function initTabs(){
+        }
+        /*
+         * ページカウントを取得する
+         */
+        function setPageCount(callback) {
+            var index = page * getPrefRows();
+            var groupId = groups[$("#groups").val()].id.groupId;
+            osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index }).execute(function(response) {
+                var len = response.list.length;
+                pageCount = len / getPrefRows();
+                callback();
+            });
+        }
 
+        function getPrefRows() {
+            var currentView = gadgets.views.getCurrentView();
+            if (currentView.getName() == "home") {
+                return prefs.getInt("p1-homeRows");
+            } else {
+                return prefs.getInt("p2-canvasRows");
             }
+        }
 
-            function initClient(){
-                document.form.title.text = "externalIdによって表示変更";
-            }
+        /*
+         * テーブルの再描画
+         */
+        function repaint() {
+            // ユーザーの読み込み
+            var index = page * getPrefRows();
+            osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex:index, count:getPrefRows() }).execute(function(response) {
+                var users = [];
+                var userIds = [];
+                var userData = [];
+                var adds = [];
+                var adds_users = [];
 
-            function initOwner(){
-                osapi.people.getViewer().execute(function (response) {
-                    document.getElementById("user").innerHTML = response.displayName;
-                });
-
-//                osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
-//                    var groups = response.list;
-//                    var grouplist = "";
-//                    for (var i in groups) {
-//                        grouplist = grouplist + '<option value="groups[i].id.groupId">' + groups[i].title + '</option>';
-//                        var groupId = groups[i].id.groupId;
-//                        var title = groups[i].title;
-//                        var type = groups[i].type;
-//                    }
-//                    document.getElementById("tmp_group_from").innerHTML = grouplist;
-//                });
-
-                //送信が押されたときの動作
-                document.form.onsubmit = function() {
-//				var callback = function(response) {
-//                        if (response.error) {
-//                            msg.createTimerMessage("アクティビティの保存に失敗しました。", 5);
-//                        } else {
-//                            msg.createTimerMessage("アクティビティを送信しました。", 5);
-//                           gadgets.window.adjustHeight();
-//                            document.form.title.value = "";
-//                        }
-//                 };
-                    var title = document.form.title.value;
-                    var memberlist = document.form.memberlist;
-                    var recipients = new Array();
-                    var text = document.form.content.value;
-                    var mm = document.form.mm.value;
-                    var dd = document.form.dd.value;
-
-                    for (var i = 0; i < memberlist.length; i++) {
-                        recipients.push(memberlist[i].value);
-                    }
-                    if (!title) {
-                        msg.createTimerMessage("タイトルを入力してください。", 5);
-                        gadgets.window.adjustHeight();
-                        return false;
-                    }
-                    if (memberlist.length == 0) {
-                        msg.createTimerMessage("誘う人を追加してください。", 5);
-                        gadgets.window.adjustHeight();
-                        return false;
-                    }
-
-                    try {
-                        osapi.activities.create({
-//				      userId: '@viewer', activity: { title: title , recipients: memberlist, priority: 1}
-                            userId: '@viewer', activity: { title: title , recipients: recipients, priority: 1, externalID: '1'}
-                        }).execute(function(response) {
-                                });
-                         document.form2.title =title + title;
-                        msg.createTimerMessage("アクティビティを送信しました。", 5);
-                    } catch(ex) {
-                        msg.createTimerMessage("アクティビティの保存に失敗しました。", 5);
-                    }
-
-                    return false;
+                var list = response.list;
+                for (var i in list) {
+                    users[list[i].id] = list[i];
+                    userIds.push(list[i].id);
+                    // 初期値
+                    userData[list[i].id] = '\
+<tr>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[list[i].id].displayName + '</td>\
+</tr>\
+                            ';
                 }
-            }
 
-            function initClient(){
-                
-            }
-
-            function fetchGroups(startIndex) {
-                var callback = function(response) {
-                    var mygroups = response.mygroup.list;
-                    var units = response.unit.list;
-                    var html = new Array();
-                    html.push('<option value="@all">（全体）</option>');
-                    for (var i = 0; i < mygroups.length; i++) {
-                        var group = mygroups[i];
-                        html.push('<option value="' + group.id.groupId + '">');
-                        html.push(gadgets.util.escapeString(group.title));
-                        html.push('</option>');
-                        gadgets.log("mygroup:" + i);
-                        gadgets.log(group);
+                // データの取得
+                osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response) {
+                    for (var userId in response) {
+                        var data = response[userId];
+                        adds.push(data["add"]);
+                        adds_users.push(userId);
                     }
-                    if (mygroups.length > 0) {
-                        html.push('<option value="@all">----------</option>');
-                    }
-                    for (var i = 0; i < units.length; i++) {
-                        var group = units[i];
-                        html.push('<option value="' + group.id.groupId + '">');
-                        html.push(gadgets.util.escapeString(group.title));
-                        html.push('</option>');
-                        gadgets.log("unit:" + i);
-                        gadgets.log(group);
-                    }
-                    document.getElementById('groupSelect').innerHTML = html.join('');
-                };
-                var batch = osapi.newBatch()
-                        .add('unit', osapi.groups.get({ userId: '@viewer', startIndex: startIndex, count: 100, filterBy: 'type', filterValue: 'unit' }))
-                        .add('mygroup', osapi.groups.get({ userId: '@viewer', startIndex: startIndex, count: 100, filterBy: 'type', filterValue: 'mygroup' }));
-                batch.execute(callback);
-            }
+                // データの取得
+                osapi.appdata.get({ userId: userIds ,fields: ['id','comment','date'] }).execute(function(response) {
+                    // ユーザーID、アプリデータの連想配列
+                    for (var userId in response) {
+                        var data = response[userId];
 
-            function fetchPeople(groupId, startIndex) {
-                osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
-                    osapi.people.get({ userId: '@viewer', groupId: groupId }).execute(function(response) {
-                        var users = response.list;
-                        choosingList = users;
-                        var grouplist = "";
+                        var add_users_list = "";
+                    for (var key in adds) {
+                         if(adds[key] ==  data["id"]){
+                             add_users_list += users[adds_users[key]].displayName + ', ';
+                         }
+                    }
 
-                        for (var i in users) {
-                            var userId = users[i].id;
-                            var displayName = users[i].displayName;
-                            grouplist = grouplist + '<option value="userId">' + displayName + '</option>';
-//                            grouplist = grouplist + '<option value="userId">' + userId + '</option>';
-                        }
-                        document.getElementById("group_to").innerHTML = grouplist;
-                    });
+
+                        // データの作成
+                        userData[userId] = '\
+<tr>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[userId].displayName + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;">' + data["comment"] + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + getDate(data["date"]) + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + add_users_list + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap><input type="button" value="いいね！" onclick="addSubmit(' + data["id"] + ')"/></td>\
+</tr>\
+                            ';
+                    }
+                    // テーブルの初期化
+                    $("#status").html("");
+                    // データの表示
+                    for (var id in userData) {
+                        $("#status").html($("#status").html() + userData[id]);
+                    }
+                    // ウインドウの幅再調整
+                    gadgets.window.adjustHeight();
                 });
+                });
+            });
+        }
+
+        /*
+         * 引数で与えられた時刻を整形して返す
+         * @param time 1900年からのms
+         */
+        function getDate(time) {
+            var date = getDateArray(time);
+             return date.year + "/" + date.month + "/" + date.day + " ("  + date.week +  ") " + date.hour + "：" + date.minute;
+        }
+        /*
+         * 時刻を配列で返す
+         * @param time 1900年からの秒数
+         * @return date[] [time,year,month,day,week,hour,minute]
+         * ex) date.year
+         */
+        function getDateArray(time) {
+            var r = {};
+            var weeks = new Array('日', '月', '火', '水', '木', '金', '土');
+
+            var date = new Date();
+            date.setTime(time);
+            r.time = time;
+
+            r.year = date.getYear();
+            r.month = date.getMonth() + 1;
+            r.day = date.getDate();
+            r.week = weeks[ date.getDay() ];
+            r.hour = date.getHours();
+            r.minute = date.getMinutes();
+
+            if (r.year < 2000) {
+                r.year += 1900;
             }
 
-            function init() {
-                initForm();
-                fetchGroups(0);
-                fetchPeople(currentGroupId, 0);
+            // 頭に0を付ける
+            if (r.month < 10) {
+                r.month = "0" + r.month;
             }
-            gadgets.util.registerOnLoadHandler(init);
-            gadgets.window.adjustHeight();
+            if (r.day < 10) {
+                r.day = "0" + r.day;
+            }
+            if (r.hour < 10) {
+                r.hour = "0" + r.hour;
+            }
+            if (r.minute < 10) {
+                r.minute = "0" + r.minute;
+            }
+
+            return r;
+        }
 
 
+        /*
+         * id=pagerにページャを作成
+         * @param pageCount（ページ数）,currentPage（現在のページ番号）,callback
+         */
+        var pager_callback = function() {
+        };
+        function createPager(pageCount, currentPage, callback) {
+            pager_callback = callback;
+            var str = '';
+            if (pageCount > 1) {
+                var str = '<div class="clearfix"><ul class="pagination">';
+                // 初期化
+                $("<div></div>")
+                for (var i = 0; i < pageCount; i++) {
+                    if (i == currentPage) {
+                        str += '<li class="selected">';
+                    } else {
+                        str += '<li>';
+                    }
+                    str += '<a href="javascript:void(0);" onclick="eventPager(\'' + i.toString() + '\')">';
+                    str += (i + 1).toString() + '</a></li>';
+                }
+                str += '</ul></div>';
+            }
+            // pagerに登録
+            $("#pager").html(str);
+        }
+        function eventPager(page) {
+            pager_callback(page);
+            createPager(pageCount, page, pager_callback);
+        }
         </script>
-        ]]>
-    </Content>
+        ]]></Content>
 </Module>
