@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
     <ModulePrefs
-            title="簡易アンケート"
+            title="飲みイコ"
             description="一言アンケート機能です。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
@@ -12,36 +12,37 @@
         <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/nomi-iko/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <Content type="html"><![CDATA[
-        <style>
-            .borderNone {
-                border: none;
-            }
+       <style>
+table.listTable{
+width:100%;
+border:none;
+border-collapse:collapse;
+margin:5px 0 10px;
+}
 
-            .borderNone th {
-                border: none;
-            }
+table.listTable th{
+background:#DCDCDC;
+font-size:10px;
+color:#333333;
+padding:3px;
+border:#CCC 1px solid;
+}
 
-            .borderNone td {
-                border: none;
-            }
+table.listTable td{
+background:#FFF;
+color:#333333;
+padding:5px !important;
+}
 
-            .pb5 {
-                padding-bottom: 5px;
-            }
+table.listTable tr.odd td{
+background:#F5F5F5;
+}
 
-            .mb5 {
-                margin-bottom: 5px;
-            }
+table.listTable td.fs10{
+font-size:10px !important;
+}
 
-            .fs10_g {
-                font-size: 10px;
-                color: #555;
-            }
-
-            .middle {
-                vertical-align: middle;
-            }
-        </style>
+</style>
         <div class="aipostyle">
             <table class="wide borderNone">
                 <tbody>
@@ -50,14 +51,13 @@
                                                       onfocus="eventCommentFocus()"
                                                       onblur="eventCommentBlur()" maxlength=100
                                                       id="comment"/><input type="button" value="投稿する"
-                                                                           onclick="eventSubmit()"/>
+                                                                           onclick="eventSubmit()" style="margin:0 0 0 10px;"/>
                     </td>
                 </tr>
                 </tbody>
             </table>
-            <hr/>
 
-            <table class="borderNone">
+            <table class="listTable">
                 <tbody id="status">
                 </tbody>
             </table>
@@ -220,6 +220,16 @@
                 var keys = [];
                 // テーブルの初期化
                 $("#status").html("");
+                                    var header = '\
+<tr>\
+<th width="12%">投稿日時</th>\
+<th>提案者</th>\
+<th>コメント</th>\
+<th>賛同者</th>\
+<th width="10%"></th>\
+</tr>\
+                            ';
+                 $("#status").html($("#status").html() + header);
 
                 var list = response.list;
                 for (var i in list) {
@@ -266,11 +276,11 @@
                                     }
                                     var key_data = '\
 <tr>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[userId2].displayName + '</td>\
-    <td valign="top" style="padding:0 5px 5px 0;">' + rowdata["comment"] + '</td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + getDate(rowdata["date"]) + '</td>\
-    <td valign="top" style="padding:0 5px 5px 0;">' + add_user + '</td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap><input type="button" value="いいね！" onclick="addSubmit(' + rowdata["date"] + ')"/></td>\
+    <td class="fs10" nowrap="nowrap">' + getDate(rowdata["date"]) + '</td>\
+    <td nowrap="nowrap" align="center">' + users[userId2].displayName + '</td>\
+    <td>' + rowdata["comment"] + '</td>\
+    <td>' + add_user + '</td>\
+    <td nowrap><input type="button" value="参加したい！" onclick="addSubmit(' + rowdata["date"] + ')"/></td>\
 </tr>\
                             ';
                                     // データの表示
