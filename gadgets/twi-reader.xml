@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-    <ModulePrefs title="twiリーダー" description="超簡単なtwitter検索クライアントです" scrolling="false">
+    <ModulePrefs title="twiリーダー" description="特定のキーワードでtwitterを検索し、表示することができるtwitter検索アプリです。キーワードは3つまで指定でき、ハッシュタグも指定可能。会社名や会社の製品などで検索する場合、設定画面でキーワードを指定するため、毎日の確認に便利です。" scrolling="false">
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>
         <Require feature="tabs"/>

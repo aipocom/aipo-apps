@@ -2,7 +2,7 @@
 <Module>
     <ModulePrefs
             title="簡易在席確認"
-            description="ユーザーの在席状態を確認できる簡易アプリです。">
+            description="同じアプリを使用している人の在席状況が確認できるアプリです。離れた席や、違うフロアにいる人の在席状況を確認する際に是非ご利用下さい。ステータスは「在席」、「外出」の2つ。他にステータス変更時間と付属するコメントが表示されます。コメントには外出先や戻り予定を入れておけば、電話応対の際の確認もらくらくです。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>

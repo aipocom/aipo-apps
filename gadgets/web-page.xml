@@ -2,7 +2,7 @@
 <Module>
     <ModulePrefs
             title="Webページ"
-            description="お好きなWebページを表示します。" height="35">
+            description="Aipoの中で表示できる簡易ウェブブラウザです。" height="35">
         <Require feature="views" />
         <Require feature="dynamic-height" />
         <Require feature="minimessage" />

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
     <ModulePrefs
-            title="飲みイコ"
-            description="簡易アンケートアプリです。">
+            title="簡易アンケート"
+            description="一言アンケート機能です。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>
