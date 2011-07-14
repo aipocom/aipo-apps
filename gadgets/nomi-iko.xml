@@ -218,6 +218,7 @@ font-size:10px !important;
                 var userIds = [];
                 var adds_users = [];
                 var keys = [];
+                var counter = 0;
                 // テーブルの初期化
                 $("#status").html("");
                                     var header = '\
@@ -274,8 +275,13 @@ font-size:10px !important;
                                             add_user = adds_users[key2];
                                         }
                                     }
+
+                   var css_class = '';
+               if (counter % 2 == 0) {
+                   css_class = ' class="odd"';
+               }
                                     var key_data = '\
-<tr>\
+<tr' + css_class + '>\
     <td class="fs10" nowrap="nowrap">' + getDate(rowdata["date"]) + '</td>\
     <td nowrap="nowrap" align="center">' + users[userId2].displayName + '</td>\
     <td>' + rowdata["comment"] + '</td>\
@@ -283,6 +289,7 @@ font-size:10px !important;
     <td nowrap><input type="button" value="参加したい！" onclick="addSubmit(' + rowdata["date"] + ')"/></td>\
 </tr>\
                             ';
+                counter++;
                                     // データの表示
                                     $("#status").html($("#status").html() + key_data);
                                 }
