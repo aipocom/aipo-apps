@@ -2,7 +2,7 @@
 <Module>
     <ModulePrefs
             title="飲みイコ"
-            description="一言アンケート機能です。">
+            description="飲みへのお誘い機能です。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>
@@ -32,6 +32,7 @@ table.listTable td{
 background:#FFF;
 color:#333333;
 padding:5px !important;
+border:none !important;
 }
 
 table.listTable tr.odd td{
