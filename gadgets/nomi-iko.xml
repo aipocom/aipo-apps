@@ -97,11 +97,6 @@
         function init() {
             // コメント
             eventCommentBlur();
-            // グループの読み込み
-            osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
-                groups = response.list;
-                groups.unshift({id:{groupId:'@all'},title:'全体'});
-            });
             repaint();
         }
 
@@ -122,45 +117,89 @@
                 gadgets.window.adjustHeight();
                 return false;
             }
-            if (comment.length  > 100) {
+            if (comment.length > 100) {
                 msg.createTimerMessage("コメントは100文字までで入力してください。", 5);
                 gadgets.window.adjustHeight();
                 return false;
             }
-            
+
             comment = gadgets.util.escapeString(comment);
             date = gadgets.util.escapeString(date);
-            // データの作成
-            var data = { comment: comment, date: date, id: date };
 
-            // データの保存
-            osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
-                // minimessage
-                var msg = new gadgets.MiniMessage();
-                msg.createTimerMessage("送信しました。", 3, function() {
-                    gadgets.window.adjustHeight();
-                    return true;
+            osapi.appdata.get({ userId: ["@viewer"] ,fields: ['keys'] }).execute(function(response) {
+                for (var userId in response) {
+                    var data = response[userId];
+                }
+                var keys = new Array();
+                if (data && data['keys']) {
+                    keys = gadgets.json.parse(data['keys']);
+                }
+
+                var timestamp = new Date().getTime();
+                var key = '__MODULE_ID__.' + timestamp;
+                keys.push(key);
+
+                var data = {};
+                var data1 = {};
+                var data2 = {};
+                data['comment'] = comment;
+                data['date'] = date;
+                data1[key] = gadgets.json.stringify(data);
+                data2['keys'] = gadgets.json.stringify(keys);
+
+                var batch = osapi.newBatch()
+                        .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
+                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }));
+                batch.execute(function(response) {
+                    // minimessage
+                    var msg = new gadgets.MiniMessage();
+                    msg.createTimerMessage("送信しました。", 3, function() {
+                        gadgets.window.adjustHeight();
+                        return true;
+                    });
+                    // データの再表示
+                    repaint();
                 });
-                // データの再表示
-                repaint();
             });
         }
-        function addSubmit(userId) {
 
-            // データの作成
-            var s = String(userId);
-            var data = { add: s };
+        function addSubmit(key) {
 
-            // データの保存
-            osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
-                // minimessage
-                var msg = new gadgets.MiniMessage();
-                msg.createTimerMessage("送信しました。", 3, function() {
-                    gadgets.window.adjustHeight();
-                    return true;
+            osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
+                for (var userId in response) {
+                    var data = response[userId];
+                }
+                var keys = new Array();
+                if (data && data['add']) {
+                    keys = gadgets.json.parse(data['add']);
+                }
+                console.error(keys);
+                console.error(key);
+
+                for (var i in keys) {
+                    if (keys[i] == key) {
+                        var msg = new gadgets.MiniMessage();
+                        msg.createTimerMessage("すでに登録済みです。", 5);
+                        gadgets.window.adjustHeight();
+                        return false;
+                    }
+                }
+
+                var data = {};
+                keys.push(key);
+                data['add'] = gadgets.json.stringify(keys);
+
+                // データの保存
+                osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
+                    // minimessage
+                    var msg = new gadgets.MiniMessage();
+                    msg.createTimerMessage("送信しました。", 3, function() {
+                        gadgets.window.adjustHeight();
+                        return true;
+                    });
+                    // データの再表示
+                    repaint();
                 });
-                // データの再表示
-                repaint();
             });
         }
 
@@ -180,6 +219,7 @@
             }
             $("#comment").css("color", "black");
         }
+
         function eventCommentBlur() {
             if ($("#comment").val() == "") {
                 $("#comment").val(commentNotice);
@@ -188,6 +228,7 @@
             }
 
         }
+
         /*
          * ページカウントを取得する
          */
@@ -215,67 +256,74 @@
          */
         function repaint() {
             // ユーザーの読み込み
-            var index = page * getPrefRows();
-            osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex:index, count:getPrefRows() }).execute(function(response) {
+            osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
                 var users = [];
                 var userIds = [];
-                var userData = [];
-                var adds = [];
                 var adds_users = [];
+                var keys = [];
+                // テーブルの初期化
+                $("#status").html("");
 
                 var list = response.list;
                 for (var i in list) {
                     users[list[i].id] = list[i];
                     userIds.push(list[i].id);
-                    // 初期値
-                    userData[list[i].id] = '\
-<tr>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[list[i].id].displayName + '</td>\
-</tr>\
-                            ';
                 }
-
                 // データの取得
-                osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response) {
-                    for (var userId in response) {
-                        var data = response[userId];
-                        adds.push(data["add"]);
-                        adds_users.push(userId);
-                    }
-                // データの取得
-                osapi.appdata.get({ userId: userIds ,fields: ['id','comment','date'] }).execute(function(response) {
+                osapi.appdata.get({ userId: userIds ,fields: ['keys'] }).execute(function(response) {
                     // ユーザーID、アプリデータの連想配列
                     for (var userId in response) {
-                        var data = response[userId];
-
-                        var add_users_list = "";
-                    for (var key in adds) {
-                         if(adds[key] ==  data["id"]){
-                             add_users_list += users[adds_users[key]].displayName + ', ';
-                         }
+                        var tmp_keys = gadgets.json.parse(response[userId]['keys']);
+                        for (var tmp_key in tmp_keys) {
+                            keys.push(tmp_keys[tmp_key]);
+                        }
                     }
+                    // データの取得
+                    osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response3) {
+                        // ユーザーID、アプリデータの連想配列
+                        for (var userId3 in response3) {
+                            var tmp_add = gadgets.json.parse(response3[userId3]['add']);
+                            for (var i in tmp_add) {
+                                if (!adds_users[tmp_add[i]]) {
+                                    adds_users[tmp_add[i]] = '';
+                                } else {
+                                    adds_users[tmp_add[i]] += ', ';
+                                }
+                                adds_users[tmp_add[i]] += users[userId3].displayName;
+                            }
 
+                        }
+                        // データの取得
+                        osapi.appdata.get({ userId: userIds ,fields: keys }).execute(function(response2) {
+                            for (var userId2 in response2) {
+                                var data = response2[userId2];
 
-                        // データの作成
-                        userData[userId] = '\
+                                for (var key in data) {
+                                    // データの作成
+                                    var rowdata = gadgets.json.parse(data[key]);
+                                    var add_user = '';
+                                    for (var key2 in adds_users) {
+                                        if (rowdata["date"] == key2) {
+                                            add_user = adds_users[key2];
+                                        }
+                                    }
+                                    var key_data = '\
 <tr>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[userId].displayName + '</td>\
-    <td valign="top" style="padding:0 5px 5px 0;">' + data["comment"] + '</td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + getDate(data["date"]) + '</td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + add_users_list + '</td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap><input type="button" value="いいね！" onclick="addSubmit(' + data["id"] + ')"/></td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[userId2].displayName + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;">' + rowdata["comment"] + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + getDate(rowdata["date"]) + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + add_user + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap><input type="button" value="いいね！" onclick="addSubmit(' + rowdata["date"] + ')"/></td>\
 </tr>\
                             ';
-                    }
-                    // テーブルの初期化
-                    $("#status").html("");
-                    // データの表示
-                    for (var id in userData) {
-                        $("#status").html($("#status").html() + userData[id]);
-                    }
-                    // ウインドウの幅再調整
-                    gadgets.window.adjustHeight();
-                });
+                                    // データの表示
+                                    $("#status").html($("#status").html() + key_data);
+                                }
+                            }
+                            // ウインドウの幅再調整
+                            gadgets.window.adjustHeight();
+                        });
+                    });
                 });
             });
         }
@@ -286,8 +334,9 @@
          */
         function getDate(time) {
             var date = getDateArray(time);
-             return date.year + "/" + date.month + "/" + date.day + " ("  + date.week +  ") " + date.hour + "：" + date.minute;
+            return date.year + "/" + date.month + "/" + date.day + " (" + date.week + ") " + date.hour + "：" + date.minute;
         }
+
         /*
          * 時刻を配列で返す
          * @param time 1900年からの秒数
@@ -337,6 +386,7 @@
          */
         var pager_callback = function() {
         };
+
         function createPager(pageCount, currentPage, callback) {
             pager_callback = callback;
             var str = '';
@@ -358,6 +408,7 @@
             // pagerに登録
             $("#pager").html(str);
         }
+
         function eventPager(page) {
             pager_callback(page);
             createPager(pageCount, page, pager_callback);
