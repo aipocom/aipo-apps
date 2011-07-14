@@ -10,16 +10,6 @@
         <Require feature="aipostyle"/>
         <Require feature="osapi"/>
     </ModulePrefs>
-    <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
-        <EnumValue value="5"/>
-        <EnumValue value="10"/>
-        <EnumValue value="50"/>
-    </UserPref>
-    <UserPref name="p2-canvasRows" display_name="表示件数（最大化時）" datatype="enum" default_value="10">
-        <EnumValue value="5"/>
-        <EnumValue value="10"/>
-        <EnumValue value="50"/>
-    </UserPref>
     <Content type="html"><![CDATA[
         <style>
             .borderNone {
@@ -58,8 +48,7 @@
                     <td class="borderNone pb5"><input type="text" style="color:gray;"
                                                       onfocus="eventCommentFocus()"
                                                       onblur="eventCommentBlur()" maxlength=100
-                                                      id="comment"/></td>
-                    <td class="borderNone pb5"><input type="button" value="投稿する"
+                                                      id="comment"/><input type="button" value="投稿する"
                                                       onclick="eventSubmit()"/>
                     </td>
                 </tr>
@@ -154,6 +143,7 @@
                     // minimessage
                     var msg = new gadgets.MiniMessage();
                     msg.createTimerMessage("送信しました。", 3, function() {
+                        $("#comment").val("");
                         gadgets.window.adjustHeight();
                         return true;
                     });
@@ -164,7 +154,6 @@
         }
 
         function addSubmit(key) {
-
             osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
                 for (var userId in response) {
                     var data = response[userId];
@@ -173,8 +162,6 @@
                 if (data && data['add']) {
                     keys = gadgets.json.parse(data['add']);
                 }
-                console.error(keys);
-                console.error(key);
 
                 for (var i in keys) {
                     if (keys[i] == key) {
@@ -203,15 +190,6 @@
             });
         }
 
-        /*
-         * ページの変更
-         */
-        function eventPageChange(num) {
-            page = num;
-            // 再描画
-            repaint();
-        }
-
         function eventCommentFocus() {
             if (!commentCheck && $("#comment").val() == commentNotice) {
                 $("#comment").val("");
@@ -227,28 +205,6 @@
                 $("#comment").css("color", "gray");
             }
 
-        }
-
-        /*
-         * ページカウントを取得する
-         */
-        function setPageCount(callback) {
-            var index = page * getPrefRows();
-            var groupId = groups[$("#groups").val()].id.groupId;
-            osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index }).execute(function(response) {
-                var len = response.list.length;
-                pageCount = len / getPrefRows();
-                callback();
-            });
-        }
-
-        function getPrefRows() {
-            var currentView = gadgets.views.getCurrentView();
-            if (currentView.getName() == "home") {
-                return prefs.getInt("p1-homeRows");
-            } else {
-                return prefs.getInt("p2-canvasRows");
-            }
         }
 
         /*
@@ -312,7 +268,7 @@
     <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[userId2].displayName + '</td>\
     <td valign="top" style="padding:0 5px 5px 0;">' + rowdata["comment"] + '</td>\
     <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + getDate(rowdata["date"]) + '</td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + add_user + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;">' + add_user + '</td>\
     <td valign="top" style="padding:0 5px 5px 0;" nowrap><input type="button" value="いいね！" onclick="addSubmit(' + rowdata["date"] + ')"/></td>\
 </tr>\
                             ';
@@ -377,41 +333,6 @@
             }
 
             return r;
-        }
-
-
-        /*
-         * id=pagerにページャを作成
-         * @param pageCount（ページ数）,currentPage（現在のページ番号）,callback
-         */
-        var pager_callback = function() {
-        };
-
-        function createPager(pageCount, currentPage, callback) {
-            pager_callback = callback;
-            var str = '';
-            if (pageCount > 1) {
-                var str = '<div class="clearfix"><ul class="pagination">';
-                // 初期化
-                $("<div></div>")
-                for (var i = 0; i < pageCount; i++) {
-                    if (i == currentPage) {
-                        str += '<li class="selected">';
-                    } else {
-                        str += '<li>';
-                    }
-                    str += '<a href="javascript:void(0);" onclick="eventPager(\'' + i.toString() + '\')">';
-                    str += (i + 1).toString() + '</a></li>';
-                }
-                str += '</ul></div>';
-            }
-            // pagerに登録
-            $("#pager").html(str);
-        }
-
-        function eventPager(page) {
-            pager_callback(page);
-            createPager(pageCount, page, pager_callback);
         }
         </script>
         ]]></Content>
