@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs title="certtest">
+        <Require feature="dynamic-height"/>
+        <Require feature="settitle"/>
+        <Require feature="osapi"/>
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+        <script type="text/javascript" 
+                src="http://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js"></script>
+        <script type="text/javascript">
+            jQuery(function($) {
+                oauthRequest();
+            });
+            function oauthRequest() {
+               var params = {};
+                params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.GET;
+                params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.SIGNED;
+                var cb = function (response) {
+                    console.log(response);
+                    if (response.rc == 200) {
+                        alert("Signed connection success!\n" + response.data);
+                    } else {
+                        alert("Signed connection failure!\nResponse: " + response.rc);
+                    }
+                };
+                var result = gadgets.io.makeRequest('http://aipocerttest.appspot.com/', cb, params);
+            }
+        </script>
+        ]]>
+    </Content>
+</Module>
