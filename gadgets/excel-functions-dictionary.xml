@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs title="エクセル関数辞典">
+<Require feature="views"/>
+<Require feature="dynamic-height"/>
+<Require feature="minimessage"/>
+<Require feature="tabs"/>
+<Require feature="aipostyle"/>
+<Require feature="osapi"/>
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+			<div class="aipostyle">
+				<form onSubmit="return(getHtml())">
+				用途別：<br />
+				<select name="type">
+				<option value="type1">検索/行列関数</option>
+				<option value="type2">データベース関数</option>
+				<option value="type3">エンジニアリング関数</option>
+				<option value="type4">財務関数</option>
+				<option value="type5">情報関数</option>
+				<option value="type6">数学/三角関数</option>
+				<option value="type7">統計関数</option>
+				<option value="type8">日付/時刻関数</option>
+				<option value="type9">文字列操作関数</option>
+				<option value="type10">論理関数</option>
+				</select><br />
+				関数：<br />
+  			<input type="text" id="function" /> <br />
+				機能：<br />
+  			<input type="text" id="comment" /> <br />
+				<input type="button" value="検索" onClick="getHtml()">
+				</form>
+
+				<!-- 結果表示 --> 
+				<div id="content_div" style="border:1px solid gray"></div> 
+
+				<form method="post" action="favorite">
+				
+				</form>
+
+
+    <table class="list wide">
+        <tr>
+            <th class="thin">&nbsp;
+            </th>
+            <th>用途別</th>
+            <th>関数</th>
+            <th>機能</th>
+            <th>書式</th>
+        </tr>
+        <tr>
+            <td><input type="checkbox" name="check"/></td>
+            <td>テキスト</td>
+            <td>テキスト</td>
+            <td><a href="#">テキストリンク</a></td>
+            <td nowrap="nowrap"><a href="#" class="button">ボタンリンク</a></td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" name="check"/></td>
+            <td>テキスト</td>
+            <td>テキスト</td>
+            <td><a href="#">テキストリンク</a></td>
+            <td nowrap="nowrap"><a href="#" class="button">ボタンリンク</a></td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" name="check"/></td>
+            <td>テキスト</td>
+            <td>テキスト</td>
+            <td><a href="#">テキストリンク</a></td>
+            <td nowrap="nowrap"><a href="#" class="button">ボタンリンク</a></td>
+        </tr>
+    </table>
+
+			</div>
+        <script type="text/javascript">
+//---------------------- 
+//リクエスト発信 
+//---------------------- 
+function getHtml(){ 
+  var f   = $('function').value; 
+  var c   = $('comment').value; 
+  var url = 'http://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=' 
+                + encodeURIComponent(f);
+							//	+ '&c='
+							//	+ encodeURIComponent(c); 
+ 
+  //結果表示欄を空に 
+  $('content_div').innerHTML = ''; 
+ 
+  //オプション設定 
+  var params = {}; 
+  params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;   
+ 
+  //リクエスト 
+  gadgets.io.makeRequest(url, response, params); 
+ 
+  return(false); 
+} 
+ 
+//---------------------- 
+//callback関数 
+//---------------------- 
+function response(obj){   
+  var json = obj.data['responseData']['results']; 
+ 
+  //HTML作成 
+  var html = '<ul>'; 
+  for( var i in json ){ 
+    var url       = json[i]['originalContextUrl']; 
+    var thumb_url = json[i]['tbUrl']; 
+    var width     = json[i]['tbWidth']; 
+    var height    = json[i]['tbHeight']; 
+    var alt       = json[i]['title']; 
+   
+    html += '<li><a href="' + url + '" target="_blank">'  
+                 + '<img src="' + thumb_url + '" ' 
+                         + 'width="'  + width  + '" ' 
+                         + 'height="' + height + '" ' 
+                         + 'alt="'    + alt    + '" ' 
+                 + ' /></a></li>'; 
+  } 
+  html += '</ul>';   
+
+
+	//html
+	var html = '<table class="list wide">';
+	html += '</table>';
+ 
+  //HTML反映 
+  $('content_div').innerHTML = html; 
+ 
+  //ガジェットの高さを自動調整 
+  gadgets.window.adjustHeight(); 
+} 
+ 
+//---------------------- 
+//ショートカット 
+//---------------------- 
+function $(id){ 
+  return(document.getElementById(id)); 
+} 
+        </script>
+        ]]>
+    </Content>
+</Module>
+
