@@ -10,113 +10,124 @@
 
     <!-- 共通設定(JavaScript) -->
     <Content type="html" view="home, canvas"><![CDATA[
+        <!--
+       　　認証が必要なサービスにGoogleMapsAPIを組み込む場合は別途 Google Maps API Premier への申請が必要です。
+       
+           ◆利用規約
+       http://code.google.com/intl/ja/apis/maps/signup.html
+       http://code.google.com/intl/ja/apis/maps/faq.html#tos_commercial
 
-<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
-<script type="text/javascript">
-    var geocoder;
-    var map;
+       Google Maps API Premier
+       http://www.google.com/intl/ja_ALL/enterprise/earthmaps/maps.html
 
-    function initialize() {
-        geocoder = new google.maps.Geocoder();
-        var latlng = new google.maps.LatLng(35.6895, 139.6917);
-        var myOptions = {
-                zoom: 12,
-                center: latlng,
-                mapTypeId: google.maps.MapTypeId.ROADMAP}
-        map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-    }
+       <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
 
-    function codeAddress() {
-        var address = document.getElementById("address").value;
-        geocoder.geocode(
+       -->
+        <script type="text/javascript" src="#"></script>
+        <script type="text/javascript">
+            var geocoder;
+            var map;
+
+            function initialize() {
+                geocoder = new google.maps.Geocoder();
+                var latlng = new google.maps.LatLng(35.6895, 139.6917);
+                var myOptions = {
+                    zoom: 12,
+                    center: latlng,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP}
+                map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+            }
+
+            function codeAddress() {
+                var address = document.getElementById("address").value;
+                geocoder.geocode(
                 {'address': address},
-                function(results, status) {
-                    if (status == google.maps.GeocoderStatus.OK) {
-                        document.geocodeForm.latLng.value = results[0].geometry.location;
-                        map.setZoom(12);
-                        map.setCenter(results[0].geometry.location);
-                        var marker = new google.maps.Marker(
-                            {
-                                map: map,
-                                position: results[0].geometry.location
-                            }
-                        );
-                    } else {
-                        alert("Geocode was not successful for the following reason: " + status);
-                        document.geocodeForm.address.value = "住所を正しく入力してください";
-                    }
-                }
-        );
-    }
-
-    function codeLatLng() {
-        var input = document.getElementById("latLng").value;
-        input = input.replace("(", "");
-        input = input.replace(" ", "");
-        input = input.replace(")", "");
-        var latlngStr = input.split(",",2);
-        var lat = parseFloat(latlngStr[0]);
-        var lng = parseFloat(latlngStr[1]);
-        var latlng = new google.maps.LatLng(lat, lng);
-        if (geocoder) {
-            geocoder.geocode(
-                    {'latLng': latlng},
-                    function(results, status) {
-                        if (status == google.maps.GeocoderStatus.OK) {
-                            document.geocodeForm.address.value = results[1].formatted_address;
-                            if (results[1]) {
+                        function(results, status) {
+                            if (status == google.maps.GeocoderStatus.OK) {
+                                document.geocodeForm.latLng.value = results[0].geometry.location;
                                 map.setZoom(12);
-                                marker = new google.maps.Marker(
+                                map.setCenter(results[0].geometry.location);
+                                var marker = new google.maps.Marker(
+                                {
+                                    map: map,
+                                    position: results[0].geometry.location
+                                }
+                                        );
+                            } else {
+                                alert("Geocode was not successful for the following reason: " + status);
+                                document.geocodeForm.address.value = "住所を正しく入力してください";
+                            }
+                        }
+                        );
+            }
+
+            function codeLatLng() {
+                var input = document.getElementById("latLng").value;
+                input = input.replace("(", "");
+                input = input.replace(" ", "");
+                input = input.replace(")", "");
+                var latlngStr = input.split(",", 2);
+                var lat = parseFloat(latlngStr[0]);
+                var lng = parseFloat(latlngStr[1]);
+                var latlng = new google.maps.LatLng(lat, lng);
+                if (geocoder) {
+                    geocoder.geocode(
+                    {'latLng': latlng},
+                            function(results, status) {
+                                if (status == google.maps.GeocoderStatus.OK) {
+                                    document.geocodeForm.address.value = results[1].formatted_address;
+                                    if (results[1]) {
+                                        map.setZoom(12);
+                                        marker = new google.maps.Marker(
                                         {
                                             position: latlng,
                                             map: map
                                         }
-                                );
-                                infowindow.setContent(results[1].formatted_address);
-                                infowindow.open(map, marker);
+                                                );
+                                        infowindow.setContent(results[1].formatted_address);
+                                        infowindow.open(map, marker);
+                                    }
+                                } else {
+                                    alert("Geocoder failed due to: " + status);
+                                    document.geocodeForm.latLng.value = "緯度と経度を正しく入力してください";
+                                }
                             }
-                        } else {
-                            alert("Geocoder failed due to: " + status);
-                            document.geocodeForm.latLng.value = "緯度と経度を正しく入力してください";
-                        }
-                    }
-            );
-        }
-    }
+                            );
+                }
+            }
 
-    window.onload = function(){
-        initialize();
-        gadgets.window.adjustHeight();
-    }
+            window.onload = function() {
+                initialize();
+                gadgets.window.adjustHeight();
+            }
 
-</script>
-
-    ]]></Content>
+        </script>
+        ]]></Content>
 
     <!-- 通常画面 -->
     <Content type="html" view="home"><![CDATA[
-<div class="aipostyle">
-<form name="geocodeForm">
-  <input id="address" type="textbox" value="東京駅" style="width: 100%"><br />
-  <input id="latLng" type="textbox" value=""  style="width: 100%"><br />
-  <input type="button" value="住所→緯度/経度" onclick="codeAddress()" style="width: 45%">
-  <input type="button" value="緯度/経度→住所" onclick="codeLatLng()" style="width: 45%">
-</form>
-<div id="map_canvas" style="height: 300px;width: 100%; top:5px"></div>
-</div>
-    ]]></Content>
+        <div class="aipostyle">
+            <form name="geocodeForm">
+                <input id="address" type="textbox" value="東京駅" style="width: 100%"><br/>
+                <input id="latLng" type="textbox" value="" style="width: 100%"><br/>
+                <input type="button" value="住所→緯度/経度" onclick="codeAddress()" style="width: 45%">
+                <input type="button" value="緯度/経度→住所" onclick="codeLatLng()" style="width: 45%">
+            </form>
+            <div id="map_canvas" style="height: 300px;width: 100%; top:5px"></div>
+        </div>
+        ]]></Content>
 
     <!-- 最大化画面 -->
     <Content type="html" view="canvas"><![CDATA[
-<div class="aipostyle">
-<form name="geocodeForm">
-  <input id="address" type="textbox" value="東京駅" style="width: 400px">
-  <input type="button" value="住所→緯度/経度" onclick="codeAddress()" style="width: 140px"><br />
-  <input id="latLng" type="textbox" value=""  style="width: 400px">
-  <input type="button" value="緯度/経度→住所" onclick="codeLatLng()" style="width: 140px">
-</form>
-<div id="map_canvas" style="height: 700px;width: 100%; top:5px"></div>
-</div>
-    ]]></Content>
+        <div class="aipostyle">
+            <form name="geocodeForm">
+                <input id="address" type="textbox" value="東京駅" style="width: 400px">
+                <input type="button" value="住所→緯度/経度" onclick="codeAddress()" style="width: 140px"><br/>
+                <input id="latLng" type="textbox" value="" style="width: 400px">
+                <input type="button" value="緯度/経度→住所" onclick="codeLatLng()" style="width: 140px">
+            </form>
+            <div id="map_canvas" style="height: 700px;width: 100%; top:5px"></div>
+        </div>
+        ]]></Content>
 
 </Module>
