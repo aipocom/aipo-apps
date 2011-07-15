@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs title="簡易アンケート">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Require feature="osapi"/>
+        <Require feature="setprefs"/>
+        <Require feature="jquery"/>
+        <Optional feature="aipostyle"/>
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+        <span id="user"></span>さん、企画を入力してください。<br><br>
+      <div class="aipostyle">
+      <div id="ospaiContent">
+      <form name="form" action="">
+      <hr/>
+    <table class="form wide">
+          <tr>
+            <th>企画</th>
+            <td colspan="2"><input class = "text 275" type = "text" name = "title"/></td>
+          </tr>
+          <tr>
+            <th rowspan="3">誘う人・グループ</th>
+<!--              <td>&nbsp</td> <td><div class="memberToChoose"><select size="1" multiple="multiple" style="width:100%" name="tmp_group_from" id="tmp_group_from"></select></div></td>
+-->
+              <td>&nbsp</td> <td><select id="groupSelect" name="group" onchange="fetchPeople(this.options[this.selectedIndex].value, 0);">
+              
+<!--                                    onchange="fetchPeople(this.options[this.selectedIndex].value, 0);">
+-->
+                            <option value="@all">読み込み中
+                            </option>
+                        </select></td>
+            </tr>
+            <tr>
+              <td><div class="memberlistChoosed"><select size="5" multiple="multiple" style="width:100%" name="memberlist" id="memberlist"></select></div></td> <td><div class="memberlistChoosing"><select size="5" multiple="multiple" style="width:100%" name="group_to" id="group_to" ></select></div></td>
+            </tr>
+            <tr>
+              <td><div class="left"><input type="button" name="deletePerson" value="削除する" onclick="delete_person(memberlist.selectedIndex)"/></div></td> <td><div class="left"><input type="button" name="addPerson" value="＜＜追加する" onclick = "add_person(group_to.selectedIndex)"/></div></td>
+            </tr>
+          <tr>
+            <th>締切り日時</th>
+            <td colspan="2"><input type="text" size="6" maxlength="2" name="mm">月
+                <input type="text" size="6" maxlength="2" name="dd">日 
+            </td>
+          </tr>
+    </table>
+            <div class="center"><input type="submit" name="submit" value="送信する"/></div>
+   </form>
+</div>
+</div>
+            
+        <script type="text/javascript">
+        
+        var msg = new gadgets.MiniMessage();
+        var currentGroupId = '@all';
+        	
+        	function add_person(selectedIndex){
+        		document.form.memberlist.add(document.form.group_to[selectedIndex]);
+        	}
+        	
+        	function delete_person(selectedIndex){
+        		document.form.memberlist.remove(selectedIndex);
+        	}
+        	
+        	
+            function initForm() {
+                osapi.people.getViewer().execute(function (response) {
+                    document.getElementById("user").innerHTML = response.displayName;
+                });
+
+                osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
+                    var groups = response.list;
+                    var grouplist = "";
+                    for (var i in groups) {
+                        grouplist = grouplist + '<option value="groups[i].id.groupId">' + groups[i].title + '</option>';
+//                        var groupId = groups[i].id.groupId;
+//                        var title = groups[i].title;
+//                        var type = groups[i].type;
+                    }
+                    document.getElementById("tmp_group_from").innerHTML = grouplist;
+                });
+                
+                document.form.onsubmit = function() {
+				var callback = function(response) {
+                        if (response.error) {
+                            msg.createTimerMessage("アクティビティの保存に失敗しました。", 5);
+                        } else {
+                            msg.createTimerMessage("アクティビティを送信しました。", 5);
+                            gadgets.window.adjustHeight();
+                            document.form.title.value = "";
+                        }
+                 };
+
+                  var title = document.form.title.value;
+                  var memberlist = document.form.memberlist;
+                  alert(memberlist.length);
+                  if (!title) {
+                      msg.createTimerMessage("タイトルを入力してください。", 5);
+                      gadgets.window.adjustHeight();
+                      return false;
+                  }
+                  
+                  for (var i in memberlist) {
+					osapi.activities.create({
+					    userId: '@viewer', activity: { title: title , recipients: memberlist[i], priority: 1}
+					}).execute(function(response) {
+					});
+					
+				}
+                 
+                  return false;
+                }
+            }
+            
+            
+            function fetchGroups(startIndex) {
+            var callback = function(response) {
+                var mygroups = response.mygroup.list;
+                var units = response.unit.list;
+                var html = new Array();
+                html.push('<option value="@all">（全体）</option>');
+                for (var i = 0; i < mygroups.length; i++) {
+                    var group = mygroups[i];
+                    html.push('<option value="' + group.id.groupId + '">');
+                    html.push(gadgets.util.escapeString(group.title));
+                    html.push('</option>');
+                    gadgets.log("mygroup:" + i);
+                    gadgets.log(group);
+                }
+                if (mygroups.length > 0) {
+                    html.push('<option value="@all">----------</option>');
+                }
+                for (var i = 0; i < units.length; i++) {
+                    var group = units[i];
+                    html.push('<option value="' + group.id.groupId + '">');
+                    html.push(gadgets.util.escapeString(group.title));
+                    html.push('</option>');
+                    gadgets.log("unit:" + i);
+                    gadgets.log(group);
+                }
+                document.getElementById('groupSelect').innerHTML = html.join('');
+            };
+            var batch = osapi.newBatch()
+                    .add('unit', osapi.groups.get({ userId: '@viewer', startIndex: startIndex, count: 100, filterBy: 'type', filterValue: 'unit' }))
+                    .add('mygroup', osapi.groups.get({ userId: '@viewer', startIndex: startIndex, count: 100, filterBy: 'type', filterValue: 'mygroup' }));
+            batch.execute(callback);
+            }
+            
+            function fetchPeople(groupId, startIndex) {
+				osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
+				    osapi.people.get({ userId: '@viewer', groupId: groupId }).execute(function(response) {
+				        var users = response.list;
+                        var grouplist = "";
+                        
+				        for (var i in users) {
+				            var userId = users[i].id;
+				            var displayName = users[i].displayName;
+                            grouplist = grouplist + '<option value="userId">' + displayName + '</option>';
+                        }
+                    document.getElementById("group_to").innerHTML = grouplist;
+				    });
+				});
+            }
+            
+        function init() {
+            initForm();
+            fetchGroups(0);
+            fetchPeople(currentGroupId, 0);
+        }
+            gadgets.util.registerOnLoadHandler(init);
+            gadgets.window.adjustHeight();
+
+
+
+
+        </script>
+        ]]>
+    </Content>
+</Module>
