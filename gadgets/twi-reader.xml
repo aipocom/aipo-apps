@@ -172,7 +172,7 @@
 <hr id='" + res.id_str + "'>\
 <div class='timeline clearfix' id='post_" + res.id_str + "'>\
 <div class='main'>\
-<div class='body'><img class='twi_icon' src=' " + res.profile_image_url + "' alt='アイコン' align='left' /><span class='name'>\
+<div class='body'><span class='name'>\
 <a target='_blank' href='" + profileURL + res.from_user + "'>" + res.from_user + "<\/a><\/span>" + text + "\
 <\/div>\
 <div class='clearfix'>\
