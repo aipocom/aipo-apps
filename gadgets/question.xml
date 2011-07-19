@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<ModulePrefs
+        title="社内クエスチョン"
+        description="社内向けのアンケートです。">
+    <Require feature="views"/>
+    <Require feature="dynamic-height"/>
+    <Require feature="minimessage"/>
+    <Require feature="tabs"/>
+    <Require feature="aipostyle"/>
+    <Require feature="osapi"/>
+    <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/nomi-iko/img/icon/icon16-trans.png</Icon>
+</ModulePrefs>
+<Content type="html"><![CDATA[
+<style>
+    table.listTable {
+        width: 100%;
+        border: none;
+        border-collapse: collapse;
+        margin: 5px 0 10px;
+    }
+
+    table.listTable th {
+        background: #DCDCDC;
+        font-size: 10px;
+        color: #333333;
+        padding: 3px;
+        border: #CCC 1px solid;
+    }
+
+    table.listTable td {
+        background: #FFF;
+        color: #333333;
+        padding: 5px !important;
+        border: none !important;
+    }
+
+    table.listTable tr.odd td {
+        background: #F5F5F5;
+    }
+
+    table.listTable td.fs10 {
+        font-size: 10px !important;
+    }
+
+</style>
+<div class="aipostyle">
+    <table class="wide borderNone">
+        <tbody>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;"
+                                              onfocus="eventCommentFocus()"
+                                              onblur="eventCommentBlur()" maxlength=100
+                                              id="comment"/><input type="button" value="投稿する"
+                                                                   onclick="eventSubmit()" style="margin:0 0 0 10px;"/>
+            </td>
+        </tbody>
+    </table>
+
+    <table class="wide borderNone">
+        <tbody>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
+                                              maxlength=100
+                                              id="choice0"
+                                              onfocus="eventChoicesFocus(0)"
+                                              onblur="eventChoicesBlur(0)"/>
+            </td>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
+                                              maxlength=100
+                                              id="choice1"
+                                              onfocus="eventChoicesFocus(1)"
+                                              onblur="eventChoicesBlur(1)"/>
+            </td>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
+                                              maxlength=100
+                                              id="choice2"
+                                              onfocus="eventChoicesFocus(2)"
+                                              onblur="eventChoicesBlur(2)"/>
+            </td>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
+                                              maxlength=100
+                                              id="choice3"
+                                              onfocus="eventChoicesFocus(3)"
+                                              onblur="eventChoicesBlur(3)"/>
+            </td>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
+                                              maxlength=100
+                                              id="choice4"
+                                              onfocus="eventChoicesFocus(4)"
+                                              onblur="eventChoicesBlur(4)"/>
+            </td>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
+                                              maxlength=100
+                                              id="choice5"
+                                              onfocus="eventChoicesFocus(5)"
+                                              onblur="eventChoicesBlur(5)"/>
+            </td>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
+                                              maxlength=100
+                                              id="choice6"
+                                              onfocus="eventChoicesFocus(6)"
+                                              onblur="eventChoicesBlur(6)"/>
+            </td>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
+                                              maxlength=100
+                                              id="choice7"
+                                              onfocus="eventChoicesFocus(7)"
+                                              onblur="eventChoicesBlur(7)"/>
+            </td>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
+                                              maxlength=100
+                                              id="choice8"
+                                              onfocus="eventChoicesFocus(8)"
+                                              onblur="eventChoicesBlur(8)"/>
+            </td>
+        <tr>
+            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
+                                              maxlength=100
+                                              id="choice9"
+                                              onfocus="eventChoicesFocus(9)"
+                                              onblur="eventChoicesBlur(9)"/>
+            </td>
+        </tbody>
+    </table>
+
+    <table class="wide borderNone">
+        <tbody>
+        <td><em onclick=addQuestion()>質問を追加する</em></td>
+        </tbody>
+    </table>
+
+    <table class="listTable">
+        <tbody id="status">
+        </tbody>
+    </table>
+    <div id="pager"></div>
+</div>
+
+<script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
+</script>
+<script type="text/os-template" tag="aipoapp:question" xmlns:myapp="http://example.com/myapp">
+    <h1> 3213213213213</h1>
+    <ul>
+        <li repeat="${questions}" var="question">
+            <label><input type="checkbox"/> ${question.choice0}</label>
+        </li>
+    </ul>
+</script>
+<script type="text/javascript">
+    function showQuestionList(userName, questionList) {
+        var template = opensocial.template.getTemplate("aipoapp:question");
+        var data = {
+            contributor: userName,
+            questions: questionList
+        }
+        var outputDiv = document.getElementById("questionDiv");
+        template.renderInto(outputDiv, data);
+    }
+</script>
+<script>
+gadgets.util.registerOnLoadHandler(init);
+
+var choices = new Array(10);
+choices[0] = choice0;
+choices[1] = choice1;
+choices[2] = choice2;
+choices[3] = choice3;
+choices[4] = choice4;
+choices[5] = choice5;
+choices[6] = choice6;
+choices[7] = choice7;
+choices[8] = choice8;
+choices[9] = choice9;
+
+var choicesCheck = new Array(10);
+
+var choicesCount = 0;
+
+var groups = null;
+
+var commentCheck = false;
+var commentNotice = "質問する";
+
+var choicesNotice = "選択肢を追加";
+
+var table = null;
+var page_pre = null;
+var page_next = null;
+var prefs = new gadgets.Prefs();
+var page = 0;
+var pageCount = 0;
+
+
+/*
+ * init
+ */
+function init() {
+    // コメント
+    for (var i = 0; i < 10; i++) {
+        choicesCheck[i] = false;
+        eventChoicesBlur(i, choices[i]);
+    }
+    eventCommentBlur();
+    repaint();
+}
+
+/*
+ * submit
+ */
+function eventSubmit() {
+    // フォームから値の取得
+    var comment = $("#comment").val();
+    if (!commentCheck && comment == commentNotice) {
+        comment = "";
+    }
+    // 時間の取得
+    var date = (new Date()).getTime() + "";
+    // バリデート
+    if (!comment) {
+        msg.createTimerMessage("コメントを入力してください。", 5);
+        gadgets.window.adjustHeight();
+        return false;
+    }
+    if (comment.length > 100) {
+        msg.createTimerMessage("コメントは100文字までで入力してください。", 5);
+        gadgets.window.adjustHeight();
+        return false;
+    }
+
+    comment = gadgets.util.escapeString(comment);
+    date = gadgets.util.escapeString(date);
+
+    osapi.appdata.get({ userId: ["@viewer"] ,fields: ['keys'] }).execute(function(response) {
+        for (var userId in response) {
+            var data = response[userId];
+        }
+        var keys = new Array();
+        if (data && data['keys']) {
+            keys = gadgets.json.parse(data['keys']);
+        }
+
+        var timestamp = new Date().getTime();
+        var key = '__MODULE_ID__.' + timestamp;
+        keys.push(key);
+
+        var data = {};
+        var data1 = {};
+        var data2 = {};
+        data['comment'] = comment;
+        for(var i = 0; i < choicesCount; i++){
+            data['choice' + i] = choices[i];
+        }
+        data['date'] = date;
+        data1[key] = gadgets.json.stringify(data);
+        data2['keys'] = gadgets.json.stringify(keys);
+
+        var batch = osapi.newBatch()
+                .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
+                .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }));
+        batch.execute(function(response) {
+            // minimessage
+            var msg = new gadgets.MiniMessage();
+            msg.createTimerMessage("送信しました。", 3, function() {
+                $("#comment").val("");
+                gadgets.window.adjustHeight();
+                return true;
+            });
+            // データの再表示
+            repaint();
+        });
+    });
+}
+
+function addSubmit(key) {
+    osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
+        for (var userId in response) {
+            var data = response[userId];
+        }
+        var keys = new Array();
+        if (data && data['add']) {
+            keys = gadgets.json.parse(data['add']);
+        }
+
+        for (var i in keys) {
+            if (keys[i] == key) {
+                var msg = new gadgets.MiniMessage();
+                msg.createTimerMessage("すでに登録済みです。", 5);
+                gadgets.window.adjustHeight();
+                return false;
+            }
+        }
+
+        var data = {};
+        keys.push(key);
+        data['add'] = gadgets.json.stringify(keys);
+
+        // データの保存
+        osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
+            // minimessage
+            var msg = new gadgets.MiniMessage();
+            msg.createTimerMessage("送信しました。", 3, function() {
+                gadgets.window.adjustHeight();
+                return true;
+            });
+            // データの再表示
+            repaint();
+        });
+    });
+}
+
+function addQuestion() {
+    if (choicesCount < 10) {
+        $(choices[choicesCount++]).show();
+        gadgets.window.adjustHeight();
+    }
+}
+
+function eventCommentFocus() {
+    if (!commentCheck && $("#comment").val() == commentNotice) {
+        $("#comment").val("");
+        commentCheck = true;
+    }
+    $("#comment").css("color", "black");
+}
+
+function eventCommentBlur() {
+    if ($("#comment").val() == "") {
+        $("#comment").val(commentNotice);
+        commentCheck = false;
+        $("#comment").css("color", "gray");
+    }
+}
+
+function eventChoicesFocus(num) {
+    if (!choicesCheck[num] && $(choices[num]).val() == choicesNotice) {
+        $(choices[num]).val("");
+        choicesCheck[num] = true;
+    }
+    $(choices[num]).css("color", "black");
+}
+
+function eventChoicesBlur(num) {
+    if ($(choices[num]).val() == "") {
+        $(choices[num]).val(choicesNotice);
+        choicesCheck[num] = false;
+        $(choices[num]).css("color", "gray");
+    }
+}
+
+
+/*
+ * テーブルの再描画
+ */
+function repaint() {
+    // ユーザーの読み込み
+    osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+        var users = [];
+        var userIds = [];
+        var adds_users = [];
+        var keys = [];
+        var counter = 0;
+        // テーブルの初期化
+        $("#status").html("");
+
+        var list = response.list;
+        for (var i in list) {
+            users[list[i].id] = list[i];
+            userIds.push(list[i].id);
+        }
+        // データの取得
+        osapi.appdata.get({ userId: userIds ,fields: ['keys'] }).execute(function(response) {
+            // ユーザーID、アプリデータの連想配列
+            for (var userId in response) {
+                var tmp_keys = gadgets.json.parse(response[userId]['keys']);
+                for (var tmp_key in tmp_keys) {
+                    keys.push(tmp_keys[tmp_key]);
+                }
+            }
+            // データの取得
+            osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response3) {
+                // ユーザーID、アプリデータの連想配列
+                for (var userId3 in response3) {
+                    var tmp_add = gadgets.json.parse(response3[userId3]['add']);
+                    for (var i in tmp_add) {
+                        if (!adds_users[tmp_add[i]]) {
+                            adds_users[tmp_add[i]] = '';
+                        } else {
+                            adds_users[tmp_add[i]] += ', ';
+                        }
+                        adds_users[tmp_add[i]] += users[userId3].displayName;
+                    }
+
+                }
+                // データの取得
+                osapi.appdata.get({ userId: userIds ,fields: keys }).execute(function(response2) {
+                    for (var userId2 in response2) {
+                        var data = response2[userId2];
+
+                        for (var key in data) {
+                            // データの作成
+                            var rowdata = gadgets.json.parse(data[key]);
+                            var add_user = '';
+                            for (var key2 in adds_users) {
+                                if (rowdata["date"] == key2) {
+                                    add_user = adds_users[key2];
+                                }
+                            }
+
+                            var css_class = '';
+                            if (counter % 2 == 0) {
+                                css_class = ' class="odd"';
+                            }
+                            showQuestionList(users[userId2].displayName, [
+                                { choice0: "aaaaaaaaaaaaaa" }
+                            ])
+                        }
+                    }
+                    // ウインドウの幅再調整
+                    gadgets.window.adjustHeight();
+                });
+            });
+        });
+    });
+}
+
+/*
+ * 引数で与えられた時刻を整形して返す
+ * @param time 1900年からのms
+ */
+function getDate(time) {
+    var date = getDateArray(time);
+    return date.year + "/" + date.month + "/" + date.day + " (" + date.week + ") " + date.hour + "：" + date.minute;
+}
+
+/*
+ * 時刻を配列で返す
+ * @param time 1900年からの秒数
+ * @return date[] [time,year,month,day,week,hour,minute]
+ * ex) date.year
+ */
+function getDateArray(time) {
+    var r = {};
+    var weeks = new Array('日', '月', '火', '水', '木', '金', '土');
+
+    var date = new Date();
+    date.setTime(time);
+    r.time = time;
+
+    r.year = date.getYear();
+    r.month = date.getMonth() + 1;
+    r.day = date.getDate();
+    r.week = weeks[ date.getDay() ];
+    r.hour = date.getHours();
+    r.minute = date.getMinutes();
+
+    if (r.year < 2000) {
+        r.year += 1900;
+    }
+
+    // 頭に0を付ける
+    if (r.month < 10) {
+        r.month = "0" + r.month;
+    }
+    if (r.day < 10) {
+        r.day = "0" + r.day;
+    }
+    if (r.hour < 10) {
+        r.hour = "0" + r.hour;
+    }
+    if (r.minute < 10) {
+        r.minute = "0" + r.minute;
+    }
+
+    return r;
+}
+</script>
+]]>
+</Content>
+</Module>
