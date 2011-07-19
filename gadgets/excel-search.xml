@@ -1,0 +1,102 @@
+<Module>
+<ModulePrefs title="Excel Dictionary" description="Excel Dictionary">
+<Require feature="views"/>
+<Require feature="dynamic-height"/>
+<Require feature="minimessage"/>
+<Require feature="tabs"/>
+<Require feature="aipostyle"/>
+<Require feature="osapi"/>
+</ModulePrefs>
+<Content type="html">
+<![CDATA[
+<!-- フォーム --> 
+ <form onSubmit="return(getHtml(ef))" id="ef" name="ef"> 
+ <select name="catego" id="catego">
+ <option value="1">検索/行列関数</option>
+ <option value="2">データベース関数</option>
+ <option value="3">エンジニアリング関数</option>
+ <option value="4">財務関数</option>
+ <option value="5">情報関数</option>
+ <option value="6">数学/三角関数</option>
+ <option value="7">統計関数</option>
+ <option value="8">日付/時刻関数</option>
+ <option value="9">文字列操作関数</option>
+ <option value="10">論理関数</option>
+ </select>
+ <input type="button" value="種別検索" onClick="getHtml(ef)"> 
+ </form> 
+ 
+ <!-- 結果表示 --> 
+ <div id="content_div" style="border:1px solid gray"></div> 
+ 
+ <script type="text/javascript"> 
+ //---------------------- 
+ //リクエスト発信 
+ //---------------------- 
+ function getHtml(obj){ 
+ var catego = obj.catego.options[obj.catego.selectedIndex].value;
+ //var catego = $('catego').value; 
+ var url = 'http://searchexcelfunctions.appspot.com/searchCategories/?categories=' 
+ + encodeURIComponent(catego); 
+ //http://getexcelfunctions.appspot.com/searchCategories/?categories=1
+ 
+ //結果表示欄を空に 
+ $('content_div').innerHTML = ''; 
+ 
+ //オプション設定 
+ var params = {}; 
+ params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON; 
+ 
+ //リクエスト 
+ gadgets.io.makeRequest(url, response, params); 
+ 
+ return(false); 
+ } 
+ 
+ //---------------------- 
+ //callback関数 
+ //---------------------- 
+ function response(obj){ 
+ var json = obj.data['excelfunction']; 
+ 
+ //HTML作成 
+ var html = '<table border="1">';
+ html = html + '<tr><th>関数</th><th>説明</th><th>書式</th></tr>';
+ for( var i in json ){
+ html = html + '<tr>';
+ html = html + '<td>' + json[i]['function'] + '</td>';
+ html = html + '<td>' + json[i]['comments'] + '</td>';
+ html = html + '<td>' + json[i]['form'] + '</td>';
+ json[i]['key'];
+ json[i]['version'];
+ html = html + '</tr>';
+ }
+ html = html + '</table>';
+ 
+ //HTML反映 
+ $('content_div').innerHTML = html; 
+ 
+ //ガジェットの高さを自動調整 
+ gadgets.window.adjustHeight(); 
+ } 
+ 
+ //---------------------- 
+ //ショートカット 
+ //---------------------- 
+ function $(id){ 
+ return(document.getElementById(id)); 
+ } 
+ </script> 
+ <style tyle="text/css"> 
+ ul > li{ 
+ list-style-type:none; 
+ display:inline; 
+ padding:10px; 
+ } 
+ img{ 
+ border:0px; 
+ } 
+ </style>
+]]>
+</Content>
+</Module>
