@@ -9,41 +9,43 @@
         <Require feature="tabs"/>
         <Require feature="aipostyle"/>
         <Require feature="osapi"/>
+        <Require feature="setprefs"/>
         <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/nomi-iko/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
+    <UserPref name="version" datatype="hidden"/>
     <Content type="html"><![CDATA[
-       <style>
-table.listTable{
-width:100%;
-border:none;
-border-collapse:collapse;
-margin:5px 0 10px;
-}
+        <style>
+            table.listTable {
+                width: 100%;
+                border: none;
+                border-collapse: collapse;
+                margin: 5px 0 10px;
+            }
 
-table.listTable th{
-background:#DCDCDC;
-font-size:10px;
-color:#333333;
-padding:3px;
-border:#CCC 1px solid;
-}
+            table.listTable th {
+                background: #DCDCDC;
+                font-size: 10px;
+                color: #333333;
+                padding: 3px;
+                border: #CCC 1px solid;
+            }
 
-table.listTable td{
-background:#FFF;
-color:#333333;
-padding:5px !important;
-border:none !important;
-}
+            table.listTable td {
+                background: #FFF;
+                color: #333333;
+                padding: 5px !important;
+                border: none !important;
+            }
 
-table.listTable tr.odd td{
-background:#F5F5F5;
-}
+            table.listTable tr.odd td {
+                background: #F5F5F5;
+            }
 
-table.listTable td.fs10{
-font-size:10px !important;
-}
+            table.listTable td.fs10 {
+                font-size: 10px !important;
+            }
 
-</style>
+        </style>
         <div class="aipostyle">
             <table class="wide borderNone">
                 <tbody>
@@ -52,7 +54,8 @@ font-size:10px !important;
                                                       onfocus="eventCommentFocus()"
                                                       onblur="eventCommentBlur()" maxlength=100
                                                       id="comment"/><input type="button" value="投稿する"
-                                                                           onclick="eventSubmit()" style="margin:0 0 0 10px;"/>
+                                                                           onclick="eventSubmit()"
+                                                                           style="margin:0 0 0 10px;"/>
                     </td>
                 </tr>
                 </tbody>
@@ -68,6 +71,9 @@ font-size:10px !important;
         <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
         </script>
         <script type="text/javascript">
+
+        var version = "1.1";
+
         gadgets.util.registerOnLoadHandler(init);
 
         var groups = null;
@@ -86,6 +92,13 @@ font-size:10px !important;
          * init
          */
         function init() {
+            var oldVersion = prefs.getString("version");
+            if (version != oldVersion) {
+                if (oldVersion) {
+                    showVersion();
+                }
+                prefs.set("version", version);
+            }
             // コメント
             eventCommentBlur();
             repaint();
@@ -192,6 +205,143 @@ font-size:10px !important;
             });
         }
 
+        function deleteItem(key) {
+            if (confirm("このお誘いを削除してよろしいでしょうか？")) {
+
+            osapi.appdata.get({ userId: ["@viewer"] ,fields: [key] }).execute(function(response) {
+                for (var userId in response) {
+                                var links = response[userId];
+                }
+                                var data = new Array();
+                                if (links && links[key]) {
+                                    data = gadgets.json.parse(links[key]);
+                                }
+
+
+                // ユーザーの読み込み
+                osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+                    var userIds = [];
+                    var counter = 0;
+
+                    var list = response.list;
+                    for (var i in list) {
+                        userIds.push(list[i].id);
+                    }
+
+                    // データの取得
+                    osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response3) {
+                        // ユーザーID、アプリデータの連想配列
+                        for (var userId3 in response3) {
+                            var tmp_add = gadgets.json.parse(response3[userId3]['add']);
+                            for (var i in tmp_add) {
+                                if (tmp_add[i] == data['date']) {
+                                    counter++
+                                }
+                            }
+
+                        }
+                        if (counter > 0) {
+                            // minimessage
+                            var msg = new gadgets.MiniMessage();
+                            msg.createTimerMessage("参加者がいるため削除できません。", 3, function() {
+                                gadgets.window.adjustHeight();
+                                return true;
+                            });
+                        } else {
+
+
+                            osapi.appdata.get({ userId: ["@viewer"] ,fields: ["keys"] }).execute(function(response) {
+                for (var userId in response) {
+                                var links = response[userId];
+                }
+                                var keys = new Array();
+                                if (links && links["keys"]) {
+                                    keys = gadgets.json.parse(links["keys"]);
+                                }
+
+                                var callback = function(response2) {
+                                    if (response2.error) {
+                                        // minimessage
+                                        var msg = new gadgets.MiniMessage();
+                                        msg.createTimerMessage("削除に失敗しました。", 3, function() {
+                                            gadgets.window.adjustHeight();
+                                            return true;
+                                        });
+                                    } else {
+                                            // データの再表示
+                                            repaint();
+                                        // minimessage
+                                        var msg = new gadgets.MiniMessage();
+                                        msg.createTimerMessage("削除しました。", 3, function() {
+                                            gadgets.window.adjustHeight();
+                                            return true;
+                                        });
+                                    }
+                                };
+
+                                var newKeys = new Array();
+                                for (var i in keys) {
+                                    if (keys[i] != key) {
+                                        newKeys.push(keys[i]);
+                                    }
+                                }
+
+                                var data = {};
+                                data["keys"] = gadgets.json.stringify(newKeys);
+
+                                console.error(newKeys);
+
+                                var batch = osapi.newBatch()
+                                        .add('delete', osapi.appdata['delete']({ userId: '@viewer', fields: [key], appId: '@app' }))
+                                        .add('update', osapi.appdata.update({ userId: '@viewer', data: data,  appId: '@app' }));
+                                batch.execute(callback);
+                            });
+                        }
+                    });
+                    });
+                });
+
+            }
+        }
+
+
+        function deleteMap(key) {
+            if (confirm("このお誘いへの参加を削除してよろしいでしょうか？")) {
+                osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
+                    for (var userId in response) {
+                        var data = response[userId];
+                    }
+                    var keys = new Array();
+                    if (data && data['add']) {
+                        keys = gadgets.json.parse(data['add']);
+                    }
+
+
+                    var newKeys = new Array();
+                    for (var i in keys) {
+                        if (keys[i] != key) {
+                            newKeys.push(keys[i]);
+                        }
+                    }
+
+                    var data = {};
+                    data['add'] = gadgets.json.stringify(newKeys);
+
+                    // データの保存
+                    osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
+                        // minimessage
+                        var msg = new gadgets.MiniMessage();
+                        msg.createTimerMessage("送信しました。", 3, function() {
+                            gadgets.window.adjustHeight();
+                            return true;
+                        });
+                        // データの再表示
+                        repaint();
+                    });
+                });
+            }
+        }
+
         function eventCommentFocus() {
             if (!commentCheck && $("#comment").val() == commentNotice) {
                 $("#comment").val("");
@@ -209,6 +359,16 @@ font-size:10px !important;
 
         }
 
+
+        function showVersion() {
+            var span = document.createElement("span");
+            span.innerHTML = "<a href='" + changeLogUrl + "' target='_blank'>バージョン " + version + " にアップデートされました。</a>";
+            var versionMsg = msg.createDismissibleMessage(span, function() {
+                msg.dismissMessage(versionMsg);
+                adjustHeight();
+            });
+        }
+
         /*
          * テーブルの再描画
          */
@@ -222,7 +382,7 @@ font-size:10px !important;
                 var counter = 0;
                 // テーブルの初期化
                 $("#status").html("");
-                                    var header = '\
+                var header = '\
 <tr>\
 <th width="12%">投稿日時</th>\
 <th>提案者</th>\
@@ -231,7 +391,7 @@ font-size:10px !important;
 <th width="10%"></th>\
 </tr>\
                             ';
-                 $("#status").html($("#status").html() + header);
+                $("#status").html($("#status").html() + header);
 
                 var list = response.list;
                 for (var i in list) {
@@ -277,20 +437,22 @@ font-size:10px !important;
                                         }
                                     }
 
-                   var css_class = '';
-               if (counter % 2 == 0) {
-                   css_class = ' class="odd"';
-               }
+                                    var css_class = '';
+                                    if (counter % 2 == 0) {
+                                        css_class = ' class="odd"';
+                                    }
+                                    counter++;
+
                                     var key_data = '\
 <tr' + css_class + '>\
-    <td class="fs10" nowrap="nowrap">' + getDate(rowdata["date"]) + '</td>\
-    <td nowrap="nowrap" align="center">' + users[userId2].displayName + '</td>\
-    <td>' + rowdata["comment"] + '</td>\
-    <td>' + add_user + '</td>\
-    <td nowrap><input type="button" value="参加したい！" onclick="addSubmit(' + rowdata["date"] + ')"/></td>\
+    <td class="fs10" nowrap="nowrap">' + gadgets.util.escapeString(getDate(rowdata["date"])) + '&nbsp;<span class="small">[<a href="javascript:void(0);" onclick="deleteItem(' + gadgets.util.escapeString(key) + ');">削除</a>]</span></td>\
+    <td nowrap="nowrap" align="center">' + gadgets.util.escapeString(users[userId2].displayName) + '</td>\
+    <td>' + gadgets.util.escapeString(rowdata["comment"]) + '</td>\
+    <td>' + gadgets.util.escapeString(add_user) + '</td>\
+    <td nowrap><input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(rowdata["date"]) + ')"/>\
+    &nbsp;<span class="small">[<a href="javascript:void(0);" onclick="deleteMap(' + gadgets.util.escapeString(rowdata["date"]) + ');">削除</a>]</span></td>\
 </tr>\
-                            ';
-                counter++;
+';
                                     // データの表示
                                     $("#status").html($("#status").html() + key_data);
                                 }
