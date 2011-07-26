@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs title="myリンク"
+                 description="ユーザー個人のリンクを登録することができるリンク集です。初回に表示させたいカテゴリを覚えさせておくことができます。" height="35">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Require feature="osapi"/>
+        <Require feature="setprefs"/>
+        <Require feature="jquery"/>
+        <Optional feature="aipostyle"/>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/shared-link/img/icon/icon16-trans.png</Icon>
+    </ModulePrefs>
+    <UserPref name="version" datatype="hidden"/>
+    <UserPref name="currentUserId" datatype="hidden"/>
+    <UserPref name="currentGroupId" datatype="hidden"/>
+    <UserPref name="currentCategoryId" datatype="hidden"/>
+    <Content type="html"><![CDATA[
+        <script type="text/javascript"
+                src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
+        <style type="text/css">
+
+            #formField {
+                border: 2px solid #cbcbcb;
+                background: #ffffff;
+                position: absolute;
+                width: 250px;
+                z-index: 9999;
+                padding: 5px;
+            }
+
+            #formField .item {
+                padding-bottom: 5px;
+            }
+
+            #formField .item h3 {
+                margin-bottom: 5px;
+            }
+
+            #addLink {
+                background: url(https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/shared-link/img/icon/icon_edit.gif) no-repeat;
+                padding-left: 20px;
+            }
+
+            .ui-sortable li {
+                cursor: pointer;
+            }
+
+        </style>
+        <div class="aipostyle">
+            <div id="formContent">
+                <form id="form" name="form" action="#">
+                    <div id="formField" style="display:none;">
+                        <div id="errors"></div>
+                        <div class="item"><h3>タイトル</h3>
+                            <input type="text" class="text wide" name="title" value=""/></div>
+                        <div class="item"><h3>URL</h3>
+                            <input type="text" class="text wide" name="url" value=""/></div>
+                        <div class="item"><h3>カテゴリ</h3>
+
+                            <div id="categoryInputField" style="display:none">
+                                <input type="text" class="text" name="categoryInput" value=""
+                                       style="width:200px"/>&nbsp;<input
+                                    type="button" name="categoryInputButton" onclick="swapCategoryField(false);"
+                                    value="選択"/>
+                            </div>
+                            <div id="categorySelectField">
+                                <select id="categorySelect2" name="categorySelect" style="width:200px">
+                                    <option value="">読み込み中
+                                    </option>
+                                    &nbsp;<input type="button" name="categorySelectButton"
+                                                 onclick="swapCategoryField(true);" value="入力"/>
+                            </div>
+                        </div>
+                        <p class="center"><input type="submit" name="submit" value="追加する"/>&nbsp;
+                            <input type="button" name="close" onclick="hideForm();" value="閉じる"/></p></div>
+                    <table class="form wide">
+                        <tr>
+                            <th>カテゴリ
+                            </th>
+                            <td><select id="categorySelect1" name="category"
+                                        onchange="fetch(null,this.options[this.selectedIndex].value);">
+                                <option value="">読み込み中
+                                </option></td>
+                        </tr>
+                    </table>
+                    <a id="addLink" href="javascript:showForm();" style="display:none">リンクを追加する</a>
+
+                    <div id="links" class="w90" style="padding:5px;"></div>
+                    <input type="checkbox" name="clip" id="clipCheck" onchange="swapClip(this);"
+                           onclick="this.blur();this.focus();"/><label
+                        for="clipCheck">このカテゴリを最初に表示する。<label>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript">
+
+        var version = "1.0";
+        var changeLogUrl = "javascript:void(0);";
+
+        gadgets.util.registerOnLoadHandler(init);
+
+        var msg = new gadgets.MiniMessage();
+        var staticMsg;
+        var noticeMsg;
+        var prefs = new gadgets.Prefs();
+        var currentGroup = "";
+        var currentGroupId = '@all';
+        var currentUserId;
+        var currentStartIndex = 0;
+        var currentCategoryId = "none";
+        var viewerId;
+        var dispayName;
+        var inputSelect = false;
+
+        function showMessage(text) {
+            if (staticMsg) {
+                msg.dismissMessage(staticMsg);
+            }
+            staticMsg = msg.createStaticMessage(text);
+        }
+
+        function showTimerMessage(text) {
+            var timerMsg = msg.createTimerMessage(text, 3, function() {
+                msg.dismissMessage(timerMsg);
+                adjustHeight();
+            });
+        }
+
+        function showValidateErrorMessage(text) {
+            var errorMsg = new gadgets.MiniMessage('__MODULE_ID__', document.getElementById("errors"));
+            var timerMsg = errorMsg.createTimerMessage(text, 3, function() {
+                errorMsg.dismissMessage(timerMsg);
+                adjustHeight();
+            });
+        }
+
+        function fetchGroups(startIndex) {
+            var callback = function(response) {
+                var mygroups = response.mygroup.list;
+                var units = response.unit.list;
+                var groupSelectDom = $('#groupSelect');
+                groupSelectDom.empty();
+                groupSelectDom.append($('<option>').attr({ value: '@all' }).text('（グループ全体）'));
+                for (var i = 0; i < mygroups.length; i++) {
+                    var group = mygroups[i];
+                    var params = {};
+                    params['value'] = group.id.groupId;
+                    if (currentGroupId == group.id.groupId) {
+                        params['selected'] = 'selected';
+                    }
+                    groupSelectDom.append($('<option>').attr(params).text(group.title));
+                }
+                if (mygroups.length > 0 && units.length > 0) {
+                    groupSelectDom.append($('<option>').attr({ value: '' }).text('----------'));
+                }
+                for (var i = 0; i < units.length; i++) {
+                    var group = units[i];
+                    var params = {};
+                    params['value'] = group.id.groupId;
+                    if (currentGroupId == group.id.groupId) {
+                        params['selected'] = 'selected';
+                    }
+                    groupSelectDom.append($('<option>').attr(params).text(group.title));
+                }
+                fetchPeople(currentGroupId);
+            };
+            var batch = osapi.newBatch()
+                    .add('unit', osapi.groups.get({ userId: '@viewer', startIndex: startIndex, count: 1000, filterBy: 'type', filterValue: 'unit' }))
+                    .add('mygroup', osapi.groups.get({ userId: '@viewer', startIndex: startIndex, count: 1000, filterBy: 'type', filterValue: 'mygroup' }));
+            batch.execute(callback);
+        }
+
+        function fetchPeople(groupId, startIndex) {
+            document.getElementById('formField').style.display = "none";
+            if (groupId) {
+                var callback = function(response) {
+                    var people = response.people.list;
+                    viewerId = response.viewer.id;
+                    dispayName = response.viewer.dispayName;
+                    if (!currentUserId) {
+                        currentUserId = viewerId;
+                    }
+                    var userSelectDom = $('#userSelect');
+                    userSelectDom.empty();
+                    userSelectDom.append($('<option>').attr({ value: '' }).text('（選択してください）'));
+                    var userIds = new Array();
+                    var selectedUserId;
+                    for (var i = 0; i < people.length; i++) {
+                        var person = people[i];
+                        var params = {};
+                        params['value'] = person.id;
+                        if (currentUserId == person.id) {
+                            selectedUserId = currentUserId;
+                            params['selected'] = 'selected';
+                        }
+                        userSelectDom.append($('<option>').attr(params).text(person.displayName));
+                    }
+                    currentUserId = selectedUserId;
+                    fetch(currentUserId, currentCategoryId);
+                };
+                var params = { userId: '@viewer', groupId: groupId, startIndex: startIndex, count: 1000 };
+                var batch = osapi.newBatch()
+                        .add('people', osapi.people.get(params))
+                        .add('viewer', osapi.people.getViewer());
+                batch.execute(callback);
+                currentGroupId = groupId;
+            }
+        }
+
+        function fetchCategory() {
+            var posKey = 'cat.pos';
+            if (currentUserId) {
+                var callback1 = function(response1) {
+                    var categories1 = response1[currentUserId];
+                    var keys = new Array();
+                    if (categories1 && categories1[posKey]) {
+                        keys = gadgets.json.parse(categories1[posKey]);
+                    }
+                    var callback2 = function(response2) {
+                        var categories2 = response2[currentUserId];
+                        var categorySelect1 = $('#categorySelect1');
+                        var categorySelect2 = $('#categorySelect2');
+                        categorySelect1.empty();
+                        categorySelect2.empty();
+                        categorySelect1.append($('<option>').attr({ value: 'none' }).text('（未分類）'));
+                        categorySelect2.append($('<option>').attr({ value: 'none' }).text('（未分類）'));
+                        if (categories2) {
+                            for (var key in keys) {
+                                var value = categories2[keys[key]];
+                                var cat = gadgets.json.parse(value);
+
+                                var params = {};
+                                params['value'] = keys[key];
+                                if (currentCategoryId == keys[key]) {
+                                    params['selected'] = 'selected';
+                                }
+                                categorySelect1.append($('<option>').attr(params).text(cat.title));
+                                categorySelect2.append($('<option>').attr(params).text(cat.title));
+                            }
+                        }
+                        fetchLink();
+                    }
+                    osapi.appdata.get({ userId: [currentUserId] ,fields: keys }).execute(callback2);
+                }
+                osapi.appdata.get({ userId: [currentUserId] ,fields: [posKey] }).execute(callback1);
+            } else {
+                var categorySelect1 = $('#categorySelect1');
+                var categorySelect2 = $('#categorySelect2');
+                categorySelect1.empty();
+                categorySelect2.empty();
+                categorySelect1.append($('<option>').attr({ value: 'none' }).text('（未分類）'));
+                categorySelect2.append($('<option>').attr({ value: 'none' }).text('（未分類）'));
+                fetchLink();
+            }
+        }
+
+        function adjustHeight() {
+            gadgets.window.adjustHeight();
+            if (document.getElementById('formField').style.display == "none") {
+            } else {
+                var dimensions = gadgets.window.getViewportDimensions();
+                if (dimensions['height'] <= 310) {
+                    gadgets.window.adjustHeight(310);
+                } else {
+                    gadgets.window.adjustHeight();
+                }
+            }
+        }
+
+        function showForm() {
+            document.getElementById('formField').style.display = "";
+            document.form.title.focus();
+            adjustHeight();
+        }
+
+        function hideForm() {
+            document.getElementById('formField').style.display = "none";
+            adjustHeight();
+        }
+
+        function swapCategoryField(input) {
+            document.getElementById('categoryInputField').style.display = input ? "" : "none";
+            document.getElementById('categorySelectField').style.display = input ? "none" : "";
+            inputSelect = input;
+        }
+
+        function swapClip(input) {
+            if (input.checked) {
+                prefs.set("currentUserId", currentUserId, "currentGroupId", currentGroupId, "currentCategoryId", currentCategoryId);
+            } else {
+                prefs.set("currentUserId", "", "currentGroupId", "", "currentCategoryId", "");
+            }
+        }
+
+        function fetch(userId, categoryId) {
+            document.getElementById('formField').style.display = "none";
+            if (!userId) {
+                userId = currentUserId;
+            }
+            if (!categoryId) {
+                categoryId = currentCategoryId;
+            }
+            currentUserId = userId;
+            currentCategoryId = categoryId;
+
+            fetchCategory();
+        }
+
+        function fetchLink() {
+            var userId = prefs.getString("currentUserId");
+            var groupId = prefs.getString("currentGroupId");
+            var categoryId = prefs.getString("currentCategoryId");
+            if (userId == currentUserId && groupId == currentGroupId && categoryId == currentCategoryId) {
+                document.form.clip.checked = true;
+            } else {
+                document.form.clip.checked = false;
+            }
+            if (currentUserId) {
+                document.getElementById('addLink').style.display = (viewerId == currentUserId) ? "" : "none";
+                var posKey = 'pos.' + currentCategoryId;
+                var callback1 = function(response1) {
+                    var links1 = response1[currentUserId];
+                    var keys = new Array();
+                    if (links1 && links1[posKey]) {
+                        keys = gadgets.json.parse(links1[posKey]);
+                    }
+                    var callback2 = function(response2) {
+                        var links2 = response2[currentUserId];
+                        if (links2) {
+                            for (var key in keys) {
+                                var url = links2[keys[key]];
+                            }
+                            if (keys.length > 0) {
+                                var html = new Array();
+                                html.push('<ul id="sortable">');
+                                for (var key in keys) {
+                                    var value = links2[keys[key]];
+                                    var link = gadgets.json.parse(value);
+                                    html.push('<li id="' + gadgets.util.escapeString(keys[key]) + '">');
+                                    html.push('<a target="_blank" href="' + gadgets.util.escapeString(link.url) + '">' + gadgets.util.escapeString(link.title) + '</a>');
+                                    html.push('&nbsp;<span class="small" style="display:none">[<a href="javascript:void(0);" onclick="deleteLink(\'' + gadgets.util.escapeString(keys[key]) + '\');"/>削除</a>]</span>');
+                                    html.push('</li>');
+                                }
+                                html.push('</ul>');
+                                document.getElementById('links').innerHTML = html.join('');
+                                if (viewerId == currentUserId) {
+                                    $("#sortable").sortable({
+                                        update: function(event, ui) {
+                                            osapi.appdata.get({ userId: ["@viewer"] ,fields: [posKey] }).execute(function(response3) {
+                                                var links3 = response3[viewerId];
+                                                var keys2 = new Array();
+                                                if (links3 && links3[posKey]) {
+                                                    keys2 = gadgets.json.parse(links3[posKey]);
+                                                }
+                                                var newKeys = $('#sortable').sortable('toArray');
+                                                var validate = true;
+                                                for (var i in keys2) {
+                                                    if (jQuery.inArray(keys2[i], newKeys) == -1) {
+                                                        validate = false;
+                                                        break;
+                                                    }
+                                                }
+
+                                                if (validate) {
+                                                    var data = {};
+                                                    data[posKey] = gadgets.json.stringify($('#sortable').sortable('toArray'));
+                                                    osapi.appdata.update({ userId: '@viewer', data: data, appId: '@app' }).execute(function() {
+
+                                                    });
+                                                } else {
+                                                    showTimerMessage("一覧が古かったため並び替えできませんでした。");
+                                                    fetchLink(viewerId);
+                                                }
+
+                                            });
+                                        }
+                                    }).disableSelection();
+                                    $("#sortable li").hover(
+                                            function () {
+                                                $("#sortable li").find("span:last").hide();
+                                                $(this).find("span:last").show();
+                                            },
+                                            function () {
+                                                $(this).find("span:last").hide();
+                                            }
+                                    );
+                                }
+                                adjustHeight();
+                            } else {
+                                document.getElementById('links').innerHTML = "リンクがありません。";
+                                adjustHeight();
+                            }
+                        }
+                        else {
+                            document.getElementById('links').innerHTML = "リンクがありません。";
+                            adjustHeight();
+                        }
+                    }
+                    osapi.appdata.get({ userId: [currentUserId] ,fields: keys }).execute(callback2);
+                }
+                osapi.appdata.get({ userId: [currentUserId] ,fields: [posKey] }).execute(callback1);
+            }
+            else {
+                document.getElementById('addLink').style.display = "none";
+                document.getElementById('links').innerHTML = "ユーザーを選択してください。";
+                adjustHeight();
+            }
+        }
+
+        function addLink(title, url, categoryId) {
+            var posKey = 'pos.' + categoryId;
+            osapi.appdata.get({ userId: ["@viewer"] ,fields: [posKey] }).execute(function(response) {
+                var links = response[viewerId];
+                var keys = new Array();
+                if (links && links[posKey]) {
+                    keys = gadgets.json.parse(links[posKey]);
+                }
+
+                var callback = function(response2) {
+                    swapCategoryField(false);
+                    if (response2.error) {
+                        showTimerMessage("リンクの追加に失敗しました。");
+                    } else {
+                        hideForm();
+                        showTimerMessage("リンクを追加しました。");
+                        document.form.title.value = "";
+                        document.form.url.value = "";
+                        adjustHeight();
+                        fetch(viewerId, categoryId);
+                    }
+                };
+
+
+                var timestamp = new Date().getTime();
+                var key = '__MODULE_ID__.' + timestamp;
+                keys.push(key);
+
+
+                var link = {};
+                link['title'] = title;
+                link['url'] = url;
+                var data1 = {};
+                data1[key] = gadgets.json.stringify(link);
+
+                var data2 = {};
+                data2[posKey] = gadgets.json.stringify(keys);
+
+                var batch = osapi.newBatch()
+                        .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
+                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }));
+                batch.execute(callback);
+            });
+        }
+
+        function addCategory(title, url, category) {
+            var posKey = 'cat.pos';
+            osapi.appdata.get({ userId: ["@viewer"] ,fields: [posKey] }).execute(function(response) {
+                var links = response[viewerId];
+                var keys = new Array();
+                if (links && links[posKey]) {
+                    keys = gadgets.json.parse(links[posKey]);
+                }
+
+                var timestamp = new Date().getTime();
+                var key = 'cat.__MODULE_ID__.' + timestamp;
+                keys.push(key);
+
+                var callback = function(response2) {
+                    if (response2.error) {
+                        showTimerMessage("リンクの追加に失敗しました。");
+                        return null;
+                    } else {
+                        currentCategoryId = key;
+                        addLink(title, url, currentCategoryId);
+                        return key;
+                    }
+                };
+
+                var cat = {};
+                cat['title'] = category;
+                var data1 = {};
+                data1[key] = gadgets.json.stringify(cat);
+
+                var data2 = {};
+                data2[posKey] = gadgets.json.stringify(keys);
+
+                var batch = osapi.newBatch()
+                        .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
+                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }));
+                batch.execute(callback);
+            });
+        }
+
+        function deleteLink(deleteKey) {
+            if (confirm("このリンクを削除してよろしいでしょうか？")) {
+                var posKey = 'pos.' + currentCategoryId;
+                osapi.appdata.get({ userId: ["@viewer"] ,fields: [posKey, "cat.pos"] }).execute(function(response) {
+                    var links = response[viewerId];
+                    var keys = new Array();
+                    if (links && links[posKey]) {
+                        keys = gadgets.json.parse(links[posKey]);
+                    }
+
+                    var callback = function(response2) {
+                        if (response2.error) {
+                            showTimerMessage("リンクの削除に失敗しました。");
+                        } else {
+                            //showTimerMessage("リンクを削除しました。");
+                            //adjustHeight();
+                            fetch(viewerId, null);
+                        }
+                    };
+
+
+                    var newKeys = new Array();
+                    for (var key in keys) {
+                        if (keys[key] != deleteKey) {
+                            newKeys.push(keys[key]);
+                        }
+                    }
+
+                    var data = {};
+                    data[posKey] = gadgets.json.stringify(newKeys);
+
+                    var batch = osapi.newBatch()
+                            .add('delete', osapi.appdata['delete']({ userId: '@viewer', fields: [deleteKey], appId: '@app' }))
+                            .add('update', osapi.appdata.update({ userId: '@viewer', data: data,  appId: '@app' }));
+                    var size = newKeys.length;
+                    if (size == 0) {
+                        keys = new Array();
+                        if (links && links["cat.pos"]) {
+                            keys = gadgets.json.parse(links["cat.pos"]);
+                        }
+
+                        newKeys = new Array();
+                        for (var key in keys) {
+                            if (keys[key] != currentCategoryId) {
+                                newKeys.push(keys[key]);
+                            }
+                        }
+
+                        data = {};
+                        data['cat.pos'] = gadgets.json.stringify(newKeys);
+
+                        batch.add('cdelete', osapi.appdata['delete']({ userId: '@viewer', fields: [currentCategoryId], appId: '@app' }))
+                                .add('cupdate', osapi.appdata.update({ userId: '@viewer', data: data,  appId: '@app' }));
+                    }
+                    batch.execute(callback);
+                });
+            }
+        }
+
+        function initForm() {
+            document.form.onsubmit = function() {
+                document.getElementById("errors").innerHTML = "";
+                var title = document.form.title.value;
+                var url = document.form.url.value;
+                var categoryInput = document.form.categoryInput.value;
+                var validate = true;
+                if (!title) {
+                    showValidateErrorMessage("タイトルを入力してください。");
+                    validate = false;
+                }
+                else if (title.length > 50) {
+                    showValidateErrorMessage("タイトルは 50 文字以内で入力してください。");
+                    validate = false;
+                }
+                if (!url) {
+                    showValidateErrorMessage("URLを入力してください。");
+                    validate = false;
+                } else if (url.length > 250) {
+                    showValidateErrorMessage("URLは 250 文字以内で入力してください。");
+                    validate = false;
+                }
+
+                if (validate) {
+                    if (inputSelect) {
+                        addCategory(title, url, categoryInput);
+                    } else {
+                        var category = document.form.categorySelect.value;
+                        if (category) {
+                            currentCategoryId = category;
+                        }
+                        addLink(title, url, currentCategoryId);
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        function showVersion() {
+            var span = document.createElement("span");
+            span.innerHTML = "<a href='" + changeLogUrl + "' target='_blank'>バージョン " + version + " にアップデートされました。</a>";
+            var versionMsg = msg.createDismissibleMessage(span, function() {
+                msg.dismissMessage(versionMsg);
+                adjustHeight();
+            });
+        }
+
+        function init() {
+            var oldVersion = prefs.getString("version");
+            if (version != oldVersion) {
+                if (oldVersion) {
+                    showVersion();
+                }
+                prefs.set("version", version);
+            }
+            var currentView = gadgets.views.getCurrentView();
+            var supportViews = gadgets.views.getSupportedViews();
+            if (currentView.getName() == 'canvas') {
+                // ...
+            } else {
+                // ...
+            }
+            var userId = prefs.getString("currentUserId");
+            if (userId) {
+                currentUserId = userId;
+            }
+            var groupId = prefs.getString("currentGroupId");
+            if (groupId) {
+                currentGroupId = groupId;
+            }
+            var categoryId = prefs.getString("currentCategoryId");
+            if (categoryId) {
+                currentCategoryId = categoryId;
+            }
+            initForm();
+            fetchGroups(0);
+            adjustHeight();
+        }
+
+
+        </script>
+        ]]>
+    </Content>
+</Module>
