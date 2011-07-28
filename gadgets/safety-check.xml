@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs
+            title="安否確認"
+            description="安否を確認できるアプリです。各自の安否と出社可否を一覧で確認できます。">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Require feature="tabs"/>
+        <Require feature="aipostyle"/>
+        <Require feature="osapi"/>
+<!--
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon16-trans.png</Icon>
+-->
+    </ModulePrefs>
+    <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <UserPref name="p2-canvasRows" display_name="表示件数（最大化時）" datatype="enum" default_value="10">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <Content type="html"><![CDATA[
+       <style>
+table.listTable{
+width:100%;
+border:none;
+border-collapse:collapse;
+margin:5px 0 10px;
+}
+
+table.listTable th{
+background:#DCDCDC;
+font-size:10px;
+color:#333333;
+padding:3px;
+border:#CCC 1px solid;
+}
+
+table.listTable td{
+background:#FFF;
+color:#333333;
+padding:5px !important;
+border:#CCC 1px solid;
+}
+
+table.listTable tr.odd td{
+background:#F5F5F5;
+border:#CCC 1px solid;
+}
+
+table.listTable td.fs10{
+font-size:10px !important;
+}
+
+</style>
+        <div class="aipostyle">
+            安否を報告してください。
+            <table class="listTable">
+              <tbody>
+                <tr>
+                    <th>安否状況
+                    </th>
+                    <td><select id="value_safety_self" name="value_safety_self">
+                        <option value="0">無事
+                        </option>
+                        <option value="1">軽傷
+                        </option>
+                        <option value="2">重症
+                        </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>出社可否
+                    </th>
+                    <td><select id="value_safety_work" name="value_safety_work">
+                        <option value="0">可能
+                        </option>
+                        <option value="1">不可能
+                        </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>コメント
+                    </th>
+                    <td><textarea id="value_safety_note" name="value_safety_note" rows="3" style="width:100%"></textarea>
+                    </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="center"><input type="button" value="報告する" onclick="eventSubmit()"/></div>
+            <hr/>
+            <table class="wide borderNone" style="margin:5px 0 10px;">
+                <tbody>
+                <tr>
+                    <td nowrap="">
+                        <select style="margin:7px 0 10px;" id="groups" onchange="eventGroupSelect()">
+                        </select></td>
+                    <td nowrap="" align="right"><input type="button" value="更新"
+                                                       onclick="repaint()"/></td>
+                </tr>
+                </tbody>
+            </table>
+            <table class="listTable">
+                <tbody id="status">
+                </tbody>
+            </table>
+            <div id="pager"></div>
+        </div>
+
+        <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
+        </script>
+        <script type="text/javascript">
+        gadgets.util.registerOnLoadHandler(init);
+
+        var groups = null;
+
+        var table = null;
+        var page_pre = null;
+        var page_next = null;
+        var prefs = new gadgets.Prefs();
+        var page = 0;
+        var pageCount = 0;
+
+        /*
+         * init
+         */
+        function init() {
+            // グループの読み込み
+            osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
+                groups = response.list;
+                groups.unshift({id:{groupId:'@all'},title:'全体'});
+                changeGroupList();
+                eventGroupSelect();
+            });
+        }
+
+        /*
+         * submit
+         */
+        function eventSubmit() {
+            // 時間の取得
+            var date = (new Date()).getTime() + "";
+            // フォームから値の取得
+            var data = {};
+            data['key_safety_self'] = $("#value_safety_self").val();
+            data['key_safety_work'] = $("#value_safety_work").val();
+            data['key_safety_note'] = gadgets.util.escapeString($("#value_safety_note").val());
+            data['key_safety_date'] = gadgets.util.escapeString(date);
+
+            // データの保存
+            osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
+                // minimessage
+                var msg = new gadgets.MiniMessage();
+                msg.createTimerMessage("送信しました。", 3, function() {
+                    gadgets.window.adjustHeight();
+                    return true;
+                });
+                // データの再表示
+                repaint();
+            });
+        }
+
+        /*
+         * ページの変更
+         */
+        function eventPageChange(num) {
+            page = num;
+            // 再描画
+            repaint();
+        }
+        /*
+         *
+         */
+        function eventGroupSelect() {
+            // ページの変更(データの表示)
+            setPageCount(function() {
+                createPager(pageCount, 0, eventPageChange);
+                eventPageChange(0);
+            });
+        }
+        /*
+         * ページカウントを取得する
+         */
+        function setPageCount(callback) {
+            var index = page * getPrefRows();
+            var groupId = groups[$("#groups").val()].id.groupId;
+            osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index }).execute(function(response) {
+                var len = response.list.length;
+                pageCount = len / getPrefRows();
+                callback();
+            });
+        }
+        /*
+         * グループリストを変更
+         */
+        function changeGroupList() {
+            $("#groups").html("");
+            for (var i in groups) {
+                $("#groups").html($("#groups").html() + '<option value="' + i + '">' + groups[i].title + '</option>');
+            }
+        }
+
+        /*
+         * テーブルの再描画
+         */
+        function repaint() {
+            // ユーザーの読み込み
+            var index = page * getPrefRows();
+            var groupId = groups[$("#groups").val()].id.groupId;
+            osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index, count:getPrefRows() }).execute(function(response) {
+                var users = [];
+                var userIds = [];
+                var userData = [];
+
+                var list = response.list;
+                for (var i in list) {
+                    users[list[i].id] = list[i];
+                    userIds.push(list[i].id);
+                    // 初期値
+                    userData[list[i].id] = '\
+<tr>\
+    <td class="fs10" nowrap="nowrap">'+ users[list[i].id].displayName +'</td>\
+    <td nowrap="nowrap"></td>\
+    <td nowrap="nowrap"></td>\
+    <td></td>\
+    <td nowrap="nowrap"></td>\
+</tr>\
+                            ';
+                }
+                // データの取得
+                osapi.appdata.get({ userId: userIds ,fields: ['key_safety_self','key_safety_work','key_safety_note','key_safety_date'] }).execute(function(response) {
+                    // ユーザーID、アプリデータの連想配列
+                    for (var userId in response) {
+                        var data = response[userId];
+                        var value_safety_self = '';
+                        var value_safety_work = '';
+                        var value_safety_note = '';
+                        var value_safety_date = '';
+
+                        if (data["key_safety_self"] == "0"){
+                          value_safety_self = "無事";
+                        } else if(data["key_safety_self"] == "1") {
+                          value_safety_self = "軽傷";
+                        } else if(data["key_safety_self"] == "2") {
+                          value_safety_self = "重症";
+                        } else {
+                          value_safety_self = "未選択";
+                        }
+
+                        if (data["key_safety_work"] == "0") {
+                          value_safety_work = "可能";
+                        } else if(data["key_safety_work"] == "1") {
+                          value_safety_work = "不可能";
+                        } else {
+                          value_safety_work = "未選択";
+                        }
+
+                        value_safety_note = data["key_safety_note"];
+                        value_safety_date = getDate(data["key_safety_date"]);
+
+                        // データの作成
+                        userData[userId] = '\
+<tr>\
+    <td class="fs10" nowrap="nowrap">'+ users[userId].displayName +'</td>\
+    <td nowrap="nowrap" align="center">'+ value_safety_self +'</td>\
+    <td nowrap="nowrap" align="center">'+ value_safety_work +'</td>\
+    <td>'+ value_safety_note +'</td>\
+    <td nowrap="nowrap">'+ value_safety_date +'</td>\
+</tr>\
+                            ';
+                    }
+                    // テーブルの初期化
+                    $("#status").html("");
+                    var header = '\
+<tr>\
+<th>氏名</th>\
+<th>安否状況</th>\
+<th>出社可否</th>\
+<th>コメント</th>\
+<th width="12%">報告日時</th>\
+</tr>\
+                            ';
+                    $("#status").html($("#status").html() + header);
+
+                    // データの表示
+                    for (var id in userData) {
+                        $("#status").html($("#status").html() + userData[id]);
+                    }
+                    // ウインドウの幅再調整
+                    gadgets.window.adjustHeight();
+                });
+            });
+        }
+
+        /*
+         * 引数で与えられた時刻を整形して返す
+         * @param time 1900年からのms
+         */
+        function getDate(time) {
+            var date = getDateArray(time);
+            return date.year + "/" + date.month + "/" + date.day + " (" + date.week + ") " + date.hour + "：" + date.minute;
+        }
+        /*
+         * 時刻を配列で返す
+         * @param time 1900年からの秒数
+         * @return date[] [time,year,month,day,week,hour,minute]
+         * ex) date.year
+         */
+        function getDateArray(time) {
+            var r = {};
+            var weeks = new Array('日', '月', '火', '水', '木', '金', '土');
+
+            var date = new Date();
+            date.setTime(time);
+            r.time = time;
+
+            r.year = date.getYear();
+            r.month = date.getMonth() + 1;
+            r.day = date.getDate();
+            r.week = weeks[ date.getDay() ];
+            r.hour = date.getHours();
+            r.minute = date.getMinutes();
+
+            if (r.year < 2000) {
+                r.year += 1900;
+            }
+
+            // 頭に0を付ける
+            if (r.month < 10) {
+                r.month = "0" + r.month;
+            }
+            if (r.day < 10) {
+                r.day = "0" + r.day;
+            }
+            if (r.hour < 10) {
+                r.hour = "0" + r.hour;
+            }
+            if (r.minute < 10) {
+                r.minute = "0" + r.minute;
+            }
+
+            return r;
+        }
+        /*
+         * 設定の読み込み
+         */
+        function getPrefRows(name) {
+            // 設定の読み込み
+            var currentView = gadgets.views.getCurrentView();
+            if (currentView.getName() == "home") {
+                return prefs.getInt("p1-homeRows");
+            } else {
+                return prefs.getInt("p2-canvasRows");
+            }
+        }
+        /*
+         * id=pagerにページャを作成
+         * @param pageCount（ページ数）,currentPage（現在のページ番号）,callback
+         */
+        var pager_callback = function() {
+        };
+        function createPager(pageCount, currentPage, callback) {
+            pager_callback = callback;
+            var str = '';
+            if (pageCount > 1) {
+                var str = '<div class="clearfix"><ul class="pagination">';
+                // 初期化
+                $("<div></div>")
+                for (var i = 0; i < pageCount; i++) {
+                    if (i == currentPage) {
+                        str += '<li class="selected">';
+                    } else {
+                        str += '<li>';
+                    }
+                    str += '<a href="javascript:void(0);" onclick="eventPager(\'' + i.toString() + '\')">';
+                    str += (i + 1).toString() + '</a></li>';
+                }
+                str += '</ul></div>';
+            }
+            // pagerに登録
+            $("#pager").html(str);
+        }
+        function eventPager(page) {
+            pager_callback(page);
+            createPager(pageCount, page, pager_callback);
+        }
+        </script>
+        ]]></Content>
+</Module>
