@@ -93,13 +93,13 @@ font-size:10px !important;
                 </tr>
               </tbody>
             </table>
-            <div class="center"><input type="button" value="報告する" onclick="eventSubmit()"/></div>
+            <div class="center" style="padding:0 0 10px;"><input type="button" value="報告する" onclick="eventSubmit()"/></div>
             <hr/>
-            <table class="wide borderNone" style="margin:5px 0 10px;">
+            <table class="wide borderNone" style="margin:5px 0 0;">
                 <tbody>
                 <tr>
                     <td nowrap="">
-                        <select style="margin:7px 0 10px;" id="groups" onchange="eventGroupSelect()">
+                        <select id="groups" onchange="eventGroupSelect()">
                         </select></td>
                     <td nowrap="" align="right"><input type="button" value="更新"
                                                        onclick="repaint()"/></td>
@@ -279,11 +279,11 @@ font-size:10px !important;
                     $("#status").html("");
                     var header = '\
 <tr>\
-<th>氏名</th>\
-<th>安否状況</th>\
-<th>出社可否</th>\
+<th width="15%">氏名</th>\
+<th width="10%">安否状況</th>\
+<th width="10%">出社可否</th>\
 <th>コメント</th>\
-<th width="12%">報告日時</th>\
+<th width="15%">報告日時</th>\
 </tr>\
                             ';
                     $("#status").html($("#status").html() + header);
