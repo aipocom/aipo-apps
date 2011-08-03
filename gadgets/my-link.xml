@@ -9,7 +9,7 @@
         <Require feature="setprefs"/>
         <Require feature="jquery"/>
         <Optional feature="aipostyle"/>
-        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/shared-link/img/icon/icon16-trans.png</Icon>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/my-link/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <UserPref name="version" datatype="hidden"/>
     <UserPref name="currentUserId" datatype="hidden"/>
@@ -38,7 +38,7 @@
             }
 
             #addLink {
-                background: url(https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/shared-link/img/icon/icon_edit.gif) no-repeat;
+                background: url(https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/my-link/img/icon/icon_edit.gif) no-repeat;
                 padding-left: 20px;
             }
 
