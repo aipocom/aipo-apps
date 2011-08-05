@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
     <ModulePrefs
-            title="飲みイコ1.1"
+            title="飲みイコ"
             description="飲みへのお誘い機能です。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
@@ -45,6 +45,14 @@
                 font-size: 10px !important;
             }
 
+            div.pager {
+                background: #F5F5F5;
+                color: #333333;
+                padding: 3px;
+                border: #CCC 1px solid;
+                margin-bottom: 5px;
+            }
+
         </style>
         <div class="aipostyle">
             <table class="wide borderNone">
@@ -65,7 +73,7 @@
                 <tbody id="status">
                 </tbody>
             </table>
-            <div id="pager"></div>
+            <div id="pager" style="text-align:center;" class="pager"></div>
         </div>
 
         <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
@@ -74,7 +82,7 @@
 
         var version = "1.1";
         var changeLogUrl = "javascript:void(0);";
-        var change_log = "イベントの削除/参加キャンセル機能がつきました。";
+        var change_log = "イベントの削除・参加キャンセル機能がつきました。";
 
         gadgets.util.registerOnLoadHandler(init);
 
@@ -89,6 +97,7 @@
         var prefs = new gadgets.Prefs();
         var page = 0;
         var pageCount = 0;
+        var max_per_page = 5;
 
         /*
          * init
@@ -96,7 +105,7 @@
         function init() {
             var oldVersion = prefs.getString("version");
             if (version != oldVersion) {
-                    showVersion();
+                showVersion();
                 prefs.set("version", version);
             }
             // コメント
@@ -291,7 +300,6 @@
                                     var data = {};
                                     data["keys"] = gadgets.json.stringify(newKeys);
 
-                                    console.error(newKeys);
 
                                     var batch = osapi.newBatch()
                                             .add('delete', osapi.appdata['delete']({ userId: '@viewer', fields: [key], appId: '@app' }))
@@ -363,12 +371,12 @@
 
 
         function showVersion() {
-                        var msg = new gadgets.MiniMessage();
+            var msg = new gadgets.MiniMessage();
             var span = document.createElement("span");
-            span.innerHTML = "<a href='" + changeLogUrl + "' target='_blank'>バージョン " + version + " にアップデートされました。"+change_log+"</a>";
+            span.innerHTML = "<a href='" + changeLogUrl + "' target='_blank'>バージョン " + version + " にアップデートされました。" + change_log + "</a>";
             var versionMsg = msg.createDismissibleMessage(span, function() {
                 msg.dismissMessage(versionMsg);
-                            gadgets.window.adjustHeight();
+                gadgets.window.adjustHeight();
             });
         }
 
@@ -376,110 +384,141 @@
          * テーブルの再描画
          */
         function repaint() {
-            // ユーザーの読み込み
-            osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
-                var users = [];
-                var userIds = [];
-                var adds_users = [];
-                var keys = [];
-                var counter = 0;
-                // テーブルの初期化
-                $("#status").html("");
-                var header = '\
-<tr>\
-<th width="12%">投稿日時</th>\
-<th>提案者</th>\
-<th>コメント</th>\
-<th>賛同者</th>\
-<th width="5%"></th>\
-<th width="10%"></th>\
-</tr>\
-                            ';
-                $("#status").html($("#status").html() + header);
+            osapi.people.get({ userId: '@viewer' }).execute(function(response5) {
 
-                var list = response.list;
-                for (var i in list) {
-                    users[list[i].id] = list[i];
-                    userIds.push(list[i].id);
-                }
-                // データの取得
-                osapi.appdata.get({ userId: userIds ,fields: ['keys'] }).execute(function(response) {
-                    // ユーザーID、アプリデータの連想配列
-                    for (var userId in response) {
-                        var tmp_keys = gadgets.json.parse(response[userId]['keys']);
-                        for (var tmp_key in tmp_keys) {
-                            keys.push(tmp_keys[tmp_key]);
-                        }
+                // ユーザーID
+                var currentUserid = response5.id;
+                // ユーザーの読み込み
+                osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+                    var users = [];
+                    var userIds = [];
+                    var adds_users = [];
+                    var keys = [];
+                    var row_datas = [];
+                    var counter = 0;
+                    var list = response.list;
+                    for (var i in list) {
+                        users[list[i].id] = list[i];
+                        userIds.push(list[i].id);
                     }
                     // データの取得
-                    osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response3) {
+                    osapi.appdata.get({ userId: userIds ,fields: ['keys'] }).execute(function(response) {
                         // ユーザーID、アプリデータの連想配列
-                        for (var userId3 in response3) {
-                            var tmp_add = gadgets.json.parse(response3[userId3]['add']);
-                            for (var i in tmp_add) {
-                                if (!adds_users[tmp_add[i]]) {
-                                    adds_users[tmp_add[i]] = '';
-                                } else {
-                                    adds_users[tmp_add[i]] += ', ';
-                                }
-                                adds_users[tmp_add[i]] += users[userId3].displayName;
+                        for (var userId in response) {
+                            var tmp_keys = gadgets.json.parse(response[userId]['keys']);
+                            for (var tmp_key in tmp_keys) {
+                                keys.push(tmp_keys[tmp_key]);
                             }
-
                         }
+                        // データの取得
+                        osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response3) {
+                            // ユーザーID、アプリデータの連想配列
+                            for (var userId3 in response3) {
+                                var tmp_add = gadgets.json.parse(response3[userId3]['add']);
+                                for (var i in tmp_add) {
+                                    if (!adds_users[tmp_add[i]]) {
+                                        adds_users[tmp_add[i]] = '';
+                                    } else {
+                                        adds_users[tmp_add[i]] += ', ';
+                                    }
+                                    adds_users[tmp_add[i]] += users[userId3].displayName;
+                                }
 
-                        //自分の参加一覧取得
-                        osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response4) {
-                            for (var userId in response4) {
-                                var data = response4[userId];
                             }
-                            var my_add_keys = new Array();
-                            if (data && data['add']) {
-                                my_add_keys = gadgets.json.parse(data['add']);
-                            }
-                            // データの取得
-                            osapi.appdata.get({ userId: userIds ,fields: keys }).execute(function(response2) {
-                                for (var userId2 in response2) {
-                                    var data = response2[userId2];
 
-                                    for (var key in data) {
-                                        // データの作成
-                                        var rowdata = gadgets.json.parse(data[key]);
-                                        var add_user = '';
-                                        for (var key2 in adds_users) {
-                                            if (rowdata["date"] == key2) {
-                                                add_user = adds_users[key2];
+                            //自分の参加一覧取得
+                            osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response4) {
+                                for (var userId in response4) {
+                                    var data = response4[userId];
+                                }
+                                var my_add_keys = new Array();
+                                if (data && data['add']) {
+                                    my_add_keys = gadgets.json.parse(data['add']);
+                                }
+                                // データの取得
+                                osapi.appdata.get({ userId: userIds ,fields: keys }).execute(function(response2) {
+                                    for (var userId2 in response2) {
+                                        var data = response2[userId2];
+
+                                        for (var key in data) {
+                                            // データの作成
+                                            var rowdata = gadgets.json.parse(data[key]);
+                                            rowdata["key"] = key;
+                                            rowdata["add_user"] = '';
+                                            rowdata["owner"] = users[userId2].displayName;
+                                            rowdata["owner_id"] = userId2;
+                                            for (var key2 in adds_users) {
+                                                if (rowdata["date"] == key2) {
+                                                    rowdata["add_user"] = adds_users[key2];
+                                                }
                                             }
+                                            row_datas.push(rowdata);
                                         }
+                                    }
+
+                                    row_datas.sort(function(a, b) {
+                                        return a["date"] < b["date"] ? 1 : -1;
+                                    });
+
+                                    if (row_datas.length > 0) {
+                                        // テーブルの初期化
+                                        $("#status").html("");
+                                        var header = '\
+                                <tr>\
+                                <th>投稿日時</th>\
+                                <th>提案者</th>\
+                                <th>コメント</th>\
+                                <th>賛同者</th>\
+                                <th>削除</th>\
+                                <th>参加</th>\
+                                </tr>\
+                                                            ';
+                                        $("#status").html($("#status").html() + header);
+                                    }
+                                    if (row_datas.length >= max_per_page) {
+                                        var pager = '<a href="javascript:void(0);" onclick="showMore();">全件表示</a>';
+                                        $("#pager").html(pager);
+                                        $("#pager").show();
+                                    }
+
+
+                                    for (var i in row_datas) {
 
                                         var css_class = '';
                                         if (counter % 2 == 0) {
                                             css_class = ' class="odd"';
                                         }
+                                        if (counter >= max_per_page) {
+                                            css_class += ' style="display:none;"';
+                                        }
                                         counter++;
-                                        var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(rowdata["date"]) + ')"/>';
-                                        ;
-                                        for (var i in my_add_keys) {
-                                            if (my_add_keys[i] == rowdata["date"]) {
-                                                add_html = '<input type="button" value="キャンセル" onclick="deleteMap(' + gadgets.util.escapeString(rowdata["date"]) + ')"/>';
+                                        var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(row_datas[i]["date"]) + ')"/>';
+                                        for (var j in my_add_keys) {
+                                            if (my_add_keys[j] == row_datas[i]["date"]) {
+                                                add_html = '<input type="button" value="キャンセル" onclick="deleteMap(' + gadgets.util.escapeString(row_datas[i]["date"]) + ')"/>';
                                             }
+                                        }
+                                        var delete_html = '';
+                                        if (row_datas[i]["owner_id"] == currentUserid) {
+                                            delete_html = '<span class="small">[<a href="javascript:void(0);" onclick="deleteItem(' + gadgets.util.escapeString(row_datas[i]["key"]) + ');">削除</a>]</span>';
                                         }
 
                                         var key_data = '\
 <tr' + css_class + '>\
-    <td class="fs10">' + gadgets.util.escapeString(getDate(rowdata["date"])) + '</td>\
-    <td align="center">' + gadgets.util.escapeString(users[userId2].displayName) + '</td>\
-    <td>' + gadgets.util.escapeString(rowdata["comment"]) + '</td>\
-    <td>' + gadgets.util.escapeString(add_user) + '</td>\
-    <td><span class="small">[<a href="javascript:void(0);" onclick="deleteItem(' + gadgets.util.escapeString(key) + ');">削除</a>]</span></td>\
-    <td>' + add_html + '</td>\
+    <td class="fs10">' + gadgets.util.escapeString(getDate(row_datas[i]["date"])) + '</td>\
+    <td align="center">' + gadgets.util.escapeString(row_datas[i]["owner"]) + '</td>\
+    <td>' + gadgets.util.escapeString(row_datas[i]["comment"]) + '</td>\
+    <td>' + gadgets.util.escapeString(row_datas[i]["add_user"]) + '</td>\
+    <td>' + delete_html + '</td>\
+    <td align="center">' + add_html + '</td>\
 </tr>\
 ';
                                         // データの表示
                                         $("#status").html($("#status").html() + key_data);
                                     }
-                                }
-                                // ウインドウの幅再調整
-                                gadgets.window.adjustHeight();
+                                    // ウインドウの幅再調整
+                                    gadgets.window.adjustHeight();
+                                });
                             });
                         });
                     });
@@ -494,6 +533,16 @@
         function getDate(time) {
             var date = getDateArray(time);
             return date.year + "/" + date.month + "/" + date.day + " (" + date.week + ") " + date.hour + "：" + date.minute;
+        }
+
+        /*
+         * 表示切り替え
+         */
+        function showMore() {
+            $("#status").children("tr").css("display", "");
+            $("#pager").hide("slow");
+            // ウインドウの幅再調整
+            gadgets.window.adjustHeight();
         }
 
         /*
