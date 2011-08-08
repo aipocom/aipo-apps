@@ -65,6 +65,10 @@
         var commentCheck = false;
         var commentNotice = "コメントを書く（100文字まで）";
 
+        // アクティビティ
+        var activity_event = "「飲みイコ」新しいお誘いを追加しました。";
+        var activity_add = "「飲みイコ」参加者が増えました。";
+
         // 変数設定
         var prefs = new gadgets.Prefs();
         var msg = new gadgets.MiniMessage();
@@ -135,7 +139,8 @@
 
                 var batch = osapi.newBatch()
                         .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
-                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }));
+                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }))
+                        .add('activities', osapi.activities.create({ userId: '@viewer', activity: { title: activity_event }}));
                 batch.execute(function(response) {
                     $("#comment").val("");
                     // minimessage
@@ -152,7 +157,7 @@
         /*
          * お誘いへの参加
          */
-        function addSubmit(key) {
+        function addSubmit(key, owner_id) {
             osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
                 for (var userId in response) {
                     var data = response[userId];
@@ -162,12 +167,10 @@
                     keys = gadgets.json.parse(data['add']);
                 }
 
-                for (var i in keys) {
-                    if (keys[i] == key) {
-                        msg.createTimerMessage("すでに登録済みです。", 5);
-                        gadgets.window.adjustHeight();
-                        return false;
-                    }
+                if (jQuery.inArray(key, keys) != -1) {
+                    msg.createTimerMessage("すでに登録済みです。", 5);
+                    gadgets.window.adjustHeight();
+                    return false;
                 }
 
                 var data = {};
@@ -175,7 +178,10 @@
                 data['add'] = gadgets.json.stringify(keys);
 
                 // データの保存
-                osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
+                var batch = osapi.newBatch()
+                        .add('update1', osapi.appdata.update({ userId: '@viewer', data: data }))
+                        .add('activities', osapi.activities.create({ userId: '@viewer', activity: { title: activity_add , recipients: [owner_id], priority: 1}}));
+                batch.execute(function(response) {
                     // minimessage
                     msg.createTimerMessage("送信しました。", 3, function() {
                         gadgets.window.adjustHeight();
@@ -222,7 +228,6 @@
                                         counter++
                                     }
                                 }
-
                             }
                             if (counter > 0) {
                                 // minimessage
@@ -340,7 +345,6 @@
                 commentCheck = false;
                 $("#comment").css("color", "gray");
             }
-
         }
 
         /*
@@ -470,7 +474,7 @@
                                             css_class += ' style="display:none;"';
                                         }
                                         counter++;
-                                        var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(row_datas[i]["date"]) + ')"/>';
+                                        var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(row_datas[i]["date"]) + ', \'' + gadgets.util.escapeString(row_datas[i]["owner_id"]) + '\')"/>';
                                         for (var j in my_add_keys) {
                                             if (my_add_keys[j] == row_datas[i]["date"]) {
                                                 add_html = '<input type="button" value="キャンセル" onclick="deleteMap(' + gadgets.util.escapeString(row_datas[i]["date"]) + ')"/>';
@@ -509,7 +513,7 @@
          */
         function showMore() {
             $("#status").children("tr").css("display", "");
-            $("#pager").hide("slow");
+            $("#pager").hide();
             // ウインドウの幅再調整
             gadgets.window.adjustHeight();
         }
