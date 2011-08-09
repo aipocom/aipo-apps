@@ -13,7 +13,49 @@
         <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/nomi-iko/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <UserPref name="version" datatype="hidden"/>
-    <Content type="html"><![CDATA[
+    <Content type="html" view="popup,home,canvas"><![CDATA[
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js">
+        </script>
+        <script type="text/javascript">
+
+            // バージョン情報
+            var version = "1.1";
+            var changeLogUrl = "javascript:void(0);";
+            var change_log = "イベントの削除・参加キャンセル機能がつきました。";
+
+            // コメントフォーム設定
+            var commentCheck = false;
+            var commentNotice = "コメントを書く（100文字まで）";
+
+            // アクティビティ
+            var activity_event = "「飲みイコ」新しいお誘いを追加しました。";
+            var activity_add = "「飲みイコ」参加者が増えました。";
+        </script>
+        ]]></Content>
+    <Content type="html" view="popup"><![CDATA[
+        <div class="aipostyle">
+            <table class="list wide">
+                <tbody id="status">
+                </tbody>
+            </table>
+        </div>
+        <script type="text/javascript">
+
+            // ページ読込完了後実行コード
+            jQuery(function($) {
+                init();
+            });
+
+            /*
+             * init
+             */
+            function init() {
+                var externalId = gadgets.views.getParams()['externalId'];
+                detail(externalId);
+            }
+        </script>
+        ]]></Content>
+    <Content type="html" view="home,canvas"><![CDATA[
         <style>
 
             table.list tr.odd td {
@@ -51,47 +93,36 @@
             </table>
             <div id="pager" style="text-align:center;" class="pager"></div>
         </div>
-
-        <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
-        </script>
         <script type="text/javascript">
 
-        // バージョン情報
-        var version = "1.1";
-        var changeLogUrl = "javascript:void(0);";
-        var change_log = "イベントの削除・参加キャンセル機能がつきました。";
+            // ページ読込完了後実行コード
+            jQuery(function($) {
+                init();
+            });
 
-        // コメントフォーム設定
-        var commentCheck = false;
-        var commentNotice = "コメントを書く（100文字まで）";
-
-        // アクティビティ
-        var activity_event = "「飲みイコ」新しいお誘いを追加しました。";
-        var activity_add = "「飲みイコ」参加者が増えました。";
+            /*
+             * init
+             */
+            function init() {
+                var oldVersion = prefs.getString("version");
+                if (version != oldVersion) {
+                    showVersion();
+                    prefs.set("version", version);
+                }
+                // コメント
+                eventCommentBlur();
+                repaint();
+            }
+        </script>
+        ]]></Content>
+    <Content type="html" view="popup,home,canvas"><![CDATA[
+        <script type="text/javascript">
 
         // 変数設定
         var prefs = new gadgets.Prefs();
         var msg = new gadgets.MiniMessage();
         var max_per_page = 5;
-
-        // ページ読込完了後実行コード
-        jQuery(function($) {
-            init();
-        });
-
-        /*
-         * init
-         */
-        function init() {
-            var oldVersion = prefs.getString("version");
-            if (version != oldVersion) {
-                showVersion();
-                prefs.set("version", version);
-            }
-            // コメント
-            eventCommentBlur();
-            repaint();
-        }
+        var popup_view_type = "popup";
 
         /*
          * お誘い追加
@@ -140,7 +171,7 @@
                 var batch = osapi.newBatch()
                         .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
                         .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }))
-                        .add('activities', osapi.activities.create({ userId: '@viewer', activity: { title: activity_event }}));
+                        .add('activities', osapi.activities.create({ userId: '@viewer', activity: { title: activity_event, externalId: key }}));
                 batch.execute(function(response) {
                     $("#comment").val("");
                     // minimessage
@@ -157,7 +188,7 @@
         /*
          * お誘いへの参加
          */
-        function addSubmit(key, owner_id) {
+        function addSubmit(key, owner_id, view_type) {
             osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
                 for (var userId in response) {
                     var data = response[userId];
@@ -180,15 +211,19 @@
                 // データの保存
                 var batch = osapi.newBatch()
                         .add('update1', osapi.appdata.update({ userId: '@viewer', data: data }))
-                        .add('activities', osapi.activities.create({ userId: '@viewer', activity: { title: activity_add , recipients: [owner_id], priority: 1}}));
+                        .add('activities', osapi.activities.create({ userId: '@viewer', activity: { title: activity_add , recipients: [owner_id], priority: 1, externalId: key}}));
                 batch.execute(function(response) {
                     // minimessage
                     msg.createTimerMessage("送信しました。", 3, function() {
                         gadgets.window.adjustHeight();
                         return true;
                     });
-                    // データの再表示
-                    repaint();
+                    if (view_type == popup_view_type) {
+                        detail(key);
+                    } else {
+                        // データの再表示
+                        repaint();
+                    }
                 });
             });
         }
@@ -200,14 +235,13 @@
             if (confirm("このお誘いを削除してよろしいでしょうか？")) {
 
                 osapi.appdata.get({ userId: ["@viewer"] ,fields: [key] }).execute(function(response) {
-                    for (var userId in response) {
-                        var links = response[userId];
+                    if (response.error) {
+                        // minimessage
+                        msg.createTimerMessage("削除に失敗しました。", 3, function() {
+                            gadgets.window.adjustHeight();
+                            return true;
+                        });
                     }
-                    var data = new Array();
-                    if (links && links[key]) {
-                        data = gadgets.json.parse(links[key]);
-                    }
-
                     // ユーザーの読み込み
                     osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
                         var userIds = [];
@@ -224,7 +258,7 @@
                             for (var userId3 in response) {
                                 var tmp_add = gadgets.json.parse(response[userId3]['add']);
                                 for (var i in tmp_add) {
-                                    if (tmp_add[i] == data['date']) {
+                                    if (tmp_add[i] == key) {
                                         counter++
                                     }
                                 }
@@ -283,14 +317,13 @@
                         });
                     });
                 });
-
             }
         }
 
         /*
          * 参加キャンセル
          */
-        function deleteMap(key) {
+        function deleteMap(key, view_type) {
             if (confirm("このお誘いへの参加をキャンセルしてよろしいでしょうか？")) {
                 osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
                     for (var userId in response) {
@@ -318,8 +351,12 @@
                             gadgets.window.adjustHeight();
                             return true;
                         });
-                        // データの再表示
-                        repaint();
+                        if (view_type == popup_view_type) {
+                            detail(key);
+                        } else {
+                            // データの再表示
+                            repaint();
+                        }
                     });
                 });
             }
@@ -429,7 +466,7 @@
                                             rowdata["owner"] = users[userId2].displayName;
                                             rowdata["owner_id"] = userId2;
                                             for (var key2 in adds_users) {
-                                                if (rowdata["date"] == key2) {
+                                                if (key == key2) {
                                                     rowdata["add_user"] = adds_users[key2];
                                                 }
                                             }
@@ -474,10 +511,10 @@
                                             css_class += ' style="display:none;"';
                                         }
                                         counter++;
-                                        var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(row_datas[i]["date"]) + ', \'' + gadgets.util.escapeString(row_datas[i]["owner_id"]) + '\')"/>';
+                                        var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(row_datas[i]["key"]) + ', \'' + gadgets.util.escapeString(row_datas[i]["owner_id"]) + '\', \'\')"/>';
                                         for (var j in my_add_keys) {
-                                            if (my_add_keys[j] == row_datas[i]["date"]) {
-                                                add_html = '<input type="button" value="キャンセル" onclick="deleteMap(' + gadgets.util.escapeString(row_datas[i]["date"]) + ')"/>';
+                                            if (my_add_keys[j] == row_datas[i]["key"]) {
+                                                add_html = '<input type="button" value="キャンセル" onclick="deleteMap(' + gadgets.util.escapeString(row_datas[i]["key"]) + ', \'\')"/>';
                                             }
                                         }
                                         var delete_html = '';
@@ -502,6 +539,102 @@
                                     gadgets.window.adjustHeight();
                                 });
                             });
+                        });
+                    });
+                });
+            });
+        }
+
+        /*
+         * テーブルの再描画
+         * @param externalId ID
+         */
+        function detail(externalId) {
+
+
+            // ユーザーの読み込み
+            osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+                var users = [];
+                var userIds = [];
+                var adds_users = [];
+                var row_datas = [];
+                var keys = [];
+
+                var list = response.list;
+                for (var i in list) {
+                    users[list[i].id] = list[i];
+                    userIds.push(list[i].id);
+                }
+                // 参加者データの取得
+                osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response) {
+                    // ユーザーID、アプリデータの連想配列
+                    for (var userId3 in response) {
+                        var tmp_add = gadgets.json.parse(response[userId3]['add']);
+                        for (var i in tmp_add) {
+                            if (!adds_users[tmp_add[i]]) {
+                                adds_users[tmp_add[i]] = '';
+                            } else {
+                                adds_users[tmp_add[i]] += ', ';
+                            }
+                            adds_users[tmp_add[i]] += users[userId3].displayName;
+                        }
+
+                    }
+
+                    //自分の参加一覧取得
+                    osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
+                        for (var userId in response) {
+                            var data = response[userId];
+                        }
+                        var my_add_keys = new Array();
+                        if (data && data['add']) {
+                            my_add_keys = gadgets.json.parse(data['add']);
+                        }
+                        // データの取得
+                        osapi.appdata.get({ userId: userIds ,fields: [externalId] }).execute(function(response) {
+                            for (var userId2 in response) {
+                                var data = response[userId2];
+
+                                for (var key in data) {
+                                    // データの作成
+                                    var rowdata = gadgets.json.parse(data[key]);
+                                    rowdata["key"] = key;
+                                    rowdata["add_user"] = '';
+                                    rowdata["owner"] = users[userId2].displayName;
+                                    rowdata["owner_id"] = userId2;
+                                    for (var key2 in adds_users) {
+                                        if (key == key2) {
+                                            rowdata["add_user"] = adds_users[key2];
+                                        }
+                                    }
+                                    row_datas.push(rowdata);
+                                }
+                            }
+
+                            // テーブルヘッダー
+                            if (row_datas.length > 0) {
+                                $("#status").html("");
+
+
+                                for (var i in row_datas) {
+                                    var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(row_datas[i]["key"]) + ', \'' + gadgets.util.escapeString(row_datas[i]["owner_id"]) + '\', \'' + popup_view_type + '\')"/>';
+                                    for (var j in my_add_keys) {
+                                        if (my_add_keys[j] == row_datas[i]["key"]) {
+                                            add_html = '<input type="button" value="キャンセル" onclick="deleteMap(' + gadgets.util.escapeString(row_datas[i]["key"]) + ', \'' + popup_view_type + '\')"/>';
+                                        }
+                                    }
+
+                                    var key_data = '\
+<tr><th>投稿日時</th><td>' + gadgets.util.escapeString(getDate(row_datas[i]["date"])) + '</td><th>提案者</th><td>' + gadgets.util.escapeString(row_datas[i]["owner"]) + '</td></tr>\
+<tr><th>コメント</th><td colspan="3">' + gadgets.util.escapeString(row_datas[i]["comment"]) + '</td></tr>\
+<tr><th>賛同者</th><td colspan="3">' + gadgets.util.escapeString(row_datas[i]["add_user"]) + add_html + '</td></tr>\
+';
+                                    // データの表示
+                                    $("#status").html($("#status").html() + key_data);
+                                }
+                            }
+                            // ウインドウの幅再調整
+                            gadgets.window.adjustHeight();
                         });
                     });
                 });
