@@ -57,7 +57,7 @@
         </style>
         <div class="aipostyle">
             安否を報告してください。
-            <table class="listTable">
+            <table class="list wide">
                 <tbody>
                 <tr>
                     <th>安否状況
@@ -106,7 +106,7 @@
                 </tr>
                 </tbody>
             </table>
-            <table class="listTable">
+            <table class="list wide">
                 <tbody id="status">
                 </tbody>
             </table>
@@ -231,7 +231,7 @@
                     // 初期値
                     userData[list[i].id] = '\
 <tr>\
-    <td class="fs10" nowrap="nowrap">' + users[list[i].id].displayName + '</td>\
+    <td nowrap="nowrap">' + users[list[i].id].displayName + '</td>\
     <td nowrap="nowrap"></td>\
     <td nowrap="nowrap"></td>\
     <td></td>\
@@ -273,7 +273,7 @@
                         // データの作成
                         userData[userId] = '\
 <tr>\
-    <td class="fs10" nowrap="nowrap">' + users[userId].displayName + '</td>\
+    <td nowrap="nowrap">' + users[userId].displayName + '</td>\
     <td nowrap="nowrap" align="center">' + value_safety_self + '</td>\
     <td nowrap="nowrap" align="center">' + value_safety_work + '</td>\
     <td>' + value_safety_note + '</td>\
