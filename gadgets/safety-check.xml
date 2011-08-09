@@ -83,7 +83,10 @@
         <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
         </script>
         <script type="text/javascript">
-        gadgets.util.registerOnLoadHandler(init);
+
+        jQuery(function($) {
+            init();
+        });
 
         var groups = null;
 
