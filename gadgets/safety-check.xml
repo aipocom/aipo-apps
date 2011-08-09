@@ -22,39 +22,6 @@
         <EnumValue value="50"/>
     </UserPref>
     <Content type="html"><![CDATA[
-        <style>
-            table.listTable {
-                width: 100%;
-                border: none;
-                border-collapse: collapse;
-                margin: 5px 0 10px;
-            }
-
-            table.listTable th {
-                background: #DCDCDC;
-                font-size: 10px;
-                color: #333333;
-                padding: 3px;
-                border: #CCC 1px solid;
-            }
-
-            table.listTable td {
-                background: #FFF;
-                color: #333333;
-                padding: 5px !important;
-                border: #CCC 1px solid;
-            }
-
-            table.listTable tr.odd td {
-                background: #F5F5F5;
-                border: #CCC 1px solid;
-            }
-
-            table.listTable td.fs10 {
-                font-size: 10px !important;
-            }
-
-        </style>
         <div class="aipostyle">
             安否を報告してください。
             <table class="list wide">
