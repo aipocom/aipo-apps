@@ -1,0 +1,197 @@
+<Module>
+    <ModulePrefs title="本日の予想最大電力" description="本日の最大電力供給力に対する予想最大消費電力の割合を求めるアプリです。">
+        <Require feature="aipostyle"/>
+        <Require feature="dynamic-height"/>
+        <Icon>
+        </Icon>
+    </ModulePrefs>
+    <Content type="html">
+        <![CDATA[
+
+<script src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
+</script>
+
+<script>
+ $(init);
+
+    function init() {
+     update();
+    }
+
+    function update() {
+       //2箇所からデータを取得
+       jQuery.getJSON( "http://api.gosetsuden.jp/peak/tokyo/demand/today").next(function (demandData) {
+          jQuery.getJSON( "http://api.gosetsuden.jp/peak/tokyo/supply/today").next(function (supplyData) {
+             //実際にデータを処理するコード
+             var start = getDate(Math.round(demandData[0].start*1000));
+             var end = getDate(Math.round(demandData[0].end*1000));
+             var date = '予想最大消費時刻　' + start + ' ～ ' + end;
+             $('#date').html(date);
+             var demandUsage = Math.round(demandData[0].usage/10000);
+             var supplyUsage = Math.round(supplyData[0].usage/10000);
+             $('#demandUsage').html(demandUsage + '万kW');
+             $('#supplyUsage').html(supplyUsage + '万kW');
+             var usageRate = Math.round(demandUsage/supplyUsage*100);
+             $('#usageRate').html(usageRate + '%');
+             var showFlag = false;
+             var whiteBarWidth = 0;
+
+             if (usageRate < 100){
+                whiteBarWidth = 100 - usageRate;
+             }
+
+             document.getElementById("whiteBarImg").style.width = whiteBarWidth + '%';
+
+             if (usageRate >= 90){
+                document.getElementById("usageRate").style.color = 'red';
+             }
+
+             var timer = setInterval(update, 10*60*1000);
+          });
+       });
+     }
+
+   /*
+    * 引数で与えられた時刻を整形して返す
+    * @param time 1900年からのms
+    */
+
+    function getDate(time) {
+       var date = getDateArray(time);
+       var date_now = getDateArray((new Date()).getTime());
+       // 整形して返す
+       return date.hour + "：" + date.minute;
+    }
+
+    /*
+     * 時刻を配列で返す
+     * @param time 1900年からの秒数
+     * @return date[] [time,year,month,day,week,hour,minute]
+     * ex) date.year
+     */
+
+    function getDateArray(time) {
+       var r = {};
+       var weeks = new Array('日', '月', '火', '水', '木', '金', '土');
+       var date = new Date();
+       date.setTime(time);
+        r.time = time;
+        r.year = date.getYear();
+        r.month = date.getMonth() + 1;
+        r.day = date.getDate();
+        r.week = weeks[ date.getDay() ];
+        r.hour = date.getHours();
+        r.minute = date.getMinutes();
+
+           if (r.year < 2000) {
+               r.year += 1900;
+           }
+
+           // 頭に0を付ける
+           if (r.month < 10) {
+               r.month = "0" + r.month;
+           }
+           if (r.day < 10) {
+               r.day = "0" + r.day;
+           }
+           if (r.hour < 10) {
+               r.hour = "0" + r.hour;
+           }
+           if (r.minute < 10) {
+               r.minute = "0" + r.minute;
+           }
+
+        return r;
+    }
+
+</script>
+
+<style>
+
+    #equation{
+       font-size:10px;
+       margin:0 5px 0 0;
+    }
+
+    #usageRate{
+       font-size:350%;
+       font-weight:bold;
+       margin:0 5px 0 0;
+    }
+
+    #colorVar{ position:relative; padding:2px; border:1px solid #DCDCDC; margin:0 0 5px; }
+
+    #colorVar .colorimg{ width:100%; height:10px; }
+
+    #whiteBarImg{
+       position:absolute;
+       top:2px;
+       right:2px;
+       height:10px;
+       z-index:10; width:90%;
+    }
+
+    #demandUsage{
+       font-size:10px
+    }
+
+    #supplyUsage{
+       font-size:10px
+    }
+
+    #date{
+       margin:5px 0 0;
+       font-size:10px;
+    }
+
+</style>
+
+<body>
+
+   <div class="aipostyle">
+
+      <div align="right">
+         <span id="usageRate">
+         </span>
+      </div>
+
+      <div id="colorVar">
+         <img id="whiteBarImg" src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/expectation-of-electric-power/img/colorbar/colorbar_w.png" />
+         <img src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/expectation-of-electric-power/img/colorbar/colorbar.png" class="colorimg" />
+      </div>
+
+      <div align="right">
+         <span id="equation">
+         予想最大消費電力/最大電力供給力
+         </span>
+      </div>
+
+      <div align="right">
+         =
+         <span id="demandUsage">
+         </span>
+         /
+         <span id="supplyUsage">
+         </span>
+      </div>
+
+       <div align="right" id="date">
+       </div>
+
+   </div>
+
+</body>
+
+<script type="text/javascript">
+
+       function init() {
+           gadgets.window.adjustHeight(140);
+       }
+
+       gadgets.util.registerOnLoadHandler(init);
+
+</script>
+]]>
+
+    </Content>
+</Module>
