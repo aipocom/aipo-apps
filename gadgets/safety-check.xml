@@ -148,6 +148,12 @@
             var date = (new Date()).getTime() + "";
             // フォームから値の取得
             var data = {};
+            if ($("#value_safety_note").val().length > 300) {
+                var msg = new gadgets.MiniMessage();
+                msg.createTimerMessage("コメントは300文字までで入力してください。", 5);
+                gadgets.window.adjustHeight();
+                return false;
+            }
             data['key_safety_self'] = $("#value_safety_self").val();
             data['key_safety_work'] = $("#value_safety_work").val();
             data['key_safety_note'] = gadgets.util.escapeString($("#value_safety_note").val());
