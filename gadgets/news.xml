@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs
+            title="ニュース"
+            description="社内全員へ向けてのニュース配信アプリです。更新情報へ通知がされます。">
+        <Optional feature="aipostyle"/>
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+        <div class="aipostyle">
+            <table class="borderNone pb5">
+                <tbody>
+                <tr>
+                    <td><input type="text"
+                               id="comment"/><input type="button" value="配信する"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>配信済みニュース一覧</h3>
+            <table class="list wide">
+                <thead>
+                <tr>
+                    <th>投稿日時</th>
+                    <th>内容</th>
+                    <th class="thin">削除</th>
+                </tr>
+                </thead>
+                <tbody id="status">
+                <tr>
+                    <td>2011/08/10 (水) 11：25</td>
+                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします</td>
+                    <td class="thin"><a href="">削除</a></td>
+                </tr>
+                <tr>
+                    <td>2011/08/10 (水) 11：25</td>
+                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします</td>
+                    <td class="thin"><a href="">削除</a></td>
+                </tr>
+                <tr>
+                    <td>2011/08/10 (水) 11：25</td>
+                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします</td>
+                    <td class="thin"><a href="">削除</a></td>
+                </tr>
+                <tr>
+                    <td>2011/08/10 (水) 11：25</td>
+                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします</td>
+                    <th class="thin">削除</td>
+                </tr>
+                </tbody>
+            </table>
+            <div id="pager" style="text-align:center;" class="pager"></div>
+        </div>
+        <script type="text/javascript">
+        </script>
+        ]]></Content>
+</Module>
