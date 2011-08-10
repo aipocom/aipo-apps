@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs
+            title="ミニブログ"
+            description="一言つぶやきブログです。">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
+        <Optional feature="aipostyle"/>
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+        <div class="aipostyle">
+            <table>
+                <tbody>
+                <tr>
+                    <td><input type="text"
+                               id="comment"/><input type="button" value="登録する"/></td>
+                </tr>
+                </tbody>
+            </table>
+            <hr />
+            <p style="padding:3px;0"><span style="color: #FF99CC">山田太郎</span> ＞おなかすいた <span style="color: #666666;">(2011/08/10（月） 12:20:20)</span>
+            </p>
+
+            <p style="padding:3px;0"><span style="color: #FF00DD">小林良輔</span> ＞パスタ食べに行きたい <span
+                    style="color: #666666;">(2011/08/10（月） 12:20:20)</span></p>
+
+            <p style="padding:3px;0"><span style="color: #FF99CC">山田太郎</span> ＞目がかゆい <span style="color: #666666;">(2011/08/10（月） 12:20:20)</span>
+            </p>
+
+            <p style="padding:3px;0"><span style="color: #0099CC">斉藤花子</span> ＞最近気になるCM <a href="#">http://www.aipo.com</a> <span
+                    style="color: #666666;">(2011/08/10（月） 12:20:20)</span></p>
+
+            <p style="padding:3px;0"><span style="color: #005533">荒巻恭</span> ＞PCの調子が悪い <span style="color: #666666;">(2011/08/10（月） 12:20:20)</span>
+            </p>
+            <p style="padding:3px;0"><span style="color: #FF99CC">山田太郎</span> ＞おなかすいた <span style="color: #666666;">(2011/08/10（月） 12:20:20)</span>
+            </p>
+
+            <p style="padding:3px;0"><span style="color: #FF00DD">小林良輔</span> ＞パスタ食べに行きたい <span
+                    style="color: #666666;">(2011/08/10（月） 12:20:20)</span></p>
+
+            <p style="padding:3px;0"><span style="color: #FF99CC">山田太郎</span> ＞目がかゆい <span style="color: #666666;">(2011/08/10（月） 12:20:20)</span>
+            </p>
+
+            <p style="padding:3px;0"><span style="color: #0099CC">斉藤花子</span> ＞最近気になるCM <a href="#">http://www.aipo.com</a> <span
+                    style="color: #666666;">(2011/08/10（月） 12:20:20)</span></p>
+
+            <p style="padding:3px;0"><span style="color: #005533">荒巻恭</span> ＞PCの調子が悪い <span style="color: #666666;">(2011/08/10（月） 12:20:20)</span>
+            </p>
+            <p style="padding:3px;0"><span style="color: #FF99CC">山田太郎</span> ＞おなかすいた <span style="color: #666666;">(2011/08/10（月） 12:20:20)</span>
+            </p>
+
+            <p style="padding:3px;0"><span style="color: #FF00DD">小林良輔</span> ＞パスタ食べに行きたい <span
+                    style="color: #666666;">(2011/08/10（月） 12:20:20)</span></p>
+
+            <p style="padding:3px;0"><span style="color: #FF99CC">山田太郎</span> ＞目がかゆい <span style="color: #666666;">(2011/08/10（月） 12:20:20)</span>
+            </p>
+
+            <p style="padding:3px;0"><span style="color: #0099CC">斉藤花子</span> ＞最近気になるCM <a href="#">http://www.aipo.com</a> <span
+                    style="color: #666666;">(2011/08/10（月） 12:20:20)</span></p>
+
+            <p style="padding:3px;0"><span style="color: #005533">荒巻恭</span> ＞PCの調子が悪い <span style="color: #666666;">(2011/08/10（月） 12:20:20)</span>
+            </p>
+        </div>
+        <script type="text/javascript">
+            gadgets.util.registerOnLoadHandler(init);
+
+            function init() {
+                gadgets.window.adjustHeight();
+            }
+        </script>
+        ]]></Content>
+</Module>
