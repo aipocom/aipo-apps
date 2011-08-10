@@ -3,9 +3,30 @@
     <ModulePrefs
             title="ニュース"
             description="社内全員へ向けてのニュース配信アプリです。更新情報へ通知がされます。">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
         <Optional feature="aipostyle"/>
     </ModulePrefs>
-    <Content type="html"><![CDATA[
+    <Content type="html" view="popup"><![CDATA[
+        <div class="aipostyle">
+            <table class="list wide">
+                <tbody id="status">
+                <tr>
+                    <th>投稿日時</th>
+                    <td>2011/08/10 (水) 11：25</td>
+                </tr>
+                <tr>
+                    <th>内容</th>
+                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <script type="text/javascript">
+        </script>
+        ]]></Content>
+    <Content type="html" view="home,canvas"><![CDATA[
         <div class="aipostyle">
             <table class="borderNone pb5">
                 <tbody>
@@ -33,12 +54,14 @@
                 </tr>
                 <tr>
                     <td>2011/08/10 (水) 11：25</td>
-                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします</td>
+                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします
+                    </td>
                     <td class="thin"><a href="">削除</a></td>
                 </tr>
                 <tr>
                     <td>2011/08/10 (水) 11：25</td>
-                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします</td>
+                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします
+                    </td>
                     <td class="thin"><a href="">削除</a></td>
                 </tr>
                 <tr>
@@ -48,7 +71,6 @@
                 </tr>
                 </tbody>
             </table>
-            <div id="pager" style="text-align:center;" class="pager"></div>
         </div>
         <script type="text/javascript">
         </script>
