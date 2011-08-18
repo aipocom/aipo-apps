@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs
+            title="チャットルーム"
+            description="一言つぶやくことができるチャットルームです。古い発言から削除されます。">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
+        <Optional feature="aipostyle"/>
+        <Require feature="minimessage"/>
+        <Require feature="osapi"/>
+    </ModulePrefs>
+    <UserPref name="version" datatype="hidden"/>
+    <Content type="html"><![CDATA[
+        <div class="aipostyle">
+            <table>
+                <tbody>
+                <tr>
+                    <td><textarea onKeyUp="updateCount(value, 'count', max_length)" cols="40" rows="2"
+                                  name="comment" class="text wide" id="comment"></textarea>
+                        <span id="count">140</span>文字<input type="button" value="発言する"
+                                                            onclick="eventSubmit()"/></td>
+                </tr>
+                </tbody>
+            </table>
+            <hr/>
+            <div id="list">
+            </div>
+        </div>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js">
+        </script>
+        <script type="text/javascript">
+
+        // バージョン情報
+        var version = "1.0";
+
+        var max_length = 140;
+        var max_data = 50;
+        var msg = new gadgets.MiniMessage();
+        var colors = ["0099CC", "FF99CC", "FF00DD", "005533", "005533", "008899", "009900", "FF00FF"];
+
+        // ページ読込完了後実行コード
+        jQuery(function($) {
+            init();
+        });
+
+        function init() {
+            repaint();
+            gadgets.window.adjustHeight();
+        }
+
+
+        /*
+         * 発言
+         */
+        function eventSubmit() {
+            // フォームから値の取得
+            var comment = $("#comment").val();
+            // バリデート
+            if (!comment) {
+                msg.createTimerMessage("コメントを入力してください。", 5);
+                gadgets.window.adjustHeight();
+                return false;
+            }
+            if (comment.length > max_length) {
+                msg.createTimerMessage("コメントは" + max_length + "文字までで入力してください。", 5);
+                gadgets.window.adjustHeight();
+                return false;
+            }
+
+            var timestamp = new Date().getTime();
+            var key = '__MODULE_ID__.' + timestamp;
+            var date = timestamp + "";
+
+            osapi.appdata.get({ userId: ["@viewer"] ,fields: ['keys'] }).execute(function(response) {
+                for (var userId in response) {
+                    var tmp_data = response[userId];
+                }
+                var keys = new Array();
+                if (tmp_data && tmp_data['keys']) {
+                    keys = gadgets.json.parse(tmp_data['keys']);
+                }
+                // 古いデータ自動削除
+                keys.sort(function(a, b) {
+                    return a - b;
+                });
+                if (keys.length >= max_data) {
+                    keys.shift();
+                }
+                keys.push(key);
+
+                var data = {};
+                var data1 = {};
+                var data2 = {};
+                data['comment'] = gadgets.util.escapeString(comment);
+                data['date'] = gadgets.util.escapeString(date);
+                data1[key] = gadgets.json.stringify(data);
+                data2['keys'] = gadgets.json.stringify(keys);
+
+                var batch = osapi.newBatch()
+                        .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
+                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }));
+                batch.execute(function(response) {
+                    $("#comment").val("");
+                    // minimessage
+                    msg.createTimerMessage("発言しました。", 3, function() {
+                        gadgets.window.adjustHeight();
+                        return true;
+                    });
+                    // データの再表示
+                    repaint();
+                });
+            });
+        }
+
+        /*
+         * 発言の表示
+         */
+        function repaint() {
+            var users = [];
+            var userIds = [];
+            var row_datas = [];
+            var keys = [];
+            var color_map = [];
+
+            // ユーザーの読み込み
+            osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+
+                var list = response.list;
+                for (var i in list) {
+                    users[list[i].id] = list[i];
+                    userIds.push(list[i].id);
+                    var cid = colors.length % i;
+                    color_map[list[i].id] = colors[cid];
+                }
+                // データの取得
+                osapi.appdata.get({ userId: userIds ,fields: ['keys'] }).execute(function(response) {
+                    // ユーザーID、アプリデータの連想配列
+                    for (var userId in response) {
+                        var tmp_keys = gadgets.json.parse(response[userId]['keys']);
+                        for (var tmp_key in tmp_keys) {
+                            keys.push(tmp_keys[tmp_key]);
+                        }
+                    }
+                    // データの取得
+                    osapi.appdata.get({ userId: userIds ,fields: keys }).execute(function(response) {
+                        for (var userId2 in response) {
+                            var data = response[userId2];
+
+                            for (var key in data) {
+                                // データの作成
+                                var rowdata = gadgets.json.parse(data[key]);
+                                rowdata["key"] = key;
+                                rowdata["owner"] = users[userId2].displayName;
+                                rowdata["owner_id"] = userId2;
+                                rowdata["color"] = color_map[userId2];
+                                row_datas.push(rowdata);
+                            }
+                        }
+
+                        // 日付降順
+                        row_datas.sort(function(a, b) {
+                            return a["date"] < b["date"] ? 1 : -1;
+                        });
+
+                        $("#list").html("");
+                        for (var i in row_datas) {
+
+                            var key_data = '\
+<p style="padding:3px;0"><span style="color: #' + gadgets.util.escapeString(row_datas[i]["color"]) + '">' + gadgets.util.escapeString(row_datas[i]["owner"]) + '</span>\
+ ＞' + gadgets.util.escapeString(row_datas[i]["comment"]) + ' \
+<span style="color: #666666;">(' + gadgets.util.escapeString(getDate(row_datas[i]["date"])) + ')</span></p>\
+';
+                            // データの表示
+                            $("#list").html($("#list").html() + key_data);
+                        }
+                        // ウインドウの幅再調整
+                        gadgets.window.adjustHeight();
+                    });
+                });
+            });
+        }
+
+        /**
+         * 文字数チェック
+         * @param str 文字列
+         * @param id ElementIｄ
+         * @param max 最大文字数
+         */
+        function updateCount(str, id, max) {
+            var org = "#" + id;
+            if (str) {
+                $(org).innerHTML = max - str.length;
+            }
+            else {
+                $(org).innerHTML = max;
+            }
+        }
+        /*
+         * 引数で与えられた時刻を整形して返す
+         * @param time 1900年からのms
+         */
+        function getDate(time) {
+            var date = getDateArray(time);
+            return date.year + "/" + date.month + "/" + date.day + " (" + date.week + ") " + date.hour + "：" + date.minute + "：" + date.second;
+        }
+
+        /*
+         * 時刻を配列で返す
+         * @param time 1900年からの秒数
+         * @return date[] [time,year,month,day,week,hour,minute]
+         * ex) date.year
+         */
+        function getDateArray(time) {
+            var r = {};
+            var weeks = new Array('日', '月', '火', '水', '木', '金', '土');
+
+            var date = new Date();
+            date.setTime(time);
+            r.time = time;
+
+            r.year = date.getYear();
+            r.month = date.getMonth() + 1;
+            r.day = date.getDate();
+            r.week = weeks[ date.getDay() ];
+            r.hour = date.getHours();
+            r.minute = date.getMinutes();
+            r.second = date.getSeconds();
+
+            if (r.year < 2000) {
+                r.year += 1900;
+            }
+
+            // 頭に0を付ける
+            if (r.month < 10) {
+                r.month = "0" + r.month;
+            }
+            if (r.day < 10) {
+                r.day = "0" + r.day;
+            }
+            if (r.hour < 10) {
+                r.hour = "0" + r.hour;
+            }
+            if (r.minute < 10) {
+                r.minute = "0" + r.minute;
+            }
+            if (r.second < 10) {
+                r.second = "0" + r.second;
+            }
+
+            return r;
+        }
+        </script>
+        ]]></Content>
+</Module>
