@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-    <ModulePrefs title="エクセル関数ディクショナリ" description="エクセル関数を関数名での検索、または逆引き検索することが出来ます。">
+    <ModulePrefs title="エクセル関数辞典" description="エクセル関数を関数名での検索、または逆引き検索することが出来ます。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>
         <Require feature="tabs"/>
         <Require feature="aipostyle"/>
         <Require feature="osapi"/>
-        <Require feature="jquery"/>
     </ModulePrefs>
     <Content type="html">
 <![CDATA[
-        <!-- フォーム -->
         <div class="aipostyle">
             <h3>関数名での検索、逆引き検索も可能です。</h3>
 
             <div style="padding:0 0 15px;">
-                <select id="catego" name="catego" onChange="showHint()">
+                <select id="catego" onChange="showHint()">
                     <option value="0">全て</option>
                     <option value="1">検索/行列関数 </option>
                     <option value="2">データベース関数</option>
@@ -29,149 +27,114 @@
                     <option value="9">文字列操作関数</option>
                     <option value="10">論理関数 </option>
                 </select>
-                <input type="text" class="form" value="" id="req" name="req" onkeyup="showHint(this.value)"/>
+                <input type="text" class="form" value="" id="req" name="req" onkeyup="showHint()"/>
                 <input onClick="searchExcelFunctions()" value="検索" type="button">
 
-                <!-- 補完候補を表示するエリア -->
-                <div id="suggest" class="aipostyle"></div>
-            </div>
+                <div id="content_div" class="aipostyle"></div>
 
-            <!-- 結果表示 -->
-            <div id="content_div" class="aipostyle"></div>
-            <script type="text/javascript">
+                <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
+                </script>
+                <script type="text/javascript">
+                    function showHint()
+                    {
+                        var catego = $("#catego").val();
+                        var req = $("#req").val();
 
-                //----------------------
-                //リクエスト発信
-                //----------------------
+                        var url = 'http://searchexcelfunctions.appspot.com/ExcelFunctions/Search?categories='
+                                + encodeURIComponent(catego)
+                                + '&req='
+                                + encodeURIComponent(req);
 
+                        $("#content_div").html("");
 
-                function showHint()
-                {
-                    var catego = document.getElementById("catego").value;
-                    var req = document.getElementById("req").value;
+                        var params = {};
+                        params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
 
-                    var url = 'http://searchexcelfunctions.appspot.com/ExcelFunctions/Search?categories='
-                            + encodeURIComponent(catego)
-                            + '&req='
-                            + encodeURIComponent(req);
+                        gadgets.io.makeRequest(url, response, params);
 
-                    //結果表示欄を空に
-                    $('suggest').innerHTML = '';
-
-                    //オプション設定
-                    var params = {};
-                    params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
-
-                    //リクエスト
-                    gadgets.io.makeRequest(url, response, params);
-
-                    return(false);
+                        return(false);
 
 
-                }
-
-
-                function searchExcelFunctions() {
-                    var catego = document.getElementById("catego").value;
-                    var req = document.getElementById("req").value;
-
-
-                    var url = 'http://searchexcelfunctions.appspot.com/ExcelFunctions/Search?categories='
-                            + encodeURIComponent(catego)
-                            + '&req='
-                            + encodeURIComponent(req);
-
-                    //結果表示欄を空に
-                    $('content_div').innerHTML = '';
-
-                    //オプション設定
-                    var params = {};
-                    params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
-
-                    //リクエスト
-                    gadgets.io.makeRequest(url, response, params);
-
-                    return(false);
-                }
-
-
-                //----------------------
-                //callback関数
-                //----------------------
-
-                function response(obj) {
-                    var json = obj.data['excelfunction'];
-
-                    if (json.length == 0) {
-                        var html = '一致する関数はありません。'
                     }
-                    else {
-                        //HTML作成
-                        var html = '<table class="list wide">';
-                        html = html + '<tbody>';
-                        html = html + '<tr><th width="15%">関数名</th><th width="40%">説明</th><th>書式</th></tr>';
-                        for (var i in json) {
-                            html = html + '<tr>';
 
-                            var functions = markupFunction(json[i]['function'].toUpperCase());
+                    function searchExcelFunctions() {
+                        var catego = $("#catego").val();
+                        var req = $("#req").val();
 
-                            html = html + '<td>' + functions + '</td>';
 
-                            var comments = markupComments(json[i]['comments']);
+                        var url = 'http://searchexcelfunctions.appspot.com/ExcelFunctions/Search?categories='
+                                + encodeURIComponent(catego)
+                                + '&req='
+                                + encodeURIComponent(req);
 
-                            html = html + '<td>' + comments + '</td>';
-                            html = html + '<td>' + '<input type="text" onfocus="this.select()" value=' + json[i]['form']+ '>' + '</td>';
-                            html = html + '</tr>';
+                        $("#content_div").html("");
+
+                        var params = {};
+                        params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+
+                        gadgets.io.makeRequest(url, response, params);
+
+                        return(false);
+                    }
+
+                    function response(obj) {
+                        var json = obj.data['excelfunction'];
+
+                        if (json.length == 0) {
+                            var html = '<p>一致する関数はありません。</p>'
                         }
-                        html = html + '</tbody>';
-                        html = html + '</table>';
+                        else {
+                            var html = '<table class="list wide">';
+                            html = html + '<tbody>';
+                            html = html + '<tr><th width="15%">関数名</th><th width="40%">説明</th><th>書式</th></tr>';
+                            for (var i in json) {
+                                var functions = markupFunction(json[i]['function'].toUpperCase());
+                                var comments = markupComments(json[i]['comments']);
+                                html = html + '<tr>';
+                                html = html + '<td>' + functions + '</td>';
+                                html = html + '<td>' + comments + '</td>';
+                                html = html + '<td>' + '<input type="text" onfocus="this.select()" value=' + json[i]['form']+ '>' + '</td>';
+                                html = html + '</tr>';
+                            }
+                            html = html + '</tbody>';
+                            html = html + '</table>';
+                        }
+
+                        $("#content_div").html(html);
+                        gadgets.window.adjustHeight();
                     }
 
-                    //HTML反映
-                    $('content_div').innerHTML = html;
+                    function markupComments(obj) {
+                        var empty = "";
+                        var req =  $("#req").val().toUpperCase(); //検索文字
+                        if (obj.indexOf(req) == -1 || req == empty) {
+                            return obj;
+                        }
+                        var count = obj.indexOf(req); //検索文字がどこに位置してるか
+                        var reqsize = req.length; //検索文字の長さ
 
-                    //ガジェットの高さを自動調整
-                    gadgets.window.adjustHeight();
-                }
-
-                function markupComments(obj) {
-                    var empty = "";
-                    var req = document.getElementById("req").value.toUpperCase(); //検索文字
-                    if (obj.indexOf(req) == -1 || req == empty) {
-                        return obj;
-                    }
-                    var count = obj.indexOf(req); //検索文字がどこに位置してるか
-                    var reqsize = req.length; //検索文字の長さ
-
-                    return obj.substring(0, count) + '<strong>' + req + '</strong>' + markupComments(obj.slice(count + reqsize));
-                }
-
-                function markupFunction(obj) {
-                    var empty = "";
-                    var req = document.getElementById("req").value.toUpperCase(); //検索文字
-                    if (obj.indexOf(req) == -1 || req == empty) {
-                        return obj;
-                    }
-                    var count = obj.indexOf(req); //検索文字がどこに位置してるか
-
-                    if(count != 0) {
-                        return obj;
+                        return obj.substring(0, count) + '<strong>' + req + '</strong>' + markupComments(obj.slice(count + reqsize));
                     }
 
-                    var reqsize = req.length; //検索文字の長さ
+                    function markupFunction(obj) {
+                        var empty = "";
+                        var req = $("#req").val().toUpperCase(); //検索文字
+                        if (obj.indexOf(req) == -1 || req == empty) {
+                            return obj;
+                        }
+                        var count = obj.indexOf(req); //検索文字がどこに位置してるか
 
-                    return obj.substring(0, count) + '<strong>' + req + '</strong>' + obj.slice(count + reqsize);
-                }
+                        if(count != 0) {
+                            return obj;
+                        }
 
-                //----------------------
-                //ショートカット
-                //----------------------
-                function $(id) {
-                    return(document.getElementById(id));
-                }
-            </script>
-        </div>
+                        var reqsize = req.length; //検索文字の長さ
+
+                        return obj.substring(0, count) + '<strong>' + req + '</strong>' + obj.slice(count + reqsize);
+                    }
+                </script>
+            </div>
         ]]>
 </Content>
-    <Content type="html"></Content>
+    <Content type="html"/>
 </Module>
