@@ -136,10 +136,24 @@
         var dispayName;
         var inputSelect = false;
 
+        function replaceSpecialCharactor(text) {
+            text = text.replace("<", "&lt;");
+            text = text.replace(">", "&gt;");
+
+            return text;
+        }
+
+        function restoreSpecialCharactor(text) {
+            text = text.replace("&lt;", "<");
+            text = text.replace("&gt;", ">");
+
+            return text;
+        }
+
         var submitFunc = function() {
             document.getElementById("errors").innerHTML = "";
-            var title = document.form.title.value;
-            var contents = document.form.contents.value;
+            var title    = replaceSpecialCharactor(document.form.title.value);
+            var contents = replaceSpecialCharactor(document.form.contents.value);
             var categoryInput = document.form.categoryInput.value;
             var validate = true;
             if (!title) {
@@ -245,7 +259,7 @@
                     }
                     var userSelectDom = $('#userSelect');
                     userSelectDom.empty();
-                    userSelectDom.append($('<option>').attr({ value: '' }).text('（選択してください）'));
+                    userSelectDom.append($('<option>').attr({ value: '' }).text('（選択して下さい）'));
                     var userIds = new Array();
                     var selectedUserId;
                     for (var i = 0; i < people.length; i++) {
@@ -337,34 +351,22 @@
         }
 
         function showForm_add() {
-            document.form.title.value = "";
-            document.form.title.disabled = false;
+            document.form.title   .value = "";
             document.form.contents.value = "";
-            document.form.contents.disabled = false;
-            document.form.categoryInput.disabled = false;
-            document.form.categoryInputButton.disabled = false;
-            document.form.categorySelect2.disabled = false;
-            document.form.categorySelectButton.disabled = false;
-            document.form.submit.style.display = "";
-            document.form.submit.value = "追加する";
+            document.form.submit  .value = "追加する";
 
+            document.form.submit.style.display = "";
             document.form.onsubmit = submitFunc;
 
             showForm();
         }
 
         function showForm_edit(title, contents, deleteKey) {
-            document.form.title.value = title;
-            document.form.title.disabled = false;
-            document.form.contents.value = contents;
-            document.form.contents.disabled = false;
-            document.form.categoryInput.disabled = false;
-            document.form.categoryInputButton.disabled = false;
-            document.form.categorySelect2.disabled = false;
-            document.form.categorySelectButton.disabled = false;
-            document.form.submit.style.display = "";
-            document.form.submit.value = "編集する";
+            document.form.title   .value = restoreSpecialCharactor(title);
+            document.form.contents.value = restoreSpecialCharactor(contents);
+            document.form.submit  .value = "編集する";
 
+            document.form.submit.style.display  = "";
             var submitEditFunc = function() {
                 deleteMemo_edit(deleteKey);
                 return false;
@@ -375,14 +377,9 @@
         }
 
         function showForm_read(title, contents) {
-            document.form.title.value = title;
-            document.form.title.disabled = true;
-            document.form.contents.value = contents;
-            document.form.contents.disabled = true;
-            document.form.categoryInput.disabled = true;
-            document.form.categoryInputButton.disabled = true;
-            document.form.categorySelect2.disabled = true;
-            document.form.categorySelectButton.disabled = true;
+            document.form.title   .value = restoreSpecialCharactor(title);
+            document.form.contents.value = restoreSpecialCharactor(contents);
+
             document.form.submit.style.display = "none";
 
             showForm();
