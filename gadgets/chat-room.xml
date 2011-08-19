@@ -17,12 +17,16 @@
                 <tr>
                     <td><textarea onKeyUp="updateCount(value, 'count', max_length)" cols="40" rows="2"
                                   name="comment" class="text wide" id="comment"></textarea>
-                        <span id="count">140</span>文字<input type="button" value="発言する"
-                                                            onclick="eventSubmit()"/></td>
+
+                        <div class="right"><span id="count">140</span>文字<input type="button" value="発言する"
+                                                                               onclick="eventSubmit()"/></div>
+                    </td>
                 </tr>
                 </tbody>
             </table>
             <hr/>
+            <div><input type="button" value="更新"
+                        onclick="repaint()"/></div>
             <div id="list">
             </div>
         </div>
@@ -36,7 +40,7 @@
         var max_length = 140;
         var max_data = 50;
         var msg = new gadgets.MiniMessage();
-        var colors = ["0099CC", "FF99CC", "FF00DD", "005533", "005533", "008899", "009900", "FF00FF"];
+        var colors = ["0099CC", "FF99CC", "FF00DD", "005533", "008899", "009900", "FF00FF"];
 
         // ページ読込完了後実行コード
         jQuery(function($) {
@@ -101,6 +105,7 @@
                         .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }));
                 batch.execute(function(response) {
                     $("#comment").val("");
+                    updateCount(0, 'count', max_length);
                     // minimessage
                     msg.createTimerMessage("発言しました。", 3, function() {
                         gadgets.window.adjustHeight();
@@ -129,7 +134,7 @@
                 for (var i in list) {
                     users[list[i].id] = list[i];
                     userIds.push(list[i].id);
-                    var cid = colors.length % i;
+                    var cid = i % colors.length;
                     color_map[list[i].id] = colors[cid];
                 }
                 // データの取得
@@ -167,7 +172,7 @@
 
                             var key_data = '\
 <p style="padding:3px;0"><span style="color: #' + gadgets.util.escapeString(row_datas[i]["color"]) + '">' + gadgets.util.escapeString(row_datas[i]["owner"]) + '</span>\
- ＞' + gadgets.util.escapeString(row_datas[i]["comment"]) + ' \
+ ＞' + urlAutoLink(gadgets.util.escapeString(row_datas[i]["comment"])) + ' \
 <span style="color: #666666;">(' + gadgets.util.escapeString(getDate(row_datas[i]["date"])) + ')</span></p>\
 ';
                             // データの表示
@@ -181,18 +186,26 @@
         }
 
         /**
+         * 自動リンク
+         * @param text
+         */
+        function urlAutoLink(text) {
+            return  text.replace(/(http:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
+        }
+
+        /**
          * 文字数チェック
          * @param str 文字列
          * @param id ElementIｄ
          * @param max 最大文字数
          */
         function updateCount(str, id, max) {
-            var org = "#" + id;
+            var org = '#' + id;
             if (str) {
-                $(org).innerHTML = max - str.length;
+                $(org).html(max - str.length);
             }
             else {
-                $(org).innerHTML = max;
+                $(org).html(max);
             }
         }
         /*
