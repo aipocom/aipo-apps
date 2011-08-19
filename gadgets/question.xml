@@ -12,38 +12,6 @@
     <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/nomi-iko/img/icon/icon16-trans.png</Icon>
 </ModulePrefs>
 <Content type="html"><![CDATA[
-<style>
-    table.listTable {
-        width: 100%;
-        border: none;
-        border-collapse: collapse;
-        margin: 5px 0 10px;
-    }
-
-    table.listTable th {
-        background: #DCDCDC;
-        font-size: 10px;
-        color: #333333;
-        padding: 3px;
-        border: #CCC 1px solid;
-    }
-
-    table.listTable td {
-        background: #FFF;
-        color: #333333;
-        padding: 5px !important;
-        border: none !important;
-    }
-
-    table.listTable tr.odd td {
-        background: #F5F5F5;
-    }
-
-    table.listTable td.fs10 {
-        font-size: 10px !important;
-    }
-
-</style>
 <div class="aipostyle">
     <table class="wide borderNone">
         <tbody>
@@ -58,7 +26,7 @@
     </table>
 
     <table class="wide borderNone">
-        <tbody>
+        <tbody id = "choiceslist">
         <tr>
             <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
                                               maxlength=100
@@ -144,6 +112,11 @@
         </tbody>
     </table>
 
+    <table class="wide borderNone">
+        <tbody id="result">
+        </tbody>
+    </table>
+
     <table class="listTable">
         <tbody id="status">
         </tbody>
@@ -152,25 +125,6 @@
 </div>
 
 <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
-</script>
-<script type="text/os-template" tag="aipoapp:question" xmlns:myapp="http://example.com/myapp">
-    <h1> 3213213213213</h1>
-    <ul>
-        <li repeat="${questions}" var="question">
-            <label><input type="checkbox"/> ${question.choice0}</label>
-        </li>
-    </ul>
-</script>
-<script type="text/javascript">
-    function showQuestionList(userName, questionList) {
-        var template = opensocial.template.getTemplate("aipoapp:question");
-        var data = {
-            contributor: userName,
-            questions: questionList
-        }
-        var outputDiv = document.getElementById("questionDiv");
-        template.renderInto(outputDiv, data);
-    }
 </script>
 <script>
 gadgets.util.registerOnLoadHandler(init);
@@ -222,87 +176,64 @@ function init() {
 * submit
 */
 function eventSubmit() {
-    // フォームから値の取得
-    var comment = $("#comment").val();
-    var choicesVal = new Array(10);
-    for (var i = 0; i < choicesCount; i++){
-        choicesVal[i] = $(choices[i]).val();
-    }
-    if (!commentCheck && comment == commentNotice) {
-        comment = "";
-    }
-    for (var i = 0; i < choicesCount; i++){
-        if(!choicesCheck[i] && choicesVal[i] == choicesNotice) {
-            choicesVal[i] = "";
+    osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+        var msg = new gadgets.MiniMessage();
+        // フォームから値の取得
+        var comment = $("#comment").val();
+        var choicesVal = new Array(10);
+        for (var i = 0; i < choicesCount; i++){
+            choicesVal[i] = $(choices[i]).val();
         }
-    }
-    // 時間の取得
-    var date = (new Date()).getTime() + "";
-    // バリデート
-    if (!comment) {
-        msg.createTimerMessage("質問を入力してください。", 5);
-        gadgets.window.adjustHeight();
-        return false;
-    }
-    if (comment.length > 100) {
-        msg.createTimerMessage("質問は100文字までで入力してください。", 5);
-        gadgets.window.adjustHeight();
-        return false;
-    }
-    for (var i = 0; i < choicesCount; i++){
-        if (!choicesVal[i]) {
-            msg.createTimerMessage("追加した選択肢は全て入力してください。", 5);
+        if (!commentCheck && comment == commentNotice) {
+            comment = "";
+        }
+        for (var i = 0; i < choicesCount; i++){
+            if(!choicesCheck[i] && choicesVal[i] == choicesNotice) {
+                choicesVal[i] = "";
+            }
+        }
+        // 時間の取得
+        var date = (new Date()).getTime() + "";
+        // バリデート
+        if (!comment) {
+            msg.createTimerMessage("質問を入力してください。", 5);
             gadgets.window.adjustHeight();
             return false;
         }
-        if (choicesVal[i].length() > 100) {
-            msg.createTimerMessage("選択肢は100文字までで入力してください。", 5);
-            gadgets.window.adjustHeight();
-            return false;
-        }
-    }
-
-    comment = gadgets.util.escapeString(comment);
-    date = gadgets.util.escapeString(date);
-    for (var i = 0; i < choicesCount; i++){
-        choicesVal[i] = gadgets.util.escapeString(choicesVal[i]);
-    }
-
-    osapi.appdata.get({ userId: ["@viewer"] ,fields: ['keys'] }).execute(function(response) {
-        for (var userId in response) {
-            var data = response[userId];
-        }
-        var keys = new Array();
-        if (data && data['keys']) {
-            keys = gadgets.json.parse(data['keys']);
+        for (var i = 0; i < choicesCount; i++){
+            if (!choicesVal[i]) {
+                msg.createTimerMessage("追加した選択肢は全て入力してください。", 5);
+                gadgets.window.adjustHeight();
+                return false;
+            }
         }
 
-        var timestamp = new Date().getTime();
-        var key = '__MODULE_ID__.' + timestamp;
-        keys.push(key);
+        comment = gadgets.util.escapeString(comment);
+        date = gadgets.util.escapeString(date);
+        var count = gadgets.util.escapeString(choicesCount.toString());
+        var userId = gadgets.util.escapeString(response.id);
+        for (var i = 0; i < choicesCount; i++){
+            choicesVal[i] = gadgets.util.escapeString(choicesVal[i]);
+        }
 
         var data = {};
-        var data1 = {};
-        var data2 = {};
+        var data1;
         data['comment'] = comment;
         data['date'] = date;
-        data['count'] = choicesCount;
+        data['count'] = count;
+        data['user'] = userId;
         for (var i = 0; i < choicesCount; i++){
             data['choice' + i] = choicesVal[i];
         }
-        data1[key] = gadgets.json.stringify(data);
-        data2['keys'] = gadgets.json.stringify(keys);
-
-        var batch = osapi.newBatch()
-             .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
-             .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }));
-        batch.execute(function(response) {
+        data1 = gadgets.json.stringify(data);
+        // post a message
+        $.post("https://aipoquestion.appspot.com/_je/question", { createdby: response.id, messageBody: data1 }, function (result){
             // minimessage
-            var msg = new gadgets.MiniMessage();
-            sg.createTimerMessage("送信しました。", 3, function() {
+            msg.createTimerMessage("送信しました。", 3, function() {
                 $("#comment").val("");
                 for(var i = 0 ; i < choicesCount; i++){
                     $(choices[i]).val("");
+                    $(choices[i]).hide();
                 }
                 choicesCount = 0;
                 gadgets.window.adjustHeight();
@@ -310,184 +241,53 @@ function eventSubmit() {
             });
             // データの再表示
             repaint();
-        });
+        }, "text");
     });
 }
 
-
-function addSubmit(key) {
-    osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
-        for (var userId in response) {
-            var data = response[userId];
+function vote(key, i, isChecked){
+    var msg = new gadgets.MiniMessage();
+    $("#result").html("<h1>please wait...</h1>");
+    $.getJSON("https://aipoquestion.appspot.com/_je/question", { _docId: key }, function (result) {
+        var data = gadgets.json.parse(result.messageBody);
+        var supporters = new Array();
+        if (data && data['supporters' + i]) {
+            supporters = gadgets.json.parse(data['supporters' + i]);
         }
-        var keys = new Array();
-        if (data && data['add']) {
-            keys = gadgets.json.parse(data['add']);
-        }
-
-        for (var i in keys) {
-            if (keys[i] == key) {
-                var msg = new gadgets.MiniMessage();
-                msg.createTimerMessage("すでに登録済みです。", 5);
-                gadgets.window.adjustHeight();
-                return false;
+        osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+            var userId = response.id;
+            if(isChecked){
+                supporters.push(gadgets.util.escapeString(userId));
+                data['supporters' + i] = gadgets.json.stringify(supporters);
             }
-        }
-
-        var data = {};
-        keys.push(key);
-        data['add'] = gadgets.json.stringify(keys);
-
-        // データの保存
-        osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
-            // minimessage
-            var msg = new gadgets.MiniMessage();
-            msg.createTimerMessage("送信しました。", 3, function() {
-                gadgets.window.adjustHeight();
-                return true;
+            else{
+                var new_supporters = new Array();
+                for(var j in supporters){
+                    if(supporters[j] != userId){
+                        new_supporters.push(gadgets.util.escapeString(supporters[j]));
+                    }
+                }
+                data['supporters' + i] = gadgets.json.stringify(new_supporters);
+            }
+            data1 = gadgets.json.stringify(data);
+            $.post("https://aipoquestion.appspot.com/_je/question", { messageBody: data1,_docId: key }, function (result) {
+                repaint();
             });
-            // データの再表示
-            repaint();
         });
+
     });
 }
 
-        function deleteItem(key) {
-            if (confirm("このお誘いを削除してよろしいでしょうか？")) {
 
-            osapi.appdata.get({ userId: ["@viewer"] ,fields: [key] }).execute(function(response) {
-                for (var userId in response) {
-                                var links = response[userId];
-                }
-                                var data = new Array();
-                                if (links && links[key]) {
-                                    data = gadgets.json.parse(links[key]);
-                                }
-
-
-                // ユーザーの読み込み
-                osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
-                    var userIds = [];
-                    var counter = 0;
-
-                    var list = response.list;
-                    for (var i in list) {
-                        userIds.push(list[i].id);
-                    }
-
-                    // データの取得
-                    osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response3) {
-                        // ユーザーID、アプリデータの連想配列
-                        for (var userId3 in response3) {
-                            var tmp_add = gadgets.json.parse(response3[userId3]['add']);
-                            for (var i in tmp_add) {
-                                if (tmp_add[i] == data['date']) {
-                                    counter++
-                                }
-                            }
-
-                        }
-                        if (counter > 0) {
-                            // minimessage
-                            var msg = new gadgets.MiniMessage();
-                            msg.createTimerMessage("参加者がいるため削除できません。", 3, function() {
-                                gadgets.window.adjustHeight();
-                                return true;
-                            });
-                        } else {
-
-
-                            osapi.appdata.get({ userId: ["@viewer"] ,fields: ["keys"] }).execute(function(response) {
-                for (var userId in response) {
-                                var links = response[userId];
-                }
-                                var keys = new Array();
-                                if (links && links["keys"]) {
-                                    keys = gadgets.json.parse(links["keys"]);
-                                }
-
-                                var callback = function(response2) {
-                                    if (response2.error) {
-                                        // minimessage
-                                        var msg = new gadgets.MiniMessage();
-                                        msg.createTimerMessage("削除に失敗しました。", 3, function() {
-                                            gadgets.window.adjustHeight();
-                                            return true;
-                                        });
-                                    } else {
-                                            // データの再表示
-                                            repaint();
-                                        // minimessage
-                                        var msg = new gadgets.MiniMessage();
-                                        msg.createTimerMessage("削除しました。", 3, function() {
-                                            gadgets.window.adjustHeight();
-                                            return true;
-                                        });
-                                    }
-                                };
-
-                                var newKeys = new Array();
-                                for (var i in keys) {
-                                    if (keys[i] != key) {
-                                        newKeys.push(keys[i]);
-                                    }
-                                }
-
-                                var data = {};
-                                data["keys"] = gadgets.json.stringify(newKeys);
-
-                                console.error(newKeys);
-
-                                var batch = osapi.newBatch()
-                                        .add('delete', osapi.appdata['delete']({ userId: '@viewer', fields: [key], appId: '@app' }))
-                                        .add('update', osapi.appdata.update({ userId: '@viewer', data: data,  appId: '@app' }));
-                                batch.execute(callback);
-                            });
-                        }
-                    });
-                    });
-                });
-
-            }
-        }
-
-
-        function deleteMap(key) {
-            if (confirm("このお誘いへの参加を削除してよろしいでしょうか？")) {
-                osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
-                    for (var userId in response) {
-                        var data = response[userId];
-                    }
-                    var keys = new Array();
-                    if (data && data['add']) {
-                        keys = gadgets.json.parse(data['add']);
-                    }
-
-
-                    var newKeys = new Array();
-                    for (var i in keys) {
-                        if (keys[i] != key) {
-                            newKeys.push(keys[i]);
-                        }
-                    }
-
-                    var data = {};
-                    data['add'] = gadgets.json.stringify(newKeys);
-
-                    // データの保存
-                    osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
-                        // minimessage
-                        var msg = new gadgets.MiniMessage();
-                        msg.createTimerMessage("送信しました。", 3, function() {
-                            gadgets.window.adjustHeight();
-                            return true;
-                        });
-                        // データの再表示
-                        repaint();
-                    });
-                });
-            }
-        }
+function deleteItem(key) {
+    if (confirm("この質問を削除してよろしいでしょうか？")) {
+    $.post("https://aipoquestion.appspot.com/_je/question", { _method: "delete", _docId:  key }, function (result){
+            var msg = new gadgets.MiniMessage();
+            msg.createTimerMessage("質問を排除しました。", 5);
+            repaint();
+        },"text");
+    }
+}
 
 function addQuestion() {
     if (choicesCount < 10) {
@@ -538,102 +338,84 @@ function eventChoicesBlur(num) {
     }
 }
 
-
-        /*
-         * テーブルの再描画
-         */
-        function repaint() {
-            // ユーザーの読み込み
-            osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
-                var users = [];
-                var userIds = [];
-                var adds_users = [];
-                var keys = [];
-                var counter = 0;
-                // テーブルの初期化
-                $("#status").html("");
-                var header = '\
-<tr>\
-<th width="12%">投稿日時</th>\
-<th>提案者</th>\
-<th>コメント</th>\
-<th>賛同者</th>\
-<th width="10%"></th>\
-</tr>\
-                            ';
-                $("#status").html($("#status").html() + header);
-
-                var list = response.list;
-                for (var i in list) {
-                    users[list[i].id] = list[i];
-                    userIds.push(list[i].id);
-                }
-                // データの取得
-                osapi.appdata.get({ userId: userIds ,fields: ['keys'] }).execute(function(response) {
-                    // ユーザーID、アプリデータの連想配列
-                    for (var userId in response) {
-                        var tmp_keys = gadgets.json.parse(response[userId]['keys']);
-                        for (var tmp_key in tmp_keys) {
-                            keys.push(tmp_keys[tmp_key]);
-                        }
-                    }
-                    // データの取得
-                    osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response3) {
-                        // ユーザーID、アプリデータの連想配列
-                        for (var userId3 in response3) {
-                            var tmp_add = gadgets.json.parse(response3[userId3]['add']);
-                            for (var i in tmp_add) {
-                                if (!adds_users[tmp_add[i]]) {
-                                    adds_users[tmp_add[i]] = '';
-                                } else {
-                                    adds_users[tmp_add[i]] += ', ';
-                                }
-                                adds_users[tmp_add[i]] += users[userId3].displayName;
-                            }
-
-                        }
-                        // データの取得
-                        osapi.appdata.get({ userId: userIds ,fields: keys }).execute(function(response2) {
-                            for (var userId2 in response2) {
-                                var data = response2[userId2];
-
-                                for (var key in data) {
-                                    // データの作成
-                                    var rowdata = gadgets.json.parse(data[key]);
-                                    var add_user = '';
-                                    for (var key2 in adds_users) {
-                                        if (rowdata["date"] == key2) {
-                                            add_user = adds_users[key2];
-                                        }
-                                    }
-
-                                    var css_class = '';
-                                    if (counter % 2 == 0) {
-                                        css_class = ' class="odd"';
-                                    }
-                                    counter++;
-
-                                    var key_data = '\
-<tr' + css_class + '>\
-    <td class="fs10" nowrap="nowrap">' + gadgets.util.escapeString(getDate(rowdata["date"])) + '&nbsp;<span class="small">[<a href="javascript:void(0);" onclick="deleteItem(' + gadgets.util.escapeString(key) + ');">削除</a>]</span></td>\
-    <td nowrap="nowrap" align="center">' + gadgets.util.escapeString(users[userId2].displayName) + '</td>\
-    <td>' + gadgets.util.escapeString(rowdata["comment"]) + '</td>\
-    <td>' + gadgets.util.escapeString(add_user) + '</td>\
-    <td nowrap><input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(rowdata["date"]) + ')"/>\
-    &nbsp;<span class="small">[<a href="javascript:void(0);" onclick="deleteMap(' + gadgets.util.escapeString(rowdata["date"]) + ');">削除</a>]</span></td>\
-</tr>\
-';
-                                    // データの表示
-                                    $("#status").html($("#status").html() + key_data);
-                                }
-                            }
-                            // ウインドウの幅再調整
-                            gadgets.window.adjustHeight();
-                        });
-                    });
-                });
-            });
+/*
+* テーブルの再描画
+*/
+function repaint() {
+    osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+        var msg = new gadgets.MiniMessage();
+        // テーブルの初期化
+        $("#result").html("");
+        var users = [];
+        var list = response.list;
+        for (var i in list) {
+            users[list[i].id] = list[i];
         }
+        $.getJSON("https://aipoquestion.appspot.com/_je/question", { sort: "_createdAt.desc", limit: 100}, function (result) {
+            osapi.people.get({ userId: '@viewer' }).execute(function(response2) {
+                var userId = response2.id;
+                for(var i = 0; i < result.length; i++){
+                    var data = [];
+                    var userName = users[result[i].createdby].displayName;
+                    var key = result[i]._docId;
+                    data = gadgets.json.parse(result[i].messageBody);
+                    var this_choices = '';
+                    for(var j = 0; j < data["count"]; j++){
+                        var add_users = '';
+                        var isSupported = false;
+                        var supporters = new Array();
+                        if (data && data['supporters' + j]) {
+                            supporters = gadgets.json.parse(data['supporters' + j]);
+                        }
+                        for(var k in supporters){
+                            if(supporters[k] == userId){
+                                isSupported = true;
+                            }
+                            if(add_users != ''){
+                                add_users += ', ';
+                            }
+                        add_users += users[supporters[k]].displayName;
+                        }
+                        if(isSupported){
+                            this_choices = this_choices
+                                    + '<input type="checkbox" checked=true onclick="vote('
+                                    + "'" + gadgets.util.escapeString(key) + "'" + ',' + j + ',' + false + ')">';
+                        }else{
+                            this_choices = this_choices
+                                    + '<input type="checkbox" onclick="vote('
+                                    + "'" + gadgets.util.escapeString(key) + "'" + ',' + j + ',' + true + ')">';
+                        }
+                        this_choices = this_choices
+                                + ' ' + gadgets.util.escapeString(data["choice" + j])
+                                + ' ' + supporters.length
+                                + ' ' + gadgets.util.escapeString(add_users)
+                                + '<br>';
+                    }
+                    var key_data = '';
+                    key_data = key_data
+                            +'<br>'
+                            + '<h1>投稿日時 : ' + gadgets.util.escapeString(getDate(data["date"])) + '</h1>'
+                            + '<h1>投稿者 : ' + userName + '</h1>'
+                            + '<h1>質問 : ' + gadgets.util.escapeString(data["comment"]);
+                    if(userId == result[i].createdby){
+                        key_data = key_data
+                                + '<input type="button" style="margin:0 0 0 10px" onclick="deleteItem('
+                                +  "'" + gadgets.util.escapeString(key) + "'" + ')" value='
+                                + '質問を排除' + '>';
+                    }
+                    key_data = key_data
+                            + '</h1>'
+                            + this_choices;
+                    // データの表示
+                    $("#result").html($("#result").html() + key_data);
+                    // ウインドウの幅再調整
+                    gadgets.window.adjustHeight();
+                }
+            });
+        });
+    });
+}
+
 
 /*
  * 引数で与えられた時刻を整形して返す
@@ -685,6 +467,8 @@ function getDateArray(time) {
 
     return r;
 }
+
+
 </script>
 ]]>
 </Content>
