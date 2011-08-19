@@ -1,0 +1,15 @@
+<queue-entries>
+	<queue>
+		<name>default</name>
+		<rate>30/m</rate>
+	</queue>
+	<queue>
+		<name>excel</name>
+		<rate>30/m</rate>
+	</queue>
+	<queue>
+		<name>slim3-gtx-queue</name>
+		<rate>10/s</rate>
+		<bucket-size>10</bucket-size>
+	</queue>
+</queue-entries>
