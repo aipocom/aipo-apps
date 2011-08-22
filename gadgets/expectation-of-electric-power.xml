@@ -19,14 +19,14 @@
                         //実際にデータを処理するコード
                         var start = getDate(demandData[0].start * 1000 - setTimezone(tz));
                         var end = getDate(demandData[0].end * 1000 - setTimezone(tz));
-                        var date = '予想最大消費時刻　' + start + ' ～ ' + end;
+                        var date = start + '-' + end;
                         $('#date').html(date);
                         var demandUsage = Math.round(demandData[0].usage / 10000);
                         var supplyUsage = Math.round(supplyData[0].usage / 10000);
-                        $('#demandUsage').html(demandUsage + '万kW');
-                        $('#supplyUsage').html(supplyUsage + '万kW');
+                        $('#demandUsage').html(demandUsage);
+                        $('#supplyUsage').html(supplyUsage);
                         var usageRate = Math.round(demandUsage / supplyUsage * 100);
-                        $('#usageRate').html(usageRate + '%');
+                        $('#usageRate').html(usageRate);
                         var showFlag = false;
                         var whiteBarWidth = 0;
 
@@ -34,11 +34,7 @@
                             whiteBarWidth = 100 - usageRate;
                         }
 
-                        document.getElementById("whiteBarImg").style.width = whiteBarWidth + '%';
-
-                        if (usageRate >= 90) {
-                            document.getElementById("usageRate").style.color = 'red';
-                        }
+                        document.getElementById("whiteBarImg").style.height = whiteBarWidth + '%';
                         gadgets.window.adjustHeight();
 
                         var timer = setInterval(update, 10 * 60 * 1000);
@@ -111,51 +107,6 @@
 
         <style type="text/css">
 
-            #equation {
-                font-size: 10px;
-                margin: 0 5px 0 0;
-            }
-
-            #usageRate {
-                font-size: 350%;
-                font-weight: bold;
-                margin: 0 5px 0 0;
-            }
-
-            #colorVar {
-                position: relative;
-                padding: 2px;
-                border: 1px solid #DCDCDC;
-                margin: 0 0 5px;
-            }
-
-            #colorVar .colorimg {
-                width: 100%;
-                height: 10px;
-            }
-
-            #whiteBarImg {
-                position: absolute;
-                top: 2px;
-                right: 2px;
-                height: 10px;
-                z-index: 10;
-                width: 90%;
-            }
-
-            #demandUsage {
-                font-size: 10px
-            }
-
-            #supplyUsage {
-                font-size: 10px
-            }
-
-            #date {
-                margin: 5px 0 0;
-                font-size: 10px;
-            }
-
             .yosoku_denchi {
                 height: 175px;
                 width: 80px;
@@ -165,7 +116,7 @@
                 position: relative;
             }
 
-            .yosoku_denchi span {
+            .yosoku_denchi span.wrapper {
                 position: absolute;
                 bottom: 10px;
                 left: 7px;
@@ -177,7 +128,7 @@
                 color: #FFF;
             }
 
-            .yosoku_denchi span strong {
+            .yosoku_denchi span.wrapper strong {
                 font-size: 200%;
                 color: #FFF;
             }
@@ -248,11 +199,11 @@
                 <tbody>
                 <tr>
                     <td>
-                        <div class="yosoku_denchi"><span><strong><span id="usageRate"></span></strong>%</span><img
+                        <div class="yosoku_denchi"><span class="wrapper"><strong><span id="usageRate"></span></strong>%</span><img
                                 src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/expectation-of-electric-power/img/colorbar/img_yosoku0.gif"
-                                class="white90" id="whiteBarImg"/><img
+                                class="white90" id="whiteBarImg" /><img
                                 src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/expectation-of-electric-power/img/colorbar/img_yosoku02.png"
-                                class="colorimg"/></div>
+                                 /></div>
                     </td>
                     <td align="right">
                         <div>予想最大電力消費量</div>
@@ -263,7 +214,7 @@
                                 style="font-size:10px;">万kw</span></div>
                         <div style="padding-top:5px; border-top:1px solid #DCDCDC;">ピーク時間帯</div>
                         <div><strong style="font-size:140%;">
-                            <div id="date">14:00-15:00</div>
+                            <div id="date"></div>
                         </strong></div>
                     </td>
                 </tr>
