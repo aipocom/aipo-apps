@@ -9,6 +9,16 @@
         <Require feature="minimessage"/>
         <Require feature="osapi"/>
     </ModulePrefs>
+    <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <UserPref name="p2-canvasRows" display_name="表示件数（最大化時）" datatype="enum" default_value="10">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
     <UserPref name="version" datatype="hidden"/>
     <Content type="html"><![CDATA[
         <style type="text/css">
@@ -78,9 +88,11 @@
         var max_length = 140;
         var max_data = 50;
         var msg = new gadgets.MiniMessage();
+        var prefs = new gadgets.Prefs();
+        var max_per_page = getPrefRows();
+
         var colors = ["0099CC", "FF99CC", "FF0033", "005533", "008899", "009900", "FF00FF", "000080", "0000FF", "800080", "808000", "800000", "808080", "008080", "008000", "B8860B", "8B4513", "2F4F4F", "483D8B"];
 
-        var max_per_page = 10;
 
         // ページ読込完了後実行コード
         jQuery(function($) {
@@ -273,6 +285,20 @@
                 $(org).html(max);
             }
         }
+
+        /*
+         * 設定の読み込み
+         */
+        function getPrefRows() {
+            // 設定の読み込み
+            var currentView = gadgets.views.getCurrentView();
+            if (currentView.getName() == "home") {
+                return prefs.getInt("p1-homeRows");
+            } else {
+                return prefs.getInt("p2-canvasRows");
+            }
+        }
+
         /*
          * 引数で与えられた時刻を整形して返す
          * @param time 1900年からのms
