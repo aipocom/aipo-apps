@@ -11,6 +11,40 @@
     </ModulePrefs>
     <UserPref name="version" datatype="hidden"/>
     <Content type="html"><![CDATA[
+        <style type="text/css">
+            .pagination {
+                margin: 0 0 5px 0;
+                padding: 0;
+                height: 2.5em;
+            }
+
+            .pagination a {
+                text-decoration: none;
+                border: solid 1px darkorange;
+                color: darkorange;
+            }
+
+            .pagination a, .pagination span {
+                font-weight: bold;
+                display: block;
+                float: left;
+                margin: 0 5px 0 0;
+                padding: .3em .5em;
+            }
+
+            .pagination .current {
+                background: darkorange;
+                color: #fff;
+                border: solid 1px darkorange;
+            }
+
+            .pagination .current.prev, .pagination .current.next {
+                color: #999;
+                border-color: #999;
+                background: #fff;
+            }
+
+        </style>
         <div class="aipostyle">
             <table>
                 <tbody>
@@ -27,11 +61,15 @@
             <hr/>
             <div><input type="button" value="更新"
                         onclick="repaint()"/></div>
-            <div id="list">
+            <div id="Pagination" class="pagination"><!-- ページネーション表示 --></div>
+            <div id="res"><!-- コンテンツ表示領域 --></div>
+            <div id="hiddenresult" style="display:none;">
             </div>
         </div>
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js">
         </script>
+        <script type="text/javascript"
+                src="https://aipo-apps.googlecode.com/svn/trunk/gadgets/chat-room/js/jquery/pagination/jquery.pagination.js"></script>
         <script type="text/javascript">
 
         // バージョン情報
@@ -42,15 +80,13 @@
         var msg = new gadgets.MiniMessage();
         var colors = ["0099CC", "FF99CC", "FF0033", "005533", "008899", "009900", "FF00FF", "000080", "0000FF", "800080", "808000", "800000", "808080", "008080", "008000", "B8860B", "8B4513", "2F4F4F", "483D8B"];
 
+        var max_per_page = 5;
+
+
         // ページ読込完了後実行コード
         jQuery(function($) {
-            init();
-        });
-
-        function init() {
             repaint();
-            gadgets.window.adjustHeight();
-        }
+        });
 
 
         /*
@@ -126,6 +162,7 @@
             var row_datas = [];
             var keys = [];
             var color_map = [];
+            var counter = 0;
 
             // ユーザーの読み込み
             osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
@@ -167,23 +204,49 @@
                             return a["date"] < b["date"] ? 1 : -1;
                         });
 
-                        $("#list").html("");
+                        $("#hiddenresult").html("");
+                        var key_data = '';
                         for (var i in row_datas) {
+                            counter++;
+                            if (counter % max_per_page == 1) {
+                                key_data += '<div class="result">';
+                            }
 
-                            var key_data = '\
+                            key_data += '\
 <p style="padding:3px;0"><span style="color: #' + gadgets.util.escapeString(row_datas[i]["color"]) + '">' + gadgets.util.escapeString(row_datas[i]["owner"]) + '</span>\
  ＞' + urlAutoLink(gadgets.util.escapeString(row_datas[i]["comment"])) + ' \
 <span style="color: #666666;">(' + gadgets.util.escapeString(getDate(row_datas[i]["date"])) + ')</span></p>\
 ';
-                            // データの表示
-                            $("#list").html($("#list").html() + key_data);
+                            if (counter % max_per_page == 0) {
+                                key_data += '</div>';
+                            }
                         }
-                        // ウインドウの幅再調整
-                        gadgets.window.adjustHeight();
+                        // データの表示
+                        $("#hiddenresult").html($("#hiddenresult").html() + key_data);
+
+                        var pageselectCallback = function(page_index, jq) {
+                            var new_content = $('#hiddenresult div.result:eq(' + page_index + ')').clone();
+                            $('#res').empty().append(new_content);
+                            // ウインドウの幅再調整
+                            gadgets.window.adjustHeight();
+                            return false;
+                        };
+                        var num_entries = $('#hiddenresult div.result').length;
+                        // Create pagination element
+                        $("#Pagination").pagination(num_entries, {
+                            next_text:"次へ",
+                            prev_text:"前へ",
+                            num_display_entries: 5,
+                            num_edge_entries: 1,
+                            callback: pageselectCallback,
+                            items_per_page:1,
+                            load_first_page:false
+                        });
                     });
                 });
             });
         }
+
 
         /**
          * 自動リンク
