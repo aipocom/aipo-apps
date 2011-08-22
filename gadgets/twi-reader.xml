@@ -126,7 +126,6 @@
             }
             function ReloadEvent(tabparent) {
                 SearchForTwitter(tabparent.getSelectedTab().getName());
-                console.info("twittertimeline is refleshed");
             }
             function SearchForTwitter(query) {
                 var rowUrl = "https://search.twitter.com/search.json?";
@@ -189,7 +188,6 @@
                         gadgets.window.adjustHeight();
                     },
                     error: function(xhr, status, e) {
-                        console.info(xhr, status, e);
                     }
                 });
             }
