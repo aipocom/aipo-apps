@@ -128,7 +128,7 @@
                 color: #FFF;
             }
 
-            .yosoku_denchi span.wrapper strong {
+            .yosoku_denchi span.wrapper strong span.rate {
                 font-size: 200%;
                 color: #FFF;
             }
@@ -199,7 +199,7 @@
                 <tbody>
                 <tr>
                     <td>
-                        <div class="yosoku_denchi"><span class="wrapper"><strong><span id="usageRate"></span></strong>%</span><img
+                        <div class="yosoku_denchi"><span class="wrapper"><strong><span id="usageRate" class="rate"></span></strong>%</span><img
                                 src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/expectation-of-electric-power/img/colorbar/img_yosoku0.gif"
                                 class="white90" id="whiteBarImg" /><img
                                 src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/expectation-of-electric-power/img/colorbar/img_yosoku02.png"
@@ -214,7 +214,7 @@
                                 style="font-size:10px;">万kw</span></div>
                         <div style="padding-top:5px; border-top:1px solid #DCDCDC;">ピーク時間帯</div>
                         <div><strong style="font-size:140%;">
-                            <div id="date"></div>
+                            <span id="date"></span>
                         </strong></div>
                     </td>
                 </tr>
