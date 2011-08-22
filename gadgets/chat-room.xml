@@ -80,8 +80,7 @@
         var msg = new gadgets.MiniMessage();
         var colors = ["0099CC", "FF99CC", "FF0033", "005533", "008899", "009900", "FF00FF", "000080", "0000FF", "800080", "808000", "800000", "808080", "008080", "008000", "B8860B", "8B4513", "2F4F4F", "483D8B"];
 
-        var max_per_page = 5;
-
+        var max_per_page = 10;
 
         // ページ読込完了後実行コード
         jQuery(function($) {
