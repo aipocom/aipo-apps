@@ -12,12 +12,22 @@
     <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
         <EnumValue value="5"/>
         <EnumValue value="10"/>
+        <EnumValue value="30"/>
         <EnumValue value="50"/>
     </UserPref>
     <UserPref name="p2-canvasRows" display_name="表示件数（最大化時）" datatype="enum" default_value="10">
         <EnumValue value="5"/>
         <EnumValue value="10"/>
+        <EnumValue value="30"/>
         <EnumValue value="50"/>
+    </UserPref>
+    <UserPref name="p3-autoReload" display_name="自動更新" datatype="enum" default_value="1">
+        <EnumValue value="0" display_value="自動更新しない"/>
+        <EnumValue value="1" display_value="1分毎"/>
+        <EnumValue value="5" display_value="5分毎"/>
+        <EnumValue value="10" display_value="10分毎"/>
+        <EnumValue value="30" display_value="30分毎"/>
+        <EnumValue value="60" display_value="1時間毎"/>
     </UserPref>
     <UserPref name="version" datatype="hidden"/>
     <Content type="html"><![CDATA[
@@ -97,6 +107,12 @@
         // ページ読込完了後実行コード
         jQuery(function($) {
             repaint();
+            // リロード
+            if (getInterval() > 0) {
+                setInterval(function($) {
+                    repaint();
+                }, getInterval());
+            }
         });
 
 
@@ -297,6 +313,15 @@
             } else {
                 return prefs.getInt("p2-canvasRows");
             }
+        }
+
+        /*
+         * 設定の読み込み
+         */
+        function getInterval() {
+            // 設定の読み込み
+            var currentView = gadgets.views.getCurrentView();
+            return prefs.getInt("p3-autoReload") * 1000 * 60;
         }
 
         /*
