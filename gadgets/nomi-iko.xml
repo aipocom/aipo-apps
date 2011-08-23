@@ -257,7 +257,7 @@
                         });
                     }
                     // ユーザーの読み込み
-                    osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+                    osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
                         var userIds = [];
                         var counter = 0;
 
@@ -426,7 +426,7 @@
                 var currentUserid = response.id;
 
                 // ユーザーの読み込み
-                osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+                osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
 
                     var list = response.list;
                     for (var i in list) {
@@ -567,7 +567,7 @@
 
 
             // ユーザーの読み込み
-            osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+            osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
                 var users = [];
                 var userIds = [];
                 var adds_users = [];
@@ -679,7 +679,7 @@
                 console.error(old_keys);
 
                 // ユーザーの読み込み
-                osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+                osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
 
                     var list = response.list;
                     for (var i in list) {
