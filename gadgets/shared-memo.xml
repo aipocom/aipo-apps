@@ -20,7 +20,7 @@
         <script type="text/javascript"
                 src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js">
         </script>
-        <style type="text/css">
+        <style type="text/css"><!--
 
             #formField {
                 border: 2px solid #cbcbcb;
@@ -48,7 +48,7 @@
                 cursor: pointer;
             }
 
-        </style>
+        --></style>
         <div class="aipostyle">
             <div id="formContent">
                 <form id="form" name="form" action="#">
@@ -111,12 +111,12 @@
 
                     <div id="memos" class="w90" style="padding:5px;"></div>
                     <input id="clipCheck" type="checkbox" name="clip" onchange="swapClip(this);"
-                           onclick="this.blur();this.focus();"/>
-                    <label for="clipCheck">このメモ集をクリップする<label>
+                           onclick="this.blur();this.focus();" value="" />
+                    <label for="clipCheck">このメモ集をクリップする</label>
                 </form>
             </div>
         </div>
-        <script type="text/javascript">
+        <script type="text/javascript"><!--
 
         var version = "1.0";
         var changeLogUrl = "javascript:void(0);";
@@ -136,39 +136,25 @@
         var dispayName;
         var inputSelect = false;
 
-        function replaceSpecialCharactor(text) {
-            text = text.replace("<", "&lt;");
-            text = text.replace(">", "&gt;");
-
-            return text;
-        }
-
-        function restoreSpecialCharactor(text) {
-            text = text.replace("&lt;", "<");
-            text = text.replace("&gt;", ">");
-
-            return text;
-        }
-
         var submitFunc = function() {
             document.getElementById("errors").innerHTML = "";
-            var title    = replaceSpecialCharactor(document.form.title.value);
-            var contents = replaceSpecialCharactor(document.form.contents.value);
+            var title    = document.form.title.value;
+            var contents = document.form.contents.value;
             var categoryInput = document.form.categoryInput.value;
             var validate = true;
             if (!title) {
-                showValidateErrorMessage("タイトルを入力してください。");
+                alert("タイトルを入力してください。");
                 validate = false;
             }
-            else if (title.length > 50) {
-                showValidateErrorMessage("タイトルは 50 文字以内で入力してください。");
+            else if (title.length > 30) {
+                alert("タイトルは 30 文字以内で入力してください。");
                 validate = false;
             }
             if (!contents) {
-                showValidateErrorMessage("メモを入力してください。");
+                alert("メモを入力してください。");
                 validate = false;
-            } else if (contents.length > 1000) {
-                showValidateErrorMessage("メモは 1000 文字以内で入力してください。");
+            } else if (contents.length > 500) {
+                alert("メモは 500 文字以内で入力してください。");
                 validate = false;
             }
 
@@ -182,8 +168,8 @@
                     }
                     addMemo(title, contents, currentCategoryId);
                 }
+                hideForm();
             }
-            hideForm();
             adjustHeight();
 
             return false;
@@ -199,14 +185,6 @@
         function showTimerMessage(text) {
             var timerMsg = msg.createTimerMessage(text, 3, function() {
                 msg.dismissMessage(timerMsg);
-                adjustHeight();
-            });
-        }
-
-        function showValidateErrorMessage(text) {
-            var errorMsg = new gadgets.MiniMessage('__MODULE_ID__', document.getElementById("errors"));
-            var timerMsg = errorMsg.createTimerMessage(text, 3, function() {
-                errorMsg.dismissMessage(timerMsg);
                 adjustHeight();
             });
         }
@@ -332,15 +310,13 @@
         }
 
         function adjustHeight() {
-            gadgets.window.adjustHeight();
-            if (document.getElementById('formField').style.display == "none") {
-            } else {
+            if (document.getElementById('formField').style.display != "none") {
                 var dimensions = gadgets.window.getViewportDimensions();
                 if (dimensions['height'] <= 310) {
                     gadgets.window.adjustHeight(310);
-                } else {
-                    gadgets.window.adjustHeight();
                 }
+            } else {
+                gadgets.window.adjustHeight();
             }
         }
 
@@ -362,8 +338,8 @@
         }
 
         function showForm_edit(title, contents, deleteKey) {
-            document.form.title   .value = restoreSpecialCharactor(title);
-            document.form.contents.value = restoreSpecialCharactor(contents);
+            document.form.title   .value = gadgets.util.unescapeString(title);
+            document.form.contents.value = gadgets.util.unescapeString(contents);
             document.form.submit  .value = "編集する";
 
             document.form.submit.style.display  = "";
@@ -377,8 +353,8 @@
         }
 
         function showForm_read(title, contents) {
-            document.form.title   .value = restoreSpecialCharactor(title);
-            document.form.contents.value = restoreSpecialCharactor(contents);
+            document.form.title   .value = gadgets.util.unescapeString(title);
+            document.form.contents.value = gadgets.util.unescapeString(contents);
 
             document.form.submit.style.display = "none";
 
@@ -443,29 +419,49 @@
                                 var contents = memos2[keys[key]];
                             }
                             if (keys.length > 0) {
-                                var html = new Array();
-                                html.push('<ul id="sortable">');
+
+                                var ul = document.createElement('ul');
+                                ul.id = "sortable";
                                 for (var key in keys) {
                                     var value = memos2[keys[key]];
                                     var memo = gadgets.json.parse(value);
-                                    html.push('<li id="' + gadgets.util.escapeString(keys[key]) + '">');
+                                    var title     = gadgets.util.escapeString(memo.title);
+                                    var contents  = gadgets.util.escapeString(memo.contents);
+                                    var deleteKey = gadgets.util.escapeString(keys[key]);
+
+                                    var li = document.createElement('li');
+                                    li.id = deleteKey;
+                                    ul.appendChild(li);
+
+                                    var a = document.createElement('a');
+                                    li.appendChild(a);
                                     if (viewerId == currentUserId) {
-                                        html.push('<a href="javascript:showForm_edit(\'' + gadgets.util.escapeString(memo.title) + '\', \'' + gadgets.util.escapeString(memo.contents) + '\', \'' + gadgets.util.escapeString(keys[key]) + '\');">');
+                                        a.setAttribute("href", "javascript:showForm_edit('" + title + "', '" + contents + "', '" + deleteKey + "');");
                                     } else {
-                                        html.push('<a href="javascript:showForm_read(\'' + gadgets.util.escapeString(memo.title) + '\', \'' + gadgets.util.escapeString(memo.contents) + '\');">')
+                                        a.setAttribute("href", "javascript:showForm_read('" + title + "', '" + contents + "');");
                                     }
-                                    html.push(gadgets.util.escapeString(memo.title));
-                                    html.push('</a>');
+                                    a.appendChild(document.createTextNode(gadgets.util.unescapeString(title)));
+
                                     if (viewerId == currentUserId) {
-                                        html.push('&nbsp;');
-                                        html.push('<span class="small" style="display:none">');
-                                        html.push('[<a href="javascript:deleteMemo_confirm(\'' + gadgets.util.escapeString(keys[key]) + '\');"/>削除</a>]');
-                                        html.push('</span>');
+                                        li.appendChild(document.createTextNode(" "));
+
+                                        var span = document.createElement('span');
+                                        li.appendChild(span);
+                                        span.setAttribute("class", "small");
+                                        span.setAttribute("style", "display:none;");
+
+                                        var deleteLink = document.createElement('a');
+                                        span.appendChild(deleteLink);
+                                        deleteLink.setAttribute("href", "javascript:deleteMemo_confirm(\'" + deleteKey + "\');");
+                                        deleteLink.appendChild(document.createTextNode('削除'));
                                     }
-                                    html.push('</li>');
                                 }
-                                html.push('</ul>');
-                                document.getElementById('memos').innerHTML = html.join('');
+                                var memos = document.getElementById('memos');
+                                for (var i = memos.childNodes.length-1; i>=0; i--) {
+                                    memos.removeChild(memos.childNodes[i]);
+                                }
+                                memos.appendChild(ul);
+
                                 if (viewerId == currentUserId) {
                                     $("#sortable").sortable({
                                         update: function(event, ui) {
@@ -492,7 +488,6 @@
                                                     showTimerMessage("一覧が古かったため並び替えできませんでした。");
                                                     fetchMemo(viewerId);
                                                 }
-
                                             });
                                         }
                                     }).disableSelection();
@@ -683,7 +678,7 @@
 
         function showVersion() {
             var span = document.createElement("span");
-            span.innerHTML = "<a href='" + changeLogUrl + "' target='_blank'>バージョン " + version + " にアップデートされました。</a>";
+            span.innerHTML = "<a href='" + changeLogUrl + "' target='_blank'>バージョン " + version + " にアップデートされました。<\/a>";
             var versionMsg = msg.createDismissibleMessage(span, function() {
                 msg.dismissMessage(versionMsg);
                 adjustHeight();
@@ -722,7 +717,7 @@
         }
 
 
-        </script>
+        --></script>
         ]]>
     </Content>
 </Module>
