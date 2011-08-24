@@ -246,7 +246,7 @@
                                 if (row_datas[i]["owner_id"] == currentUserid) {
                                     delete_html = '&nbsp;<span class="small" style="display:none">[<a href="javascript:void(0);" onclick="deleteItem(\'' + gadgets.util.escapeString(row_datas[i]["key"]) + '\');">削除</a>]</span>';
                                 } else {
-                                    delete_html = '<span class="small" style="display:none"></span>;
+                                    delete_html = '<span class="small" style="display:none"></span>';
                                 }
 
                                 key_data += '\
