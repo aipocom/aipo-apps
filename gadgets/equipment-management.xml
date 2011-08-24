@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs
+            title="美品管理"
+            description="備品を美しく管理。">
+        <Require feature="views"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Require feature="tabs"/>
+        <Require feature="aipostyle"/>
+        <Require feature="osapi"/>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon16-trans.png</Icon>
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+        <style>
+            .borderNone {
+                border: none;
+            }
+
+            .borderNone th {
+                border: none;
+            }
+
+            .borderNone td {
+                border: none;
+            }
+
+            .pb5 {
+                padding-bottom: 5px;
+            }
+
+            .mb5 {
+                margin-bottom: 5px;
+            }
+
+            .fs10_g {
+                font-size: 10px;
+                color: #555;
+            }
+
+            .middle {
+                vertical-align: middle;
+            }
+        </style>
+        <div class="aipostyle">
+            <table class="wide borderNone">
+                <tbody>
+                <tr>
+                    <td class="borderNone pb5"><input type="text" style="width:99%;color:black;"
+                                                      onfocus="eventItemFocus()"
+                                                      onblur="eventItemBlur()" maxlength=100
+                                                      id="item"/></td>
+                    <td class="borderNone pb5"><input type="text" style="width:99%;color:black;"
+                                                      onfocus="eventCommentFocus()"
+                                                      onblur="eventCommentBlur()" maxlength=100
+                                                      id="comment"/></td>
+                    <td class="borderNone pb5" nowrap>
+                        <input type="button" style="margin-right:3px;" value="補充済み" onclick="eventSubmit('on')"/>
+                        <input type="button" value="残り少ない" onclick="eventSubmit('min')"/>
+                        <input type="button" value="無くなった" onclick="eventSubmit('off')"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <hr/>
+            <table class="wide borderNone" style="margin:5px 0 15px;">
+                <tbody>
+                <tr>
+                    <td nowrap="" align="right"><input type="button" value="更新"
+                                                       onclick="repaint()"/></td>
+                </tr>
+                </tbody>
+            </table>
+            <table class="borderNone" style="margin-bottom:15px;">
+                <tbody id="status">
+                </tbody>
+            </table>
+        </div>
+
+        <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
+        </script>
+        <script type="text/javascript">
+        gadgets.util.registerOnLoadHandler(init);
+
+        var groups = null;
+
+        var commentCheck = false;
+        var commentNotice = "コメントを書く（100文字まで）";
+
+        var itemCheck = false;
+        var itemNotice = "備品名を書く（100文字まで）";
+
+        var table = null;
+        var prefs = new gadgets.Prefs();
+
+        var icon_on = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_on.png"; // 在席アイコン
+        var icon_off = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_off.png"; // 外出アイコン
+        var icon_min = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_off.png"; // 外出アイコン
+        var icon_none = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_off.png"; // 未打刻アイコン
+        var icon_alt_on = "補充済";
+        var icon_alt_min = "少ない";
+        var icon_alt_off = "在庫無";
+        var icon_alt_none = "未打刻";
+
+        /*
+         * init
+         */
+        function init() {
+            osapi.appdata.get({ userId: ['@admin'] ,fields: ['format'] }).execute(function(response) {
+                for (var userId in response) {
+                    var data = response[userId];
+                    if(data['format']!='on')format();
+                }
+                });
+            eventCommentBlur();
+            eventItemBlur();
+            repaint();
+
+        }
+        /*
+         * format
+         */
+        function format() {
+            var type = gadgets.util.escapeString("none");
+            var comment = gadgets.util.escapeString("");
+            var date = gadgets.util.escapeString("");
+            var name = gadgets.util.escapeString("");
+            var reporter = gadgets.util.escapeString("");
+            // データの作成
+            var data = {};
+            var send_data = [];
+            for (var i = 1; i <= 50; i++) {
+                data['type_' + i] = type;
+                data['comment_' + i] = comment;
+                data['date_' + i] = date;
+                data['name_' + i] = name;
+                data['reporter_' + i] = reporter;
+                send_data.push(data);
+
+                osapi.appdata.update({ userId: '@admin', data: send_data.pop() }).execute(function(response) {
+                });
+                delete data['type_' + i];
+                delete data['comment_' + i];
+                delete data['date_' + i];
+                delete data['name_' + i];
+                delete data['reporter_' + i];
+            }
+                data['format'] = 'on';
+            osapi.appdata.update({ userId: '@admin', data: data }).execute(function(response) {
+                });
+            var msg = new gadgets.MiniMessage();
+            msg.createTimerMessage("初期化しました。", 3, function() {
+                gadgets.window.adjustHeight();
+                return true;
+            });
+            repaint();
+        }
+
+        function eventChange(type ,id){
+
+            if(type==3){
+                type = "none"
+            }
+            if(type==0){
+                type = "on"
+            }
+            if(type==1){
+                type = "min"
+            }
+            if(type==2){
+                type = "off"
+            }
+
+
+            var comment = $("#comment").val();
+            if (!commentCheck && comment == commentNotice) {
+                comment = "";
+            }
+
+            var date = (new Date()).getTime() + "";
+            // バリデート
+            if (comment.length > 100) {
+                comment = comment.substr(0, 100);
+            }
+            osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+                // データの作成
+                var reporter = response.displayName;
+                var send_data = {};
+                send_data["type_" + id] = type;
+                send_data['comment_' + id] = comment;
+                send_data['date_' + id] = date;
+                send_data['reporter_' + id] = reporter;
+                osapi.appdata.update({ userId: '@admin', data: send_data }).execute(function(response) {
+                    // minimessage
+                    var msg = new gadgets.MiniMessage();
+                    msg.createTimerMessage("送信しました。", 3, function() {
+                        gadgets.window.adjustHeight();
+                        return true;
+                    });
+
+                // データの再表示
+                repaint();
+                });
+            });
+        }
+        /*
+         * submit
+         */
+        function eventSubmit(type) {
+            // フォームから値の取得
+            var comment = $("#comment").val();
+            if (!commentCheck && comment == commentNotice) {
+                comment = "";
+            }
+            var item = $("#item").val();
+            // 時間の取得
+            var date = (new Date()).getTime() + "";
+            // バリデート
+            if (item.length == 0 || item == itemNotice) {
+                var msg = new gadgets.MiniMessage();
+                                    msg.createTimerMessage("備品名は必須です。", 5, function() {
+                                        gadgets.window.adjustHeight();
+                                        return true;
+                                    });
+                return;
+            }
+            if (comment.length > 100) {
+                comment = comment.substr(0, 100);
+            }
+
+            if (item.length > 100) {
+                item = item.substr(0, 100);
+            }
+
+
+            type = gadgets.util.escapeString(type);
+            comment = gadgets.util.escapeString(comment);
+            date = gadgets.util.escapeString(date);
+            var name = gadgets.util.escapeString(item);
+            var semi = 0;
+            var flag = 0;
+            var keep = [];
+            var keep2 = [];
+            for (var i = 1; i <= 50; i++) {
+                keep.push("type_" + i);
+                keep.push("name_" + i);
+            }
+            osapi.appdata.get({ userId: ['@admin'] ,fields: keep }).execute(function(response) {
+                // ユーザーID、アプリデータの連想配列
+                for (var userId in response) {
+                    var data = response[userId];
+                    for (var i = 1; i <= 50&&flag==0; i++) {
+
+                        if (data["type_" + i] == 'none'||data["name_" + i] == name) {
+                            keep2.push(i);
+                            flag = 1;
+                            osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+                                // データの作成
+                                semi = keep2.pop();
+                                var reporter = response.displayName;
+                                var send_data = {};
+                                send_data["type_" + semi] = type;
+                                send_data['comment_' + semi] = comment;
+                                send_data['date_' + semi] = date;
+                                send_data['name_' + semi] = name;
+                                send_data['reporter_' + semi] = reporter;
+                                osapi.appdata.update({ userId: '@admin', data: send_data }).execute(function(response) {
+                                    // minimessage
+                                    var msg = new gadgets.MiniMessage();
+                                    msg.createTimerMessage("送信しました。", 3, function() {
+                                        gadgets.window.adjustHeight();
+                                        return true;
+                                    });
+                                // データの再表示
+                                    repaint();
+                                });
+                            });
+                        }
+                        else if(i == 50){
+                                    var msg = new gadgets.MiniMessage();
+                                    msg.createTimerMessage("51個以上はデータ登録ができません。", 5, function() {
+                                        gadgets.window.adjustHeight();
+                                        return true;
+                                    });
+
+                        }
+                    }
+
+                }
+
+            });
+        }
+        function eventCommentFocus() {
+            if (!commentCheck && $("#comment").val() == commentNotice) {
+                $("#comment").val("");
+                commentCheck = true;
+            }
+            $("#comment").css("color", "black");
+        }
+        function eventCommentBlur() {
+            if ($("#comment").val() == "") {
+                $("#comment").val(commentNotice);
+                commentCheck = false;
+                $("#comment").css("color", "gray");
+            }
+
+        }
+        function eventItemFocus() {
+            if (!itemCheck && $("#item").val() == itemNotice) {
+                $("#item").val("");
+                itemCheck = true;
+            }
+            $("#comment").css("color", "black");
+        }
+        function eventItemBlur() {
+            if ($("#item").val() == "") {
+                $("#item").val(itemNotice);
+                itemCheck = false;
+                $("#item").css("color", "gray");
+            }
+
+        }
+
+
+
+
+        /*
+         * テーブルの再描画
+         */
+        function repaint() {
+            var userData = [];
+            // データの取得
+            var keep = [];
+            for (var i = 1; i <= 50; i++) {
+                keep.push("type_" + i);
+                keep.push("date_" + i);
+                keep.push("comment_" + i);
+                keep.push("reporter_" + i);
+                keep.push("name_" + i);
+            }
+            osapi.appdata.get({ userId: ['@admin'] ,fields: keep }).execute(function(response) {
+                // ユーザーID、アプリデータの連想配列
+                for (var userId in response) {
+                    var data = response[userId];
+                    for (var i = 1; i <= 50; i++) {
+                        // 在席アイコン
+                        var icon = icon_off;
+                        var icon_alt = icon_alt_off;
+                        if (data["type_" + i] == "on") {
+                            icon = icon_on;
+                            icon_alt = icon_alt_on;
+                        }
+                        else if (data["type_" + i] == "min") {
+                            icon = icon_min;
+                            icon_alt = icon_alt_min;
+                        }
+                        else if (data["type_" + i] == "off") {
+                            icon = icon_off;
+                            icon_alt = icon_alt_off;
+                        }
+
+                        if(data["type_" + i] != "none"){
+                            // データの作成
+                            userData[i] = '\
+<tr>\
+    <td valign="top" class="pb5" width="15" nowrap><img src="' + icon + '" alt="' + icon_alt + '" width="15" height="15" class="middle" /></td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + data["name_" + i]  + '</td>\
+    <td valign="top" class="pb5 fs10_g" nowrap style="padding-right:5px;">' + getDate(data["date_" + i]) + '</td>\
+    <td valign="top" class="pb5 fs10_g">' + icon_alt + '</td>\
+    <td valign="top" style="color:#ff4500" class="pb5 fs10_g">' + data['comment_' + i] + '</td>\
+    <td valign="top" style="color:#ff4600" class="pb5 fs10_g">' + data['reporter_' + i] + '</td>\
+    <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" style="margin-right:3px;" value="補充済み" onclick="eventChange(0 , ' + i + ')"/></td>\
+    <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" value="残り少ない" onclick="eventChange(1 , ' + i + ')"/></td>\
+    <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" value="無くなった" onclick="eventChange(2 , ' + i + ')"/></td>\
+    <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" value="削除" onclick="eventChange(3 , ' + i + ')"/></td>\
+</tr>\
+                            ';
+                        }
+                        else userData[i] ='';
+                        // テーブルの初期化
+                        $("#status").html("");
+                        // データの表示
+                        // データの表示
+                        for (var id in userData) {
+                            $("#status").html($("#status").html() + userData[id]);
+                        }
+                        // ウインドウの幅再調整
+                        gadgets.window.adjustHeight();
+
+                    }
+                }
+            });
+        }
+
+        /*
+         * 引数で与えられた時刻を整形して返す
+         * @param time 1900年からのms
+         */
+        function getDate(time) {
+            var date = getDateArray(time);
+            var date_now = getDateArray((new Date()).getTime());
+
+            // 整形して返す
+            if (date.year == date_now.year) {
+                if (date.month == date_now.month && date.day == date_now.day) {
+                    return date_now.month + "月" + date.day + "日" + date.hour + "：" + date.minute;
+                } else {
+                    return date.month + "/" + date.day;
+                }
+            } else {
+                return date.year + "/" + date.month + "/" + date.day;
+            }
+        }
+        /*
+         * 時刻を配列で返す
+         * @param time 1900年からの秒数
+         * @return date[] [time,year,month,day,week,hour,minute]
+         * ex) date.year
+         */
+        function getDateArray(time) {
+            var r = {};
+            var weeks = new Array('日', '月', '火', '水', '木', '金', '土');
+
+            var date = new Date();
+            date.setTime(time);
+            r.time = time;
+
+            r.year = date.getYear();
+            r.month = date.getMonth() + 1;
+            r.day = date.getDate();
+            r.week = weeks[ date.getDay() ];
+            r.hour = date.getHours();
+            r.minute = date.getMinutes();
+
+            if (r.year < 2000) {
+                r.year += 1900;
+            }
+
+            // 頭に　を付ける
+            if (r.month < 10) {
+                r.month = " " + r.month;
+            }
+            if (r.day < 10) {
+                r.day = " " + r.day;
+            }
+            if (r.hour < 10) {
+                r.hour = " " + r.hour;
+            }
+            if (r.minute < 10) {
+                r.minute = "0" + r.minute;
+            }
+
+            return r;
+        }
+        /*
+         * 設定の読み込み
+         */
+        function getPrefRows(name) {
+            // 設定の読み込み
+            var currentView = gadgets.views.getCurrentView();
+            if (currentView.getName() == "home") {
+                return prefs.getInt("p1-homeRows");
+            } else {
+                return prefs.getInt("p2-canvasRows");
+            }
+        }
+
+        </script>
+        ]]></Content>
+</Module>
