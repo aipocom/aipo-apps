@@ -1,0 +1,1382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs
+            title="マイクロブログ"
+            description="" height="50">
+        <Require feature="views"/>
+        <Require feature="tabs"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
+        <Require feature="osapi"/>
+        <Require feature="setprefs"/>
+        <Optional feature="wave"/>
+        <Optional feature="aipostyle"/>
+        <Icon></Icon>
+    </ModulePrefs>
+    <UserPref name="version" datatype="hidden"/>
+    <Content type="html" view="canvas,home,popup"><![CDATA[
+        <style type="text/css">
+
+            #wrapper {
+                padding-top: 3px;
+                max-width: 840px;
+                margin: 0 auto;
+            }
+
+            hr.on {
+                border: 1px solid #999999;
+            }
+
+            #content {
+                padding-right: 10px;
+            }
+
+            #inputField {
+                margin-bottom: 5px;
+            }
+
+            textarea.elastic {
+                width: 99%;
+                overflow: hidden;
+                border: none;
+                resize: none;
+                outline: 0;
+                line-height: normal;
+                height: 21px;
+            }
+
+            .commentField {
+                padding-left: 30px;
+                display: none;
+                /*margin-bottom: 5px;*/
+            }
+
+            .outer {
+                border: 1px #cdcdcd solid;
+                padding: 3px;
+                margin-bottom: 5px;
+            }
+
+            .commentInputDummy {
+                margin-top: 5px;
+                margin-bottom: 10px;
+                padding: 2px;
+                border: 1px #cdcdcd solid;
+                color: #aaaaaa;
+                cursor: text;
+            }
+
+            .comments {
+                padding-left: 30px;
+            }
+
+            .count {
+                padding-right: 5px;
+                font-size: 80%;
+                *font-size: 75%;
+                color: #434343;
+            }
+
+            .alert {
+                color: #ff0000;
+            }
+
+            .commentCaption {
+                margin-top: 5px;
+                padding: 3px;
+                background-color: #efefef;
+            }
+
+            .readMore {
+                margin-top: 5px;
+                padding: 3px;
+                background-color: #efefef;
+                border: 1px #cdcdcd solid;
+                text-align: center;
+            }
+
+            .readMore a {
+                display: block;
+            }
+
+            .timeline {
+                width: 100%;
+                word-wrap: break-word;
+            }
+
+            .timeline .name {
+                color: #ff9900;
+                font-weight: bold;
+                padding-right: 5px;
+            }
+
+            .timeline .name a {
+                text-decoration: none;
+                color: #ff9900;
+                font-weight: bold;
+            }
+
+            .timeline .name a:hover {
+                text-decoration: underline;
+                color: #ff9900;
+            }
+
+            .timeline .body {
+                min-height: 35px;
+                padding-bottom: 5px;
+            }
+
+            .timeline .time {
+                font-size: 80%;
+                *font-size: 75%;
+                color: #434343;
+            }
+
+            br {
+                letter-spacing: 0;
+            }
+
+
+        </style>
+        <!-- Wave feature が反映されたら以下の script タグは除去します。 -->
+        <script type="text/javascript">
+        var wave = wave || {};
+        wave.Callback = function(B, A) {
+            this.callback_ = B;
+            this.context_ = A || null
+        };
+        wave.Callback.prototype.invoke = function(A) {
+            if (this.callback_) {
+                this.callback_.apply(this.context_, arguments)
+            }
+        };
+        wave.Mode = {UNKNOWN:0,VIEW:1,EDIT:2,DIFF_ON_OPEN:3,PLAYBACK:4};
+        wave.API_PARAM_ = "wave";
+        wave.ID_PARAM_ = "waveId";
+        wave.id_ = null;
+        wave.viewer_ = null;
+        wave.host_ = null;
+        wave.participants_ = [];
+        wave.participantMap_ = {};
+        wave.participantCallback_ = new wave.Callback(null);
+        wave.state_ = null;
+        wave.stateCallback_ = new wave.Callback(null);
+        wave.privateState_ = null;
+        wave.privateStateCallback_ = new wave.Callback(null);
+        wave.mode_ = null;
+        wave.modeCallback_ = new wave.Callback(null);
+        wave.inWaveContainer_ = false;
+        ;
+        gadgets.window = gadgets.window || {};
+        (function() {
+            var B;
+
+            function A(F, D) {
+                var E = window.getComputedStyle(F, "");
+                var G = E.getPropertyValue(D);
+                G.match(/^([0-9]+)/);
+                return parseInt(RegExp.$1, 10)
+            }
+
+            function C() {
+                var E = 0;
+                var D = [document.body];
+                while (D.length > 0) {
+                    var I = D.shift();
+                    var H = I.childNodes;
+                    for (var G = 0;
+                         G < H.length;
+                         G++) {
+                        var J = H[G];
+                        if (typeof J.offsetLeft !== "undefined" && typeof J.scrollWidth !== "undefined") {
+                            var F = J.offsetLeft + J.scrollWidth + A(J, "margin-right");
+                            E = Math.max(E, F)
+                        }
+                        D.push(J)
+                    }
+                }
+                return E + A(document.body, "border-right") + A(document.body, "margin-right") + A(document.body, "padding-right")
+            }
+
+            gadgets.window.adjustWidth = function(F) {
+                var I = parseInt(F, 10);
+                var J = false;
+                if (isNaN(I)) {
+                    J = true;
+                    var H = gadgets.window.getViewportDimensions().width;
+                    var E = document.body;
+                    var K = document.documentElement;
+                    if (document.compatMode === "CSS1Compat" && K.scrollWidth) {
+                        I = K.scrollWidth !== H ? K.scrollWidth : K.offsetWidth
+                    } else {
+                        if (navigator.userAgent.indexOf("AppleWebKit") >= 0) {
+                            I = C()
+                        } else {
+                            if (E && K) {
+                                var D = K.scrollWidth;
+                                var G = K.offsetWidth;
+                                if (K.clientWidth !== G) {
+                                    D = E.scrollWidth;
+                                    G = E.offsetWidth
+                                }
+                                if (D > H) {
+                                    I = D > G ? D : G
+                                } else {
+                                    I = D < G ? D : G
+                                }
+                            }
+                        }
+                    }
+                }
+                if (I !== B && !isNaN(I) && !(J && I === 0)) {
+                    B = I;
+                    gadgets.rpc.call(null, "setIframeWidth", null, I)
+                }
+            }
+        }());
+        ;
+        wave.Participant = function(C, A, B) {
+            this.id_ = C || "";
+            this.displayName_ = A || "";
+            this.thumbnailUrl_ = B || ""
+        };
+        wave.Participant.prototype.getId = function() {
+            return this.id_
+        };
+        wave.Participant.prototype.getDisplayName = function() {
+            return this.displayName_
+        };
+        wave.Participant.prototype.getThumbnailUrl = function() {
+            return this.thumbnailUrl_
+        };
+        wave.Participant.fromJson_ = function(A) {
+            var B = new wave.Participant();
+            B.id_ = A.id;
+            B.displayName_ = A.displayName;
+            B.thumbnailUrl_ = A.thumbnailUrl;
+            return B
+        };
+        ;
+        wave.State = function(A) {
+            this.setState_(null);
+            this.rpc_ = A === undefined ? "wave_gadget_state" : A
+        };
+        wave.State.prototype.get = function(A, B) {
+            if (A in this.state_) {
+                return this.state_[A]
+            }
+            return B === undefined ? null : B
+        };
+        wave.State.prototype.getKeys = function() {
+            var B = [];
+            for (var A in this.state_) {
+                B.push(A)
+            }
+            return B
+        };
+        wave.State.prototype.submitDelta = function(A) {
+            gadgets.rpc.call(null, this.rpc_, null, A)
+        };
+        wave.State.prototype.submitValue = function(A, B) {
+            var C = {};
+            C[A] = B;
+            this.submitDelta(C)
+        };
+        wave.State.prototype.reset = function() {
+            var B = {};
+            for (var A in this.state_) {
+                B[A] = null
+            }
+            this.submitDelta(B)
+        };
+        wave.State.prototype.toString = function() {
+            return wave.util.printJson(this.state_, true)
+        };
+        wave.State.prototype.setState_ = function(A) {
+            this.state_ = A || {}
+        };
+        wave.State.prototype.calculateDelta_ = function(C) {
+            var D = {};
+            for (var B in C) {
+                var A = this.state_.hasOwnProperty(B);
+                if (!A || (this.state_[B] != C[B])) {
+                    D[B] = C[B]
+                }
+            }
+            for (var B in this.state_) {
+                if (!C.hasOwnProperty(B)) {
+                    D[B] = null
+                }
+            }
+            return D
+        };
+        wave.State.prototype.applyDelta_ = function(B) {
+            this.state_ = this.state_ || {};
+            for (var A in B) {
+                if (B[A] != null) {
+                    this.state_[A] = B[A]
+                } else {
+                    delete this.state_[A]
+                }
+            }
+        };
+        ;
+        var tamings___ = tamings___ || [];
+        var caja___;
+        var ___;
+        tamings___.push(function(A) {
+            ___.grantRead(wave, "Mode");
+            function B(E, C) {
+                var D = {apply:___.markFuncFreeze(function(F, G) {
+                    return ___.callPub(E, "apply", [C,G])
+                })};
+                return new wave.Callback(D, ___.USELESS)
+            }
+
+            B.prototype = wave.Callback.prototype;
+            wave.Callback.prototype.constructor = B;
+            ___.markCtor(B, Object, "Callback");
+            ___.primFreeze(B);
+            ___.tamesTo(wave.Callback, B);
+            ___.handleGenericMethod(B.prototype, "invoke", function(C) {
+                return ___.callPub(this.callback_, "apply", [___.tame(this.context_),Array.slice(arguments, 0)])
+            });
+            caja___.whitelistCtors([
+                [wave,"Participant",Object],
+                [wave,"State",Object]
+            ]);
+            caja___.whitelistMeths([
+                [wave.Participant,"getDisplayName"],
+                [wave.Participant,"getId"],
+                [wave.Participant,"getThumbnailUrl"],
+                [wave.State,"get"],
+                [wave.State,"getKeys"],
+                [wave.State,"reset"],
+                [wave.State,"submitDelta"],
+                [wave.State,"submitValue"],
+                [wave.State,"toString"]
+            ]);
+            caja___.whitelistFuncs([
+                [wave,"getHost"],
+                [wave,"getMode"],
+                [wave,"getParticipantById"],
+                [wave,"getParticipants"],
+                [wave,"getState"],
+                [wave,"getTime"],
+                [wave,"getViewer"],
+                [wave,"isInWaveContainer"],
+                [wave,"log"],
+                [wave,"setModeCallback"],
+                [wave,"setParticipantCallback"],
+                [wave,"setStateCallback"],
+                [wave.util,"printJson"]
+            ]);
+            A.outers.wave = ___.tame(wave);
+            ___.grantRead(A.outers, "wave")
+        });
+        ;
+        wave.util = wave.util || {};
+        wave.util.SPACES_ = "                                                 ";
+        wave.util.toSpaces_ = function(A) {
+            return wave.util.SPACES_.substring(0, A * 2)
+        };
+        wave.util.isArray_ = function(B) {
+            try {
+                return B && typeof (B.length) == "number"
+            } catch(A) {
+                return false
+            }
+        };
+        wave.util.printJson = function(C, D, H) {
+            if (!C || typeof (C.valueOf()) != "object") {
+                if (typeof (C) == "string") {
+                    return"'" + C + "'"
+                } else {
+                    if (C instanceof Function) {
+                        return"[function]"
+                    }
+                }
+                return"" + C
+            }
+            var K = [];
+            var E = wave.util.isArray_(C);
+            var L = E ? "[]" : "{}";
+            var A = D ? "\n" : "";
+            var F = D ? " " : "";
+            var B = 0;
+            var G = H || 1;
+            if (!D) {
+                G = 0
+            }
+            K.push(L.charAt(0));
+            for (var J in C) {
+                var I = C[J];
+                if (B++ > 0) {
+                    K.push(", ")
+                }
+                if (E) {
+                    K.push(wave.util.printJson(I, D, G + 1))
+                } else {
+                    K.push(A);
+                    K.push(wave.util.toSpaces_(G));
+                    K.push(J + ": ");
+                    K.push(F);
+                    K.push(wave.util.printJson(I, D, G + 1))
+                }
+            }
+            if (!E) {
+                K.push(A);
+                K.push(wave.util.toSpaces_(G - 1))
+            }
+            K.push(L.charAt(1));
+            return K.join("")
+        };
+        ;
+        wave.checkWaveContainer_ = function() {
+            var A = gadgets.util.getUrlParameters();
+            wave.inWaveContainer_ = (A.hasOwnProperty(wave.API_PARAM_) && A[wave.API_PARAM_]);
+            wave.id_ = (A.hasOwnProperty(wave.ID_PARAM_) && A[wave.ID_PARAM_])
+        };
+        wave.isInWaveContainer = function() {
+            return wave.inWaveContainer_
+        };
+        wave.receiveWaveParticipants_ = function(C) {
+            wave.viewer_ = null;
+            wave.host_ = null;
+            wave.participants_ = [];
+            wave.participantMap_ = {};
+            var B = C.myId;
+            var E = C.authorId;
+            var A = C.participants;
+            for (var F in A) {
+                var D = wave.Participant.fromJson_(A[F]);
+                if (F == B) {
+                    wave.viewer_ = D
+                }
+                if (F == E) {
+                    wave.host_ = D
+                }
+                wave.participants_.push(D);
+                wave.participantMap_[F] = D
+            }
+            if (!wave.viewer_ && B) {
+                var D = new wave.Participant(B, B);
+                wave.viewer_ = D;
+                wave.participants_.push(D);
+                wave.participantMap_[B] = D
+            }
+            wave.participantCallback_.invoke(wave.participants_)
+        };
+        wave.receiveState_ = function(A) {
+            wave.state_ = wave.state_ || new wave.State("wave_gadget_state");
+            var B = wave.state_.calculateDelta_(A);
+            wave.state_.setState_(A);
+            wave.stateCallback_.invoke(wave.state_, B)
+        };
+        wave.receivePrivateState_ = function(A) {
+            wave.privateState_ = wave.privateState_ || new wave.State("wave_private_gadget_state");
+            var B = wave.privateState_.calculateDelta_(A);
+            wave.privateState_.setState_(A);
+            wave.privateStateCallback_.invoke(wave.privateState_, B)
+        };
+        wave.receiveStateDelta_ = function(A) {
+            wave.state_ = wave.state_ || new wave.State("wave_gadget_state");
+            wave.state_.applyDelta_(A);
+            wave.stateCallback_.invoke(wave.state_, A)
+        };
+        wave.receivePrivateStateDelta_ = function(A) {
+            wave.privateState_ = wave.privateState_ || new wave.State("wave_private_gadget_state");
+            wave.privateState_.applyDelta_(A);
+            wave.privateStateCallback_.invoke(wave.privateState_, A)
+        };
+        wave.receiveMode_ = function(A) {
+            wave.mode_ = A || {};
+            wave.modeCallback_.invoke(wave.getMode())
+        };
+        wave.getViewer = function() {
+            return wave.viewer_
+        };
+        wave.getHost = function() {
+            return wave.host_
+        };
+        wave.getParticipants = function() {
+            return wave.participants_
+        };
+        wave.getParticipantById = function(A) {
+            return wave.participantMap_[A]
+        };
+        wave.getState = function() {
+            return wave.state_
+        };
+        wave.getPrivateState = function() {
+            return wave.privateState_
+        };
+        wave.getMode = function() {
+            if (wave.mode_) {
+                var A = wave.mode_["${playback}"];
+                var B = wave.mode_["${edit}"];
+                if ((A != null) && (B != null)) {
+                    if (A == "1") {
+                        return wave.Mode.PLAYBACK
+                    } else {
+                        if (B == "1") {
+                            return wave.Mode.EDIT
+                        } else {
+                            return wave.Mode.VIEW
+                        }
+                    }
+                }
+            }
+            return wave.Mode.UNKNOWN
+        };
+        wave.isPlayback = function() {
+            var A = wave.getMode();
+            return(A == wave.Mode.PLAYBACK) || (A == wave.Mode.UNKNOWN)
+        };
+        wave.setStateCallback = function(B, A) {
+            wave.stateCallback_ = new wave.Callback(B, A);
+            if (wave.state_) {
+                wave.stateCallback_.invoke(wave.state_, wave.state_.state_)
+            }
+        };
+        wave.setPrivateStateCallback = function(B, A) {
+            wave.privateStateCallback_ = new wave.Callback(B, A);
+            if (wave.privateState_) {
+                wave.privateStateCallback_.invoke(wave.privateState_, wave.privateState_.state_)
+            }
+        };
+        wave.setParticipantCallback = function(B, A) {
+            wave.participantCallback_ = new wave.Callback(B, A);
+            if (wave.participants_) {
+                wave.participantCallback_.invoke(wave.participants_)
+            }
+        };
+        wave.setModeCallback = function(B, A) {
+            wave.modeCallback_ = new wave.Callback(B, A);
+            if (wave.mode_) {
+                wave.modeCallback_.invoke(wave.getMode())
+            }
+        };
+        wave.getTime = function() {
+            return new Date().getTime()
+        };
+        wave.log = function(A) {
+            gadgets.rpc.call(null, "wave_log", null, A || "")
+        };
+        wave.setSnippet = function(A) {
+            gadgets.rpc.call(null, "set_snippet", null, A || "")
+        };
+        wave.getWaveId = function() {
+            return wave.id_
+        };
+        wave.internalInit_ = function() {
+            wave.checkWaveContainer_();
+            if (wave.isInWaveContainer()) {
+                gadgets.rpc.register("wave_participants", wave.receiveWaveParticipants_);
+                gadgets.rpc.register("wave_gadget_state", wave.receiveState_);
+                gadgets.rpc.register("wave_state_delta", wave.receiveStateDelta_);
+                gadgets.rpc.register("wave_private_gadget_state", wave.receivePrivateState_);
+                gadgets.rpc.register("wave_private_state_delta", wave.receivePrivateStateDelta_);
+                gadgets.rpc.register("wave_gadget_mode", wave.receiveMode_);
+                gadgets.rpc.call(null, "wave_enable", null, "1.0")
+            }
+        };
+        (wave.init_ = function() {
+            if (window.gadgets) {
+                gadgets.util.registerOnLoadHandler(function() {
+                    wave.internalInit_()
+                })
+            }
+        })();
+        ;
+        if (typeof wave == "undefined") {
+            wave = {}
+        }
+        if (typeof wave.ui == "undefined") {
+            wave.ui = {}
+        }
+        wave.ui.BASE = "http://wave-api.appspot.com/public/";
+        wave.ui.cssLoaded = false;
+        wave.ui.loadCss = function() {
+            if (wave.ui.cssLoaded) {
+                return
+            }
+            wave.ui.cssLoaded = true;
+            var A = document.createElement("link");
+            A.setAttribute("rel", "stylesheet");
+            A.setAttribute("type", "text/css");
+            A.setAttribute("href", wave.ui.BASE + "wave.ui.css");
+            document.getElementsByTagName("head")[0].appendChild(A)
+        };
+        wave.ui.makeButton = function(A) {
+            wave.ui.loadCss();
+            A.innerHTML = "<span>" + A.innerHTML + "</span>";
+            A.className += " wavebutton"
+        };
+        wave.ui.makeDialog = function(D, G, I) {
+            wave.ui.loadCss();
+            var C = D.innerHTML;
+            D.innerHTML = "";
+            var A = document.createElement("div");
+            A.className = "wavedialoghead";
+            var H = document.createElement("span");
+            var F = document.createElement("div");
+            F.className = "wavedialogclose";
+            function E() {
+                D.style.display = "none"
+            }
+
+            F.onclick = I || E;
+            H.appendChild(F);
+            H.appendChild(document.createTextNode(G));
+            A.appendChild(H);
+            D.appendChild(A);
+            var B = document.createElement("div");
+            B.className = "wavedialogbody";
+            B.innerHTML = C;
+            D.appendChild(B);
+            D.className += " wavedialog"
+        };
+        wave.ui.makeFrame = function(A) {
+            wave.ui.loadCss();
+            A.innerHTML = '<div class="waveboxhead"><span>&nbsp;</span></div><div class="waveboxbody">' + A.innerHTML + "</div>";
+            A.className += " wavebox"
+        };
+        </script>
+        <script type="text/javascript"
+                src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js"></script>
+        ]]></Content>
+    <Content type="html" view="canvas,home"><![CDATA[
+        <div id="wrapper" class="aipostyle">
+            <div id="messageContainer"></div>
+            <div id="inputField">
+                <form action="#" method="post" onsubmit="return false;">
+                    <div class="outer">
+                        <textarea class="elastic" name="text" cols="10" rows="1"></textarea>
+                    </div>
+                    <div class="right">
+                        <span style="display:none" id="indicator" class="indicator">&nbsp;</span><span id="textCount"
+                                                                                                       class="count">500</span><input
+                            id="postButton" type="button" name="share"
+                            value="共有する"/>
+                    </div>
+                </form>
+            </div>
+            <div class="timeline" style="height:500px;overflow: scroll;overflow-x: hidden;">
+                <div id="content"></div>
+            </div>
+        </div>
+        <div id="dummy"></div>
+        ]]></Content>
+    <Content type="html" view="popup"><![CDATA[
+        <div id="wrapper" class="aipostyle">
+            <div id="messageContainer"></div>
+            <div class="timeline" style="height:432px;overflow: scroll;overflow-x: hidden;">
+                <div id="content"></div>
+            </div>
+        </div>
+        <div id="dummy"></div>
+        ]]></Content>
+    <Content type="html" view="canvas,home,popup"><![CDATA[
+        <script type="text/javascript">
+
+        (function($) {
+
+            $.fn.autogrow = function(options) {
+
+                this.filter('textarea').each(function() {
+
+                    var $this = $(this),
+                            minHeight = 21,
+                            lineHeight = $this.css('lineHeight');
+                    var shadow = $('<div></div>').css({
+                        position:   'absolute',
+                        top:        -10000,
+                        left:       -10000,
+                        border:    0,
+                        outline:    0,
+                        width:      $(this).width() - parseInt($this.css('paddingLeft')) - parseInt($this.css('paddingRight')),
+                        fontFamily: $this.css('fontFamily'),
+                        lineHeight: 'normal',
+                        'word-wrap': 'break-word',
+                        height: 'auto',
+                        resize:     'none'
+                    }).appendTo(document.body);
+
+                    var update = function() {
+
+                        var times = function(string, number) {
+                            var _res = '';
+                            for (var i = 0; i < number; i ++) {
+                                _res = _res + string;
+                            }
+                            return _res;
+                        };
+
+                        var val = this.value.replace(/</g, '&lt;')
+                                .replace(/>/g, '&gt;')
+                                .replace(/&/g, '&amp;')
+                                .replace(/\n$/, '<br/>&nbsp;')
+                                .replace(/\n/g, '<br/>')
+                                .replace(/ {2,}/g, function(space) {
+                                    return times('&nbsp;', space.length) + ' ';
+                                });
+
+                        shadow.html(val + '&nbsp;&nbsp;');
+                        $(this).css('height', Math.max(shadow.height() + 3 + 18, minHeight));
+
+                        gadgets.window.adjustHeight();
+
+                    }
+
+                    $(this).change(update).keyup(update).keydown(update).focus(update);
+
+                    update.apply(this);
+
+                });
+
+                return this;
+
+            }
+
+        })(jQuery);
+
+        function CronTask(task, interval, isDecay) {
+            this.task = task;
+            this.isDecay = isDecay;
+            this.interval = interval;
+            this.decayRate = 1;
+            this.decayMultiplier = 1.5;
+            this.maxDecayTime = 5 * 60 * 1000; // 3 minutes
+        }
+
+        CronTask.prototype = {
+
+            start: function() {
+                this.stop().run();
+                return this;
+            },
+
+            stop: function() {
+                if (this.worker) {
+                    window.clearTimeout(this.worker);
+                }
+                return this;
+            },
+
+            run: function() {
+                var cronTask = this;
+                this.task(function() {
+                    cronTask.decayRate = cronTask.isDecay ? Math.max(1, cronTask.decayRate / cronTask.decayMultiplier) : cronTask.decayRate * cronTask.decayMultiplier;
+                    var expire = cronTask.interval * cronTask.decayRate;
+                    if (!cronTask.isDecay) {
+                        expire = (expire >= cronTask.maxDecayTime) ? cronTask.maxDecayTime : expire;
+                    }
+                    expire = Math.floor(expire);
+                    cronTask.worker = window.setTimeout(
+                            function () {
+                                cronTask.run.call(cronTask);
+                            },
+                            expire);
+                });
+            },
+
+            reset: function() {
+                this.destroy().run();
+                return this;
+            },
+
+            destroy: function() {
+                this.stop();
+                this.decayRate = 1;
+                return this;
+            }
+        };
+
+        var version = "1.0";
+        var changeLogUrl = "javascript:void(0);";
+        var baseUrl = null;
+
+        var msg = new gadgets.MiniMessage(__MODULE_ID__, document.getElementById("messageContainer"));
+        var prefs = new gadgets.Prefs();
+
+        var participants = [];
+        var peopleMap = {};
+        var viewer = null;
+        var currentCursor = null;
+        var scrollHeight = 500;
+        var readMoreLock = false;
+        var hasWave = false;
+        var currentCommentId = null;
+        var commentCheck = false;
+        var isFirst = true;
+        var commentNotice = "近況を共有しましょう";
+        var task = null;
+
+        function showMessage(text) {
+            var timerMsg = msg.createTimerMessage(text, 3, function() {
+                msg.dismissMessage(timerMsg);
+                gadgets.window.adjustHeight();
+            });
+            gadgets.window.adjustHeight();
+        }
+
+        function stripTags(text) {
+            return  text.replace(/<\/?[^>]+>/gi, '');
+        }
+
+        function splitBytes(src, len) {
+            var re = [/[\u0000-\u007F]/g, /[\u0080-\u07FF]/g, /[\u0800-\uFFFF]/g]
+            var enc = src;
+            for (var i = 0; i < re.length; i++) {
+                enc = enc.replace(re[i], Math.pow(10, i));
+            }
+            var startSrc = 0, startEnc = 0, tmp, splitLen, rslt = [];
+
+            while (startSrc != src.length) {
+                tmp = enc.substr(startEnc, len + 1);
+                if (tmp.length > len) tmp = tmp.replace(/10*$/, "");
+                startEnc += tmp.length;
+                splitLen = tmp.replace(/0+/g, "").length;
+                rslt.push(src.substr(startSrc, splitLen));
+                startSrc += splitLen;
+            }
+            return rslt;
+        }
+
+        function formatDate(date) {
+            var currentDate = new Date();
+            var result = "";
+            if (currentDate.getYear() == date.getYear() && currentDate.getMonth() == date.getMonth() && currentDate.getDate() == date.getDate()) {
+                return  ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+            } else {
+                return date.getMonth() + 1 + "月" + date.getDate() + "日" + " " + ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2);
+            }
+        }
+
+        function fetchPeople(startIndex, externalId) {
+            var callback = function(response) {
+                if (response.people) {
+                    var people = response.people;
+                    var size = people.list.length;
+                    for (var i = 0; i < size; i++) {
+                        peopleMap[people.list[i].id] = people.list[i].displayName;
+                    }
+                }
+                if (response.viewer) {
+                    viewer = response.viewer;
+                }
+                if (!hasWave) {
+                    if (externalId > 0) {
+                        fetchHome(externalId);
+                    } else {
+                        task = new CronTask(refreshHome, 1 * 60 * 1000, true);
+                        task.start();
+                    }
+                } else {
+                    fetchHome(externalId);
+                }
+            };
+
+            var batch = osapi.newBatch();
+            if (startIndex == 0) {
+                batch.add('viewer', osapi.people.getViewer());
+            }
+            batch.add('people', osapi.people.getViewerFriends({ startIndex: startIndex, count: 150 }));
+            batch.execute(callback);
+        }
+
+        function link(src) {
+            return src.replace(/(http:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
+        }
+
+        function br(src) {
+            return src.replace(/\r\n/g, "<br/>").replace(/(\n|\r)/g, "<br/>").replace(/(&#13;&#10;)/g, "<br/>").replace(/(&#10;|&#13;)/g, "<br/>");
+        }
+
+
+        function commentOn(id) {
+            $('.commentField').hide();
+            $('.commentInputDummy').show();
+            $('.commentInputDummy' + id).hide();
+            $('#commentField' + id).show();
+            $('#commentField' + id + ' textarea').autogrow();
+            $('#commentField' + id + ' textarea').focus();
+            currentCommentId = id;
+        }
+
+
+        function appendTimelineHtml(data) {
+            var html = convertTimelineHtml(data);
+            $(html).hide().prependTo("#content").fadeIn('fast');
+        }
+
+        function convertTimelineHtml(data) {
+
+            var template = "<div id=\"message___ID___\"><hr/>\
+                <div class=\"name\">___USER_NAME___</div>\
+                <div class=\"body\">___TEXT___</div>\
+                <div class=\"time\">___POST_TIME___ <a href=\"javascript:void(0);\" onclick=\"commentOn('___ID___');\">コメント</a>";
+            if (data.user.id == viewer.id) {
+                template += " <a href=\"javascript:void(0);\" onclick=\"deleteStatus('___ID___');\">削除</a>";
+            }
+            template += "</div>";
+            template = template.replace("___USER_NAME___", gadgets.util.escapeString(peopleMap[data.user.id]) || "_");
+            template = template.replace("___TEXT___", br(link(gadgets.util.escapeString(data.text))));
+            template = template.replace("___POST_TIME___", formatDate(new Date(data.created_at)));
+            template = template.replace(/___ID___/g, data.id);
+
+            var comment = "<div id=\"commentField___ID___\" class=\"commentField\"><hr/>\
+                    <form action=\"#\" method=\"post\" onsubmit=\"return false;\">\
+                    <div class=\"outer\">\
+                        <textarea class=\"elastic\" name=\"text\" cols=\"10\" rows=\"1\"></textarea>\
+                    </div>\
+                    <div class=\"right\">\
+                    <span style=\"display:none\" id=\"indicator___ID___\" class=\"indicator\">&nbsp;</span><input class=\"comment\" name=\"submit___ID___\" onclick=\"updateComment(this.form, '___ID___', '___USER_ID___');\" type=\"button\" value=\"コメントする\"/>\
+            </div>\
+            </form></div>";
+            comment = comment.replace(/___ID___/g, data.id);
+            comment = comment.replace(/___USER_ID___/g, gadgets.util.escapeString(data.user.id));
+
+            template += "<div class=\"comments\">";
+            if (data.total_comments_count > 0) {
+                if (data.has_more_comments) {
+                    template += ("<div class=\"commentCaption\"><a href=\"javascript:void(0);\" onclick=\"fetchAllComment('___ID___');\">コメント" + data.total_comments_count + "件をすべて見る</a></div>").replace(/___ID___/g, data.id);
+                }
+                $.each(data.comments, function(i) {
+                    template += convertCommentHtml(data.comments[i], data.id);
+                });
+                template += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\">コメントする</div>".replace(/___ID___/g, data.id);
+            }
+            template += "</div>";
+            template += comment;
+            template += "</div>";
+
+            return template;
+        }
+
+        function appendCommentHtml(data, parentId) {
+            var html = convertCommentHtml(data, parentId);
+            html += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\">コメントする</div>".replace(/___ID___/g, parentId);
+            $(".commentInputDummy" + parentId).hide().remove();
+            $(html).hide().appendTo("#message" + parentId + " .comments").fadeIn("fast");
+        }
+
+        function convertCommentHtml(data, parentId) {
+            var template = "<div id=\"message___ID___\"><hr/>\
+                <div class=\"name\">___USER_NAME___</div>\
+                <div class=\"body\">___TEXT___</div>\
+                <div class=\"time\">___POST_TIME___";
+            if (data.user.id == viewer.id) {
+                template += " <a href=\"javascript:void(0);\" onclick=\"deleteStatus('___ID___', '___PARENT_ID___');\">削除</a>";
+            }
+            template += "</div></div>";
+            template = template.replace("___USER_NAME___", gadgets.util.escapeString(peopleMap[data.user.id]) || "_");
+            template = template.replace("___TEXT___", br(link(gadgets.util.escapeString(data.text))));
+            template = template.replace("___POST_TIME___", formatDate(new Date(data.created_at)));
+            template = template.replace(/___ID___/g, data.id);
+            template = template.replace(/___PARENT_ID___/g, parentId);
+
+            return template;
+        }
+
+        function deleteCommentHtml(id) {
+            $('#message' + id).slideUp('fast');
+        }
+
+        function fetchOne(id, childId) {
+            var params = {};
+            if (id > 0) {
+                params['id'] = id;
+            }
+
+            $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
+                    function(response, status) {
+                        if (status == 'success') {
+                            var list = response.data.list;
+                            var resultHtml = "";
+                            $.each(list, function(i) {
+                                if (childId > 0) {
+                                    if (currentCommentId == list[i].id) {
+                                        $.each(list[i].comments, function(j) {
+                                            if (childId == list[i].comments[j].id) {
+                                                var html = convertCommentHtml(list[i].comments[j], list[i].id);
+                                                $(html).hide().appendTo("#message" + list[i].id + " .comments").fadeIn("fast");
+                                            }
+                                        });
+                                    } else {
+                                        resultHtml += convertTimelineHtml(list[i]);
+                                        $("#message" + list[i].id).fadeOut("fast").remove();
+                                    }
+                                } else {
+                                    resultHtml += convertTimelineHtml(list[i]);
+                                }
+                            });
+                            $(resultHtml).hide().prependTo("#content").fadeIn("fast");
+                        }
+                    }, 'json');
+        }
+
+        function fetchHome(id) {
+            var params = {};
+            if (id > 0) {
+                params['id'] = id;
+            }
+
+            $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
+                    function(response, status) {
+                        if (status == 'success') {
+                            var list = response.data.list;
+                            var resultHtml = "";
+                            $.each(list, function(i) {
+                                resultHtml += convertTimelineHtml(list[i]);
+                            });
+                            /*
+                             if (response.data.has_next) {
+                             resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
+                             }
+                             */
+                            currentCursor = response.data.has_next ? response.data.cursor : null;
+                            $("#content").empty();
+                            $(resultHtml).hide().appendTo("#content").fadeIn("fast");
+                        }
+                    }, 'json');
+        }
+
+        function refreshHome(retry) {
+            var params = {};
+
+            $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
+                    function(response, status) {
+                        if (status == 'success') {
+                            var list = response.data.list;
+                            var resultHtml = "";
+                            if (currentCommentId == null) {
+                                $.each(list, function(i) {
+                                    resultHtml += convertTimelineHtml(list[i]);
+                                    $("#message" + list[i].id).fadeOut("fast").remove();
+                                });
+                                /*
+                                 if (response.data.has_next) {
+                                 resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
+                                 }
+                                 */
+                                if (isFirst) {
+                                    currentCursor = response.data.has_next ? response.data.cursor : null;
+                                    isFirst = false;
+                                }
+                                $(resultHtml).hide().prependTo("#content").fadeIn("fast");
+                            }
+                            retry();
+                        }
+                    }, 'json');
+        }
+
+        function readMore(cursor) {
+            var params = {};
+            params['start'] = cursor;
+
+            $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
+                    function(response, status) {
+                        if (status == 'success') {
+                            var list = response.data.list;
+                            var resultHtml = "";
+                            $.each(list, function(i) {
+                                resultHtml += convertTimelineHtml(list[i]);
+                            });
+                            /*
+                             if (response.data.has_next) {
+                             resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
+                             }
+                             */
+                            currentCursor = response.data.has_next ? response.data.cursor : null;
+                            resultHtml = resultHtml.replace("<hr/>", "<hr class=\"on\"/>");
+                            //$(".readMore").hide();
+                            $(resultHtml).hide().appendTo("#content").slideDown("fast");
+                            readMoreLock = false;
+                        }
+                    }, 'json');
+        }
+
+        function fetchAllComment(parentId) {
+            var params = {};
+            params['parentId'] = parentId;
+
+            $.get(baseUrl + 'api/statuses/comment?ts=' + new Date().getTime() + ' signed', params,
+                    function(response, status) {
+                        if (status == 'success') {
+                            var list = response.data.list;
+                            var resultHtml = "";
+                            $.each(list, function(i) {
+                                resultHtml += convertCommentHtml(list[i], parentId);
+                            });
+                            resultHtml += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\">コメントする</div>".replace(/___ID___/g, gadgets.util.escapeString(parentId));
+                            $('#message' + parentId + " .comments").empty();
+                            $(resultHtml).hide().appendTo('#message' + parentId + " .comments").fadeIn("fast");
+                        }
+                    }, 'json');
+        }
+
+
+        function updateStatus(form) {
+            if (!commentCheck) {
+                showMessage("コメントを入力してください。");
+                form.text.focus();
+                return;
+            }
+            var params = {};
+            params['body'] = form.text.value;
+
+            $("#indicator").show();
+            $.post(baseUrl + 'api/statuses/update signed', params,
+                    function(data, status) {
+                        $("#indicator").hide();
+                        if (status == 'success') {
+                            if (data.status == 200) {
+                                showMessage('共有しました。');
+                                var submitData = {};
+                                submitData.user = {};
+                                submitData.id = data.data.id;
+                                submitData.user.id = viewer.id;
+                                submitData.text = form.text.value;
+                                submitData.created_at = new Date().toString();
+                                appendTimelineHtml(submitData);
+                                form.text.value = "";
+                                form.text.focus();
+
+                                if (hasWave) {
+                                    var stateValue = {};
+                                    stateValue.method = "update_status";
+                                    stateValue.id = data.data.id;
+                                    wave.getState().submitValue(viewer.id, stateValue);
+                                }
+                            } else {
+                                showMessage(data.errorMessage);
+                                form.text.focus();
+                            }
+                        }
+                    }, 'json');
+        }
+
+        function updateComment(form, id, userId) {
+            var params = {};
+            params['body'] = form.text.value;
+            params['parentId'] = id;
+
+            $("#indicator" + id).show();
+            $.post(baseUrl + 'api/statuses/update signed', params,
+                    function(data, status) {
+                        $("#indicator" + id).hide();
+                        if (status == 'success') {
+                            if (data.status == 200) {
+                                showMessage('コメントしました。');
+                                var submitData = {};
+                                submitData.user = {};
+                                submitData.id = data.data.id;
+                                submitData.user.id = viewer.id;
+                                submitData.text = form.text.value;
+                                submitData.created_at = new Date().toString();
+                                appendCommentHtml(submitData, id);
+                                form.text.value = "";
+                                $('#commentField' + id).hide();
+                                currentCommentId = null;
+
+                                if (hasWave) {
+                                    var stateValue = {};
+                                    stateValue.method = "update_comment";
+                                    stateValue.parentId = id;
+                                    stateValue.id = data.data.id;
+                                    wave.getState().submitValue(viewer.id, stateValue);
+                                }
+                                createActivity(id, userId);
+                            } else {
+                                showMessage(data.errorMessage);
+                                form.text.focus();
+                            }
+                        }
+                    }, 'json');
+        }
+
+        function deleteStatus(id, parentId) {
+            if (confirm(parentId > 0 ? 'コメントを削除してよろしいでしょうか？' : '投稿を削除してよろしいでしょうか？')) {
+                var params = {};
+                params['id'] = id;
+                if (parentId > 0) {
+                    params['parentId'] = parentId;
+                }
+                $.post(baseUrl + 'api/statuses/delete signed', params,
+                        function(data, status) {
+                            if (status == 'success') {
+                                if (data.status == 200) {
+                                    deleteCommentHtml(id);
+
+                                    if (hasWave) {
+                                        var stateValue = {};
+                                        stateValue.method = "delete_status";
+                                        stateValue.id = id;
+                                        wave.getState().submitValue(viewer.id, stateValue);
+                                    }
+                                } else {
+                                    showMessage(data.errorMessage);
+                                    form.text.focus();
+                                }
+                            }
+                        }, 'json');
+            }
+        }
+
+        function createActivity(id, to) {
+            if (viewer.id != to) {
+                var params = {};
+                params['title'] = "あなたの投稿にコメントしました。";
+                params['priority'] = 1;
+                var recipients = [];
+                recipients.push(to);
+                params['recipients'] = recipients;
+                params['externalId'] = id;
+
+                osapi.activities.create({ userId: '@viewer', activity: params }).execute(function(response) {
+                    //
+                });
+            }
+        }
+
+        function onLoadState(state, delta) {
+            for (key in delta) {
+                var data = delta[key];
+                if (data.method == "update_status") {
+                    fetchOne(data.id);
+                }
+                if (data.method == "update_comment") {
+                    fetchOne(data.parentId, data.id);
+                }
+                if (data.method == "delete_status") {
+                    deleteCommentHtml(data.id);
+                }
+            }
+        }
+
+        function onLoadParticipants() {
+            participants = wave.getParticipants();
+            console.log(participants);
+        }
+
+        function renderMembers() {
+            for (key in participants) {
+                var member = participants[key];
+                var id = member.getId();
+                if (peopleMap[id] && viewer) {
+                    if (viewer.id != id) {
+                        $("#memberContainer").append("<div>" + gadgets.util.escapeString(peopleMap[id]) + "< /div>");
+                    }
+                }
+            }
+            gadgets.window.adjustHeight();
+        }
+
+        function showVersion() {
+            var span = document.createElement("span");
+            span.innerHTML = "<a href='" + changeLogUrl + "' target='_blank'>バージョン " + version + " にアップデートされました。</a>";
+            var versionMsg = msg.createDismissibleMessage(span, function() {
+                msg.dismissMessage(versionMsg);
+                gadgets.window.adjustHeight();
+            });
+        }
+
+        function init() {
+            var oldVersion = prefs.getString("version");
+            if (version != oldVersion) {
+                if (oldVersion) {
+                    showVersion();
+                }
+                prefs.set("version", version);
+            }
+            var currentView = gadgets.views.getCurrentView();
+            var supportViews = gadgets.views.getSupportedViews();
+
+            var parent = gadgets.util.getUrlParameters()['parent'];
+            if (parent.indexOf("://localhost:") >= 0) {
+                baseUrl = "http://localhost:8888/";
+            } else {
+                baseUrl = "https://aipo-microblog.appspot.com/";
+            }
+
+            try {
+                if (wave && wave.isInWaveContainer()) {
+                    hasWave = true;
+                }
+            } catch(e) {
+                // ignore
+            }
+
+            hasWave = false;
+
+            if (!hasWave) {
+                console.log("WARNING: wave is not supported.");
+            }
+
+            if (currentView.getName() != "popup") {
+
+                if (hasWave) {
+                    wave.setStateCallback(onLoadState);
+                    wave.setParticipantCallback(onLoadParticipants);
+                }
+
+                $('#postButton').click(function(e) {
+                    updateStatus(e.target.form);
+                });
+
+                $("#inputField textarea").autogrow();
+
+                var commentFocus = function(e) {
+                    if (!commentCheck && $(e.target).val() == commentNotice) {
+                        $(e.target).val("");
+                        commentCheck = true;
+                    }
+                    $(e.target).css("color", "black");
+                }
+
+                var commentBlur = function(e) {
+                    if ($(e.target).val() == "") {
+                        $(e.target).val(commentNotice);
+                        commentCheck = false;
+                        $(e.target).css("color", "gray");
+                    }
+
+                }
+                var countUp = function(e) {
+                    var counter = $(e.target).val().length;
+                    $("#textCount").text(500 - counter);
+                    if (counter > 500) {
+                        $("#textCount").addClass("alert");
+                    } else {
+                        $("#textCount").removeClass("alert");
+                    }
+                };
+
+                $("#inputField textarea").focus(commentFocus).blur(commentBlur).keyup(countUp).focus(countUp).blur();
+
+                $('.timeline').scroll(function(e) {
+                    if (e.target.scrollTop + scrollHeight + 100 >= e.target.scrollHeight && currentCursor != null && !readMoreLock) {
+                        readMoreLock = true;
+                        readMore(currentCursor);
+                    }
+                });
+                fetchPeople(0);
+
+
+            } else {
+                var externalId = gadgets.views.getParams()['externalId'];
+                fetchPeople(0, externalId);
+            }
+
+
+            gadgets.window.adjustHeight();
+        }
+
+        jQuery(function($) {
+            init();
+        });
+        </script>
+        ]]></Content>
+</Module>
