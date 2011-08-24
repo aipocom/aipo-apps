@@ -14,6 +14,21 @@
         <param-value>UTF-8</param-value>
     </context-param>
 
+<!--
+	<filter>
+		<filter-name>opensocial-oauth-filter</filter-name>
+		<filter-class>org.hidetake.opensocial.filter.RequestValidationFilter
+		</filter-class>
+		<init-param>
+			<param-name>config-class</param-name>
+			<param-value>com.aimluck.aipo.conf.RegistryConfigurator</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>opensocial-oauth-filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+-->
 
     <filter>
         <filter-name>HotReloadingFilter</filter-name>
