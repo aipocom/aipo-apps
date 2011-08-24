@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+  <application>aipo-microblog</application>
+  <version>20110822</version>
+
+  <precompilation-enabled>true</precompilation-enabled>
+  <sessions-enabled>false</sessions-enabled>
+  <ssl-enabled>true</ssl-enabled>
+
+  <static-files>
+    <include path="/**.*"/>
+  </static-files>
+
+  <system-properties>
+    <property name="java.util.logging.config.file" value="WEB-INF/classes/logging.properties"/>
+  </system-properties>
+</appengine-web-app>
