@@ -82,7 +82,7 @@
             <div><input type="button" value="更新"
                         onclick="repaint()"/></div>
             <div id="Pagination" class="pagination"><!-- ページネーション表示 --></div>
-            <div id="res"><!-- コンテンツ表示領域 --></div>
+            <div id="res" style="clear:both;"><!-- コンテンツ表示領域 --></div>
             <div id="hiddenresult" style="display:none;">
             </div>
         </div>
