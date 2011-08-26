@@ -676,7 +676,6 @@
                 if (tmp_data && tmp_data['add']) {
                     old_keys = gadgets.json.parse(tmp_data['add']);
                 }
-                console.error(old_keys);
 
                 // ユーザーの読み込み
                 osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
@@ -708,19 +707,15 @@
                                     row_datas.push(rowdata);
                                 }
                             }
-                            console.error(row_datas);
 
                             for (var i in row_datas) {
                                 for (var j in old_keys) {
-                                    console.error(row_datas[i]["date"]);
-                                    console.error(old_keys[j]);
                                     // 自分がオーナー以外のイベントに紐付けを変更する
                                     if (row_datas[i]["date"] == old_keys[j] && currentUserId != row_datas[i]["owner_id"]) {
                                         keys.push(row_datas[i]["key"]);
                                     }
                                 }
                             }
-                            console.error(keys);
 
                             var data1 = {};
                             data1['add'] = gadgets.json.stringify(keys);
