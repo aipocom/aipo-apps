@@ -119,7 +119,7 @@
                     showVersion();
                     prefs.set("version", version);
                 }
-                if (oldVersion == "") {
+                if (version != oldVersion) {
                     //version1.0からversion1.1へのマイグレーション
                     migration();
                 }
@@ -713,6 +713,13 @@
                                     // 自分がオーナー以外のイベントに紐付けを変更する
                                     if (row_datas[i]["date"] == old_keys[j] && currentUserId != row_datas[i]["owner_id"]) {
                                         keys.push(row_datas[i]["key"]);
+                                    }
+                                    else {
+                                        var tmp = old_keys[j] + "";
+                                        if (tmp.indexOf(".") > -1) {
+                                            //マイグレート済み
+                                            keys.push(row_datas[i]["key"]);
+                                        }
                                     }
                                 }
                             }
