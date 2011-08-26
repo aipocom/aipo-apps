@@ -72,7 +72,7 @@
 
         </style>
         <div class="aipostyle">
-            <table>
+            <table class="wide">
                 <tbody>
                 <tr>
                     <td><textarea onKeyUp="updateCount(value, 'count', max_length)" cols="40" rows="2"
