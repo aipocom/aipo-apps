@@ -215,14 +215,19 @@
                 //appdata内の配列 '__MODULE_ID__'での各変数の番号設定。（例）2011年8月23日の2番目のコメントは11 08 23 2 1
                 //登録されたdateのスケジュールの重複度を記録する配列内の場所
                 var duplicationPlace =  (intYearMonthDaySubmitted - 20000000)*100; //11 08 23 0 0 まで入る。末尾が0に注意。
-                var duplication = allScheduleDataSaved[""+duplicationPlace]; //データを登録する直前の重複度が入る。0～9。
+                var duplicationTemp = parseInt(allScheduleDataSaved[duplicationPlace] , 10);
+                var duplication = duplicationTemp; //データを登録する直前の重複度が入る。0～9。
                     if (!duplication) {duplication = 0;}
                 var commentSavedNumber = duplicationPlace + (duplication + 1)*10 + 1 ; //11 08 23 2 1。末尾の1はコメントを表す
                 var staffSavedNumber = duplicationPlace + (duplication + 1)*10 + 2 ; //11 08 23 2 2。末尾の2はスタッフを表す
                 var dateSavedNumber = duplicationPlace + (duplication + 1)*10 + 3 ; //11 08 23 2 3。末尾の3は日付を表す
 
+                //同じ日に２つのデータがある場合の処理確認
                 alert(duplicationPlace);
-                alert(duplication);
+                alert(duplicationTemp); //こいつに重複度が入ってない。
+                alert(duplication);//でifによってこっちに０が入る
+                alert(allScheduleDataSaved[duplicationPlace]); //しかしここには重複度が入ってる。このままでは計算できないのでchar型らしい。
+                alert(parseInt(allScheduleDataSaved[duplicationPlace] , 10) + 300); //この計算もできる。ちゃんと301が出る。
                 alert(commentSavedNumber);
                 alert(staffSavedNumber);
                 alert(dateSavedNumber);
