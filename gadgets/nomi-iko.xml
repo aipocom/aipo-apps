@@ -708,6 +708,8 @@
                                 }
                             }
 
+
+                            var migrate = 0;
                             for (var i in row_datas) {
                                 for (var j in old_keys) {
                                     // 自分がオーナー以外のイベントに紐付けを変更する
@@ -718,10 +720,15 @@
                                         var tmp = old_keys[j] + "";
                                         if (tmp.indexOf(".") > -1) {
                                             //マイグレート済み
-                                            keys.push(row_datas[i]["key"]);
+                                            migrate++;
                                         }
                                     }
                                 }
+                            }
+                            //マイグレート済み
+                            if (migrate > 0) {
+                                keys = [];
+                                keys = old_keys;
                             }
 
                             var data1 = {};
