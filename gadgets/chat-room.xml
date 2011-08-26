@@ -8,6 +8,7 @@
         <Optional feature="aipostyle"/>
         <Require feature="minimessage"/>
         <Require feature="osapi"/>
+        <Require feature="setprefs"/>
     </ModulePrefs>
     <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
         <EnumValue value="5"/>
@@ -29,6 +30,7 @@
         <EnumValue value="30" display_value="30分毎"/>
         <EnumValue value="60" display_value="1時間毎"/>
     </UserPref>
+    <UserPref name="currentPage" datatype="hidden"/>
     <UserPref name="version" datatype="hidden"/>
     <Content type="html"><![CDATA[
         <style type="text/css">
@@ -64,6 +66,10 @@
                 background: #fff;
             }
 
+            .left {
+                float: left;
+            }
+
         </style>
         <div class="aipostyle">
             <table>
@@ -79,10 +85,11 @@
                 </tbody>
             </table>
             <hr/>
-            <div><input type="button" value="更新"
-                        onclick="repaint()"/></div>
-            <div id="Pagination" class="pagination"><!-- ページネーション表示 --></div>
-            <div id="res" style="clear:both;"><!-- コンテンツ表示領域 --></div>
+            <div>
+                <div id="Pagination" class="pagination left"></div>
+                <div id="reload" class="left"></div>
+            </div>
+            <div id="res" style="clear:both;"></div>
             <div id="hiddenresult" style="display:none;">
             </div>
         </div>
@@ -106,11 +113,11 @@
 
         // ページ読込完了後実行コード
         jQuery(function($) {
-            repaint();
+            repaint(0);
             // リロード
             if (getInterval() > 0) {
                 setInterval(function($) {
-                    repaint();
+                    repaint(getCurrentPage());
                 }, getInterval());
             }
         });
@@ -176,7 +183,7 @@
                         return true;
                     });
                     // データの再表示
-                    repaint();
+                    repaint(0);
                 });
             });
         }
@@ -184,7 +191,7 @@
         /*
          * 発言の表示
          */
-        function repaint() {
+        function repaint(currentPage) {
             var users = [];
             var userIds = [];
             var row_datas = [];
@@ -260,7 +267,7 @@
                             }
                             // データの表示
                             $("#hiddenresult").html($("#hiddenresult").html() + key_data);
-                            initPagination();
+                            initPagination(currentPage, counter);
                         });
                     });
                 });
@@ -306,7 +313,7 @@
                                     return true;
                                 });
                                 // データの再表示
-                                repaint();
+                                repaint(0);
                             }
                         };
 
@@ -336,25 +343,43 @@
         /**
          * ページャー
          */
-        function initPagination() {
+        function initPagination(currentPage, length) {
             var pageselectCallback = function(page_index, jq) {
+                setCurrentPage(page_index);
                 var new_content = $('#hiddenresult div.result:eq(' + page_index + ')').clone();
                 $('#res').empty().append(new_content);
+                var reload = $("<input>").attr('type', "button").attr('value', "更新").attr('onclick', "repaint(0)");
+                $("#reload").empty().append(reload);
                 showDelete();
                 // ウインドウの幅再調整
                 gadgets.window.adjustHeight();
             };
-            var num_entries = $('#hiddenresult div.result').length;
-            // Create pagination element
-            $("#Pagination").pagination(num_entries, {
-                next_text:"次へ",
-                prev_text:"前へ",
-                num_display_entries: 5,
-                num_edge_entries: 1,
-                callback: pageselectCallback,
-                items_per_page:1,
-                load_first_page:true
-            });
+            //1件も表示がないときはデータを非表示に変更する
+            var nopageCallback = function() {
+                setCurrentPage(0);
+                $("#hiddenresult").hide();
+                $("#Pagination").hide();
+                $('#res').hide();
+                $("#reload").hide();
+                // ウインドウの幅再調整
+                gadgets.window.adjustHeight();
+            };
+            if (length > 0) {
+                var num_entries = $('#hiddenresult div.result').length;
+                // Create pagination element
+                $("#Pagination").pagination(num_entries, {
+                    next_text:"次へ",
+                    prev_text:"前へ",
+                    num_display_entries: 5,
+                    num_edge_entries: 1,
+                    callback: pageselectCallback,
+                    items_per_page:1,
+                    load_first_page:true,
+                    current_page:currentPage
+                });
+            } else {
+                nopageCallback;
+            }
         }
 
 
@@ -409,6 +434,26 @@
             } else {
                 return prefs.getInt("p2-canvasRows");
             }
+        }
+
+        /*
+         * 設定の読み込み
+         */
+        function getCurrentPage() {
+            // 設定の読み込み
+            var currentPage = prefs.getString("currentPage");
+            if (currentPage > 0) {
+                return prefs.getString("currentPage");
+            } else {
+                return 0;
+            }
+        }
+
+        /*
+         * 設定の読み込み
+         */
+        function setCurrentPage(currentPage) {
+            prefs.set("currentPage", currentPage + "");
         }
 
         /*
