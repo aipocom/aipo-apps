@@ -106,12 +106,7 @@
          * init
          */
         function init() {
-            osapi.appdata.get({ userId: ['@admin'] ,fields: ['format'] }).execute(function(response) {
-                for (var userId in response) {
-                    var data = response[userId];
-                    if(data['format']!='on')format();
-                }
-                });
+            check();
             eventCommentBlur();
             eventItemBlur();
             repaint();
@@ -120,6 +115,14 @@
         /*
          * format
          */
+        function check(){
+            var data = {};
+            osapi.appdata.get({ userId: ['@admin'] ,fields: ['format'] }).execute(function(response) {
+            if(response['@admin']==null)
+            format();
+            });
+        }
+
         function format() {
             var type = gadgets.util.escapeString("none");
             var comment = gadgets.util.escapeString("");
@@ -145,9 +148,9 @@
                 delete data['name_' + i];
                 delete data['reporter_' + i];
             }
-                data['format'] = 'on';
+            data['format'] = 'on';
             osapi.appdata.update({ userId: '@admin', data: data }).execute(function(response) {
-                });
+            });
             var msg = new gadgets.MiniMessage();
             msg.createTimerMessage("初期化しました。", 3, function() {
                 gadgets.window.adjustHeight();
@@ -198,8 +201,8 @@
                         return true;
                     });
 
-                // データの再表示
-                repaint();
+                    // データの再表示
+                    repaint();
                 });
             });
         }
@@ -218,10 +221,10 @@
             // バリデート
             if (item.length == 0 || item == itemNotice) {
                 var msg = new gadgets.MiniMessage();
-                                    msg.createTimerMessage("備品名は必須です。", 5, function() {
-                                        gadgets.window.adjustHeight();
-                                        return true;
-                                    });
+                msg.createTimerMessage("備品名は必須です。", 5, function() {
+                    gadgets.window.adjustHeight();
+                    return true;
+                });
                 return;
             }
             if (comment.length > 100) {
@@ -246,48 +249,54 @@
                 keep.push("name_" + i);
             }
             osapi.appdata.get({ userId: ['@admin'] ,fields: keep }).execute(function(response) {
-                // ユーザーID、アプリデータの連想配列
-                for (var userId in response) {
-                    var data = response[userId];
-                    for (var i = 1; i <= 50&&flag==0; i++) {
+                if (response.error) {
+                                        var msg = new gadgets.MiniMessage();
+                                        msg.createTimerMessage("送信できませんでした。。", 3, function() {
+                                            gadgets.window.adjustHeight();
+                                            return true;
+                                        });
+                }else{
+                    // ユーザーID、アプリデータの連想配列
+                    for (var userId in response) {
+                        var data = response[userId];
+                        for (var i = 1; i <= 50&&flag==0; i++) {
 
-                        if (data["type_" + i] == 'none'||data["name_" + i] == name) {
-                            keep2.push(i);
-                            flag = 1;
-                            osapi.people.get({ userId: '@viewer' }).execute(function(response) {
-                                // データの作成
-                                semi = keep2.pop();
-                                var reporter = response.displayName;
-                                var send_data = {};
-                                send_data["type_" + semi] = type;
-                                send_data['comment_' + semi] = comment;
-                                send_data['date_' + semi] = date;
-                                send_data['name_' + semi] = name;
-                                send_data['reporter_' + semi] = reporter;
-                                osapi.appdata.update({ userId: '@admin', data: send_data }).execute(function(response) {
-                                    // minimessage
-                                    var msg = new gadgets.MiniMessage();
-                                    msg.createTimerMessage("送信しました。", 3, function() {
-                                        gadgets.window.adjustHeight();
-                                        return true;
+                            if (data["type_" + i] == 'none'||data["name_" + i] == name) {
+                                keep2.push(i);
+                                flag = 1;
+                                osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+                                    // データの作成
+                                    semi = keep2.pop();
+                                    var reporter = response.displayName;
+                                    var send_data = {};
+                                    send_data["type_" + semi] = type;
+                                    send_data['comment_' + semi] = comment;
+                                    send_data['date_' + semi] = date;
+                                    send_data['name_' + semi] = name;
+                                    send_data['reporter_' + semi] = reporter;
+                                    osapi.appdata.update({ userId: '@admin', data: send_data }).execute(function(response) {
+                                        // minimessage
+                                        var msg = new gadgets.MiniMessage();
+                                        msg.createTimerMessage("送信しました。", 3, function() {
+                                            gadgets.window.adjustHeight();
+                                            return true;
+                                        });
+                                        // データの再表示
+                                        repaint();
                                     });
-                                // データの再表示
-                                    repaint();
                                 });
-                            });
-                        }
-                        else if(i == 50){
-                                    var msg = new gadgets.MiniMessage();
-                                    msg.createTimerMessage("51個以上はデータ登録ができません。", 5, function() {
-                                        gadgets.window.adjustHeight();
-                                        return true;
-                                    });
+                            }
+                            else if(i == 50){
+                                var msg = new gadgets.MiniMessage();
+                                msg.createTimerMessage("51個以上はデータ登録ができません。", 5, function() {
+                                    gadgets.window.adjustHeight();
+                                });
 
+                            }
                         }
+
                     }
-
                 }
-
             });
         }
         function eventCommentFocus() {
@@ -340,28 +349,35 @@
             }
             osapi.appdata.get({ userId: ['@admin'] ,fields: keep }).execute(function(response) {
                 // ユーザーID、アプリデータの連想配列
-                for (var userId in response) {
-                    var data = response[userId];
-                    for (var i = 1; i <= 50; i++) {
-                        // 在席アイコン
-                        var icon = icon_off;
-                        var icon_alt = icon_alt_off;
-                        if (data["type_" + i] == "on") {
-                            icon = icon_on;
-                            icon_alt = icon_alt_on;
-                        }
-                        else if (data["type_" + i] == "min") {
-                            icon = icon_min;
-                            icon_alt = icon_alt_min;
-                        }
-                        else if (data["type_" + i] == "off") {
-                            icon = icon_off;
-                            icon_alt = icon_alt_off;
-                        }
+                if (response.error) {
+                                        var msg = new gadgets.MiniMessage();
+                                        msg.createTimerMessage("取得できませんでした。。", 3, function() {
+                                            gadgets.window.adjustHeight();
+                                            return true;
+                                        });
+                }else{
+                    for (var userId in response) {
+                        var data = response[userId];
+                        for (var i = 1; i <= 50; i++) {
+                            // 在席アイコン
+                            var icon = icon_off;
+                            var icon_alt = icon_alt_off;
+                            if (data["type_" + i] == "on") {
+                                icon = icon_on;
+                                icon_alt = icon_alt_on;
+                            }
+                            else if (data["type_" + i] == "min") {
+                                icon = icon_min;
+                                icon_alt = icon_alt_min;
+                            }
+                            else if (data["type_" + i] == "off") {
+                                icon = icon_off;
+                                icon_alt = icon_alt_off;
+                            }
 
-                        if(data["type_" + i] != "none"){
-                            // データの作成
-                            userData[i] = '\
+                            if(data["type_" + i] != "none"){
+                                // データの作成
+                                userData[i] = '\
 <tr>\
     <td valign="top" class="pb5" width="15" nowrap><img src="' + icon + '" alt="' + icon_alt + '" width="15" height="15" class="middle" /></td>\
     <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + data["name_" + i]  + '</td>\
@@ -375,18 +391,18 @@
     <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" value="削除" onclick="eventChange(3 , ' + i + ')"/></td>\
 </tr>\
                             ';
-                        }
-                        else userData[i] ='';
-                        // テーブルの初期化
-                        $("#status").html("");
-                        // データの表示
-                        // データの表示
-                        for (var id in userData) {
-                            $("#status").html($("#status").html() + userData[id]);
-                        }
-                        // ウインドウの幅再調整
-                        gadgets.window.adjustHeight();
+                            }
+                            else userData[i] ='';
+                            // テーブルの初期化
+                            $("#status").html("");
+                            // データの表示
+                            for (var id in userData) {
+                                $("#status").html($("#status").html() + userData[id]);
+                            }
+                            // ウインドウの幅再調整
+                            gadgets.window.adjustHeight();
 
+                        }
                     }
                 }
             });
