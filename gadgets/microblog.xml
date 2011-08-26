@@ -2,7 +2,7 @@
 <Module>
     <ModulePrefs
             title="マイクロブログ"
-            description="" height="50">
+            description="" height="70">
         <Require feature="views"/>
         <Require feature="tabs"/>
         <Require feature="dynamic-height"/>
@@ -13,6 +13,18 @@
         <Optional feature="aipostyle"/>
         <Icon></Icon>
     </ModulePrefs>
+    <UserPref name="p2homeHeight" display_name="コンテンツの高さ（通常時）" datatype="enum" default_value="500">
+        <EnumValue value="250"/>
+        <EnumValue value="500"/>
+        <EnumValue value="750"/>
+        <EnumValue value="1000"/>
+    </UserPref>
+    <UserPref name="p3canvasHeight" display_name="コンテンツの高さ（最大化時）" datatype="enum" default_value="750">
+        <EnumValue value="250"/>
+        <EnumValue value="500"/>
+        <EnumValue value="750"/>
+        <EnumValue value="1000"/>
+    </UserPref>
     <UserPref name="version" datatype="hidden"/>
     <Content type="html" view="canvas,home,popup"><![CDATA[
         <style type="text/css">
@@ -23,8 +35,14 @@
                 margin: 0 auto;
             }
 
-            hr.on {
-                border: 1px solid #999999;
+            .message {
+                margin-top: 3px;
+                padding-top: 5px;
+                border-top: 1px solid #dcdcdc;
+            }
+
+            .on {
+                border-top: 1px solid #999999;
             }
 
             #content {
@@ -122,6 +140,7 @@
             }
 
             .timeline .body {
+                padding-top: 3px;
                 min-height: 35px;
                 padding-bottom: 5px;
             }
@@ -662,20 +681,18 @@
                     </div>
                 </form>
             </div>
-            <div class="timeline" style="height:500px;overflow: scroll;overflow-x: hidden;">
+            <div class="timeline" style="height:0px;overflow: scroll;overflow-x: hidden;">
                 <div id="content"></div>
             </div>
         </div>
-        <div id="dummy"></div>
         ]]></Content>
     <Content type="html" view="popup"><![CDATA[
         <div id="wrapper" class="aipostyle">
             <div id="messageContainer"></div>
-            <div class="timeline" style="height:432px;overflow: scroll;overflow-x: hidden;">
+            <div class="timeline" style="height:500px;overflow: scroll;overflow-x: hidden;">
                 <div id="content"></div>
             </div>
         </div>
-        <div id="dummy"></div>
         ]]></Content>
     <Content type="html" view="canvas,home,popup"><![CDATA[
         <script type="text/javascript">
@@ -913,7 +930,7 @@
 
         function convertTimelineHtml(data) {
 
-            var template = "<div id=\"message___ID___\"><hr/>\
+            var template = "<div id=\"message___ID___\" class=\"message\">\
                 <div class=\"name\">___USER_NAME___</div>\
                 <div class=\"body\">___TEXT___</div>\
                 <div class=\"time\">___POST_TIME___ <a href=\"javascript:void(0);\" onclick=\"commentOn('___ID___');\">コメント</a>";
@@ -963,7 +980,7 @@
         }
 
         function convertCommentHtml(data, parentId) {
-            var template = "<div id=\"message___ID___\"><hr/>\
+            var template = "<div id=\"message___ID___\" class=\"message\">\
                 <div class=\"name\">___USER_NAME___</div>\
                 <div class=\"body\">___TEXT___</div>\
                 <div class=\"time\">___POST_TIME___";
@@ -1090,7 +1107,7 @@
                              }
                              */
                             currentCursor = response.data.has_next ? response.data.cursor : null;
-                            resultHtml = resultHtml.replace("<hr/>", "<hr class=\"on\"/>");
+                            resultHtml = resultHtml.replace("class=\"message\"", "class=\"message on\"");
                             //$(".readMore").hide();
                             $(resultHtml).hide().appendTo("#content").slideDown("fast");
                             readMoreLock = false;
@@ -1368,6 +1385,14 @@
                 fetchPeople(0, externalId);
             }
 
+            var height = 500;
+            if (currentView.getName() == "home") {
+                height = prefs.getInt("p2homeHeight");
+            } else if (currentView.getName() == "canvas") {
+                height = prefs.getInt("p3canvasHeight");
+            }
+
+            $(".timeline").css("height", height + "px");
 
             gadgets.window.adjustHeight();
         }
