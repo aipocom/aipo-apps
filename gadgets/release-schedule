@@ -46,7 +46,7 @@
                 </table>
                 <div class="center">
                     <input type="button" value="投稿する" onclick="dataSubmit()"/>
-                    <input type="button" value="2011/8/23のデータチェック" onclick="datacheck()"/>
+                    <input type="button" value="データ一覧表示" onclick="datacheck()"/>
                 </div>
             </form>
 
@@ -152,6 +152,7 @@
                 }
             }
 
+            //入力されたデータを保存する関数
             function dataSubmit(){
                 //フォームからの値の取得
                 var yearSubmitted = $("#yearid").val() ;
@@ -194,15 +195,20 @@
                 }
 
                 //appdataの要素である配列 '__MODULE_ID__' を取得し、配列 'allScheduleDataSaved'に入れる
-                osapi.appdata.get({ userId: '@admin' }).execute(function(res) {
-                    for (var id in res) {
-                        var allAppData = res[id];
-                        if (allAppData[__MODULE_ID__]){
-                            allScheduleDataSaved = gadgets.json.parse( allAppData[__MODULE_ID__] );
-                        }
+                osapi.appdata.get({ userId: '@admin' ,fields: '__MODULE_ID__' }).execute(function(response) {
+                // ユーザーID、アプリデータの連想配列
+                    for (var userId in response) {
+                       var data = response[userId];
+                       // キー, 値の連想配列
+                       for (var key in data) {
+                          // 値
+                          // 例）値1
+                          var allScheduleDataSaved2 = data[key];
+                          allScheduleDataSaved = gadgets.json.parse(allScheduleDataSaved2);
+                          alert(gadgets.json.stringify(allScheduleDataSaved));
+                       }
                     }
                 });
-                alert(gadgets.json.stringify(allScheduleDataSaved));
 
 
 
@@ -235,23 +241,29 @@
 
                 //今回入力されたデータの保存
                 var dataSaved = {}; //今回入力されたデータを一時的に入れておく配列。この配列は'__MODULE_ID__'成分にallScheduleDataSavedを文字化して入れるだけ
-                dataSaved[__MODULE_ID__] = gadgets.json.stringify ( allScheduleDataSaved );
-                alert(dataSaved[__MODULE_ID__]);
+                dataSaved['__MODULE_ID__'] = gadgets.json.stringify ( allScheduleDataSaved );
+                alert(dataSaved['__MODULE_ID__']);
                 alert(gadgets.json.stringify(dataSaved));
 
                 osapi.appdata.update({ userId: '@admin', data: dataSaved }).execute(function(res) {
-                    //保存後の処理
-                    $("#commentid").val("");
-                    $("#staffid").val("");
-                    msg.createTimerMessage("送信しました。", 3, function() {
-                        gadgets.window.adjustHeight();
-                        return true;
-                    });
-                    //テーブル再描画
-                    repaint();
+                    //保存失敗時の処理
+                    if (res.error) {
+                        alert("保存に失敗しました");
+                    }else{
+                        //保存後の処理
+                        $("#commentid").val("");
+                        $("#staffid").val("");
+                        msg.createTimerMessage("送信しました。", 3, function() {
+                            gadgets.window.adjustHeight();
+                            return true;
+                        });
+                        //テーブル再描画
+                        repaint();
+                    }
                 });
-
             }
+
+
             //テーブルの再描画関数
             function repaint(){
 //                //dataSubmit()におけるallScheduleDataSavedと同じ中身の配列。全スケジュールデータが入る。
@@ -269,18 +281,20 @@
 //
             }
 
-            function datacheck(){
-                var itiran = {};
-                //appdataの要素である配列 '__MODULE_ID__' を取得し、配列 'allScheduleDataSaved'に入れる
+            function datacheck(){ //Aipo公式のまね
                 osapi.appdata.get({ userId: '@admin' ,fields: '__MODULE_ID__' }).execute(function(response) {
                 // ユーザーID、アプリデータの連想配列
-                for (var moduleId in response) {
-                    var data = response[moduleId];
-                    // キー, 値の連想配列
-                    itiran[moduleId] = data;
-                }
-            });
-                alert(gadgets.json.stringify(itiran));
+                    for (var userId in response) {
+                       var data = response[userId];
+                       // キー, 値の連想配列
+                       for (var key in data) {
+                          // 値
+                          // 例）値1
+                          var value = data[key];
+                          alert(value);
+                       }
+                    }
+                });
             }
 
 
