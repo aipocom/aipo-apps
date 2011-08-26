@@ -1309,8 +1309,6 @@
                 // ignore
             }
 
-            hasWave = false;
-
             if (!hasWave) {
                 console.log("WARNING: wave is not supported.");
             }
