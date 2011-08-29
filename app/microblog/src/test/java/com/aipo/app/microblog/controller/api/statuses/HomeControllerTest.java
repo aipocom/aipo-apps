@@ -103,9 +103,9 @@ public class HomeControllerTest extends ControllerTestCase {
     assertThat(output, not(containsString("This is comment1.")));
     assertThat(output, not(containsString("This is comment2.")));
     assertThat(output, not(containsString("This is comment3.")));
-    assertThat(output, containsString("This is comment4."));
-    assertThat(output, containsString("This is comment5."));
-    assertThat(output, containsString("This is comment6."));
+    assertThat(output, not(containsString("This is comment4.")));
+    assertThat(output, not(containsString("This is comment5.")));
+    assertThat(output, not(containsString("This is comment6.")));
     assertThat(output, containsString("This is comment7."));
     assertThat(output, containsString("This is comment8."));
 

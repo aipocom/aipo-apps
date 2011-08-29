@@ -45,7 +45,7 @@ public class MessageService {
 
   public static final int DEFAULT_MESSAGE_FETCH_COUNT = 20;
 
-  public static final int DEFAULT_COMMENT_FETCH_COUNT = 5;
+  public static final int DEFAULT_COMMENT_FETCH_COUNT = 2;
 
   private static final MessageService instance = new MessageService();
 

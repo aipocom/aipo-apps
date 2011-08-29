@@ -86,7 +86,9 @@ public class MessageServiceTest extends AppEngineTestCase {
     assertThat(results1.size(), is(20));
     assertThat(results1.get(0).getComments().size(), is(0));
     assertThat(results1.get(0).getCommentIds().size(), is(0));
-    assertThat(results1.get(1).getComments().size(), is(5));
+    assertThat(
+      results1.get(1).getComments().size(),
+      is(MessageService.DEFAULT_COMMENT_FETCH_COUNT));
     assertThat(results1.get(1).getCommentIds().size(), is(8));
     assertThat(results1.hasNext(), is(true));
 
