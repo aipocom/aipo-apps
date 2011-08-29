@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
     <ModulePrefs
-            title="マイクロブログ"
-            description="短いメッセージでやり取りするシンプルなコミュニケーションツールです。リアルタイムな情報共有に役立ちます。" height="100">
+            title="つぶやき"
+            description="短いメッセージでやり取りするシンプルなコミュニケーションツールです。発言ごとにコメントを返せるなど、リアルタイムな情報共有に役立ちます。" height="100">
         <Require feature="views"/>
         <Require feature="tabs"/>
         <Require feature="dynamic-height"/>
@@ -11,19 +11,33 @@
         <Require feature="setprefs"/>
         <Optional feature="wave"/>
         <Optional feature="aipostyle"/>
-        <Icon></Icon>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/microblog/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
-    <UserPref name="p2homeHeight" display_name="コンテンツの高さ（通常時）" datatype="enum" default_value="500">
-        <EnumValue value="250"/>
-        <EnumValue value="500"/>
-        <EnumValue value="750"/>
-        <EnumValue value="1000"/>
+    <UserPref name="p2homeHeight" display_name="コンテンツの高さ（通常時）" datatype="enum" default_value="0">
+        <EnumValue value="0" display_value="コンテンツの高さに合わせる"/>
+        <EnumValue value="250" display_value="250px"/>
+        <EnumValue value="500" display_value="500px"/>
+        <EnumValue value="750" display_value="750px"/>
+        <EnumValue value="1000" display_value="1000px"/>
     </UserPref>
-    <UserPref name="p3canvasHeight" display_name="コンテンツの高さ（最大化時）" datatype="enum" default_value="750">
-        <EnumValue value="250"/>
-        <EnumValue value="500"/>
-        <EnumValue value="750"/>
-        <EnumValue value="1000"/>
+    <UserPref name="p3canvasHeight" display_name="コンテンツの高さ（最大化時）" datatype="enum" default_value="0">
+        <EnumValue value="0" display_value="コンテンツの高さに合わせる"/>
+        <EnumValue value="250" display_value="250px"/>
+        <EnumValue value="500" display_value="500px"/>
+        <EnumValue value="750" display_value="750px"/>
+        <EnumValue value="1000" display_value="1000px"/>
+    </UserPref>
+    <UserPref name="p4homeCount" display_name="表示件数（通常時）" datatype="enum" default_value="10">
+        <EnumValue value="5" display_value="5件"/>
+        <EnumValue value="10" display_value="10件"/>
+        <EnumValue value="20" display_value="20件"/>
+        <EnumValue value="50" display_value="50件"/>
+    </UserPref>
+    <UserPref name="p5canvasCount" display_name="表示件数（最大化時）" datatype="enum" default_value="20">
+        <EnumValue value="5" display_value="5件"/>
+        <EnumValue value="10" display_value="10件"/>
+        <EnumValue value="20" display_value="20件"/>
+        <EnumValue value="50" display_value="50件"/>
     </UserPref>
     <UserPref name="version" datatype="hidden"/>
     <Content type="html" view="canvas,home,popup"><![CDATA[
@@ -117,7 +131,7 @@
             .readMore {
                 margin-top: 5px;
                 padding: 3px;
-                background-color: #efefef;
+                background: #efefef url(../images/common/bg_slash.gif) repeat left top;
                 border: 1px #cdcdcd solid;
                 text-align: center;
             }
@@ -684,13 +698,13 @@
                     </div>
                     <div class="right">
                         <span style="display:none" id="indicator" class="indicator">&nbsp;</span><span id="textCount"
-                                                                                                       class="count">500</span><input
+                                                                                                       class="count">500 文字</span><input
                             id="postButton" type="button" name="share"
-                            value="共有する"/>
+                            value="発言する"/>
                     </div>
                 </form>
             </div>
-            <div class="timeline" style="height:21px;overflow: scroll;overflow-x: hidden;">
+            <div class="timeline">
                 <div id="content"><span id="indicatorContent" class="indicator">読み込み中</span></div>
             </div>
         </div>
@@ -698,7 +712,7 @@
     <Content type="html" view="popup"><![CDATA[
         <div id="wrapper" class="aipostyle">
             <div id="messageContainer"></div>
-            <div class="timeline" style="height:500px;overflow: scroll;overflow-x: hidden;">
+            <div class="timeline">
                 <div id="content"><span id="indicatorContent" class="indicator">読み込み中</span></div>
             </div>
         </div>
@@ -838,6 +852,7 @@
         var commentNotice = "近況を共有しましょう";
         var task = null;
         var contentHeight = 500;
+        var viewCount = 10;
 
         function showMessage(text) {
             var timerMsg = msg.createTimerMessage(text, 3, function() {
@@ -1058,42 +1073,55 @@
             if (id > 0) {
                 params['id'] = id;
             }
+            params['count'] = viewCount;
 
             $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
                     function(response, status) {
                         $("#indicatorContent").hide();
                         if (status == 'success') {
 
-                            $(".timeline").css("height", contentHeight + "px");
-                            gadgets.window.adjustHeight();
+                            if (contentHeight > 0) {
+                                $(".timeline").css("height", contentHeight + "px");
+                                $(".timeline").css("overflow", "scroll");
+                                $(".timeline").css("overflow-x", "hidden");
+                                gadgets.window.adjustHeight();
+                            }
 
                             var list = response.data.list;
                             var resultHtml = "";
                             $.each(list, function(i) {
                                 resultHtml += convertTimelineHtml(list[i]);
                             });
-                            /*
-                             if (response.data.has_next) {
-                             resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
-                             }
-                             */
+
+                            if (contentHeight == 0) {
+                                if (response.data.has_next) {
+                                    resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
+                                }
+                            }
                             currentCursor = response.data.has_next ? response.data.cursor : null;
                             $("#content").empty();
                             $(resultHtml).hide().appendTo("#content").fadeIn("fast");
+
+                            gadgets.window.adjustHeight();
                         }
                     }, 'json');
         }
 
         function refreshHome(retry) {
             var params = {};
+            params['count'] = viewCount;
 
             $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
                     function(response, status) {
                         $("#indicatorContent").hide();
                         if (status == 'success') {
 
-                            $(".timeline").css("height", contentHeight + "px");
-                            gadgets.window.adjustHeight();
+                            if (contentHeight > 0) {
+                                $(".timeline").css("height", contentHeight + "px");
+                                $(".timeline").css("overflow", "scroll");
+                                $(".timeline").css("overflow-x", "hidden");
+                                gadgets.window.adjustHeight();
+                            }
 
                             var list = response.data.list;
                             var resultHtml = "";
@@ -1102,17 +1130,23 @@
                                     resultHtml += convertTimelineHtml(list[i]);
                                     $("#message" + list[i].id).fadeOut("fast").remove();
                                 });
-                                /*
-                                 if (response.data.has_next) {
-                                 resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
-                                 }
-                                 */
+
+
+                                if (contentHeight == 0) {
+                                    if (response.data.has_next) {
+                                        resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
+                                    }
+                                }
+
                                 if (isFirst) {
                                     currentCursor = response.data.has_next ? response.data.cursor : null;
                                     isFirst = false;
                                 }
                                 $(resultHtml).hide().prependTo("#content").fadeIn("fast");
                             }
+
+                            gadgets.window.adjustHeight();
+
                             retry();
                         }
                     }, 'json');
@@ -1121,6 +1155,7 @@
         function readMore(cursor) {
             var params = {};
             params['start'] = cursor;
+            params['count'] = viewCount;
 
             $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
                     function(response, status) {
@@ -1130,16 +1165,22 @@
                             $.each(list, function(i) {
                                 resultHtml += convertTimelineHtml(list[i]);
                             });
-                            /*
-                             if (response.data.has_next) {
-                             resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
-                             }
-                             */
+
+                            if (contentHeight == 0) {
+                                if (response.data.has_next) {
+                                    resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
+                                }
+                            }
                             currentCursor = response.data.has_next ? response.data.cursor : null;
                             resultHtml = resultHtml.replace("class=\"message\"", "class=\"message on\"");
-                            //$(".readMore").hide();
-                            $(resultHtml).hide().appendTo("#content").slideDown("fast");
+
+                            if (contentHeight == 0) {
+                                $(".readMore").hide();
+                            }
+                            $(resultHtml).hide().appendTo("#content").show();
                             readMoreLock = false;
+
+                            gadgets.window.adjustHeight();
                         }
                     }, 'json');
         }
@@ -1159,6 +1200,8 @@
                             resultHtml += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\">コメントする</div>".replace(/___ID___/g, gadgets.util.escapeString(parentId));
                             $('#message' + parentId + " .comments").empty();
                             $(resultHtml).hide().appendTo('#message' + parentId + " .comments").fadeIn("fast");
+
+                            gadgets.window.adjustHeight();
                         }
                     }, 'json');
         }
@@ -1179,7 +1222,7 @@
                         $("#indicator").hide();
                         if (status == 'success') {
                             if (data.status == 200) {
-                                showMessage('共有しました。');
+                                showMessage('発言しました。');
                                 $(".timeline").scrollTop(0);
                                 var submitData = {};
                                 submitData.user = {};
@@ -1236,6 +1279,8 @@
                                     wave.getState().submitValue(viewer.id, stateValue);
                                 }
                                 createActivity(id, userId);
+
+                                gadgets.window.adjustHeight();
                             } else {
                                 showCommentMessage(id, data.errorMessage);
                                 form.text.focus();
@@ -1305,20 +1350,7 @@
 
         function onLoadParticipants() {
             participants = wave.getParticipants();
-            console.log(participants);
-        }
-
-        function renderMembers() {
-            for (key in participants) {
-                var member = participants[key];
-                var id = member.getId();
-                if (peopleMap[id] && viewer) {
-                    if (viewer.id != id) {
-                        $("#memberContainer").append("<div>" + gadgets.util.escapeString(peopleMap[id]) + "< /div>");
-                    }
-                }
-            }
-            gadgets.window.adjustHeight();
+            //console.log(participants);
         }
 
         function showVersion() {
@@ -1353,7 +1385,13 @@
             } else if (currentView.getName() == "canvas") {
                 contentHeight = prefs.getInt("p3canvasHeight");
             }
-            
+
+            if (currentView.getName() == "home") {
+                viewCount = prefs.getInt("p4homeCount");
+            } else if (currentView.getName() == "canvas") {
+                viewCount = prefs.getInt("p5canvasCount");
+            }
+
             try {
                 if (wave && wave.isInWaveContainer()) {
                     hasWave = true;
@@ -1363,7 +1401,7 @@
             }
 
             if (!hasWave) {
-                console.log("WARNING: wave is not supported.");
+                //console.log("WARNING: wave is not supported.");
             }
 
             if (currentView.getName() != "popup") {
@@ -1397,7 +1435,7 @@
                 }
                 var countUp = function(e) {
                     var counter = $(e.target).val().length;
-                    $("#textCount").text(500 - counter);
+                    $("#textCount").text((500 - counter) + " 文字");
                     if (counter > 500) {
                         $("#textCount").addClass("alert");
                     } else {
@@ -1413,6 +1451,7 @@
                         readMore(currentCursor);
                     }
                 });
+
                 fetchPeople(0);
 
 
@@ -1420,9 +1459,6 @@
                 var externalId = gadgets.views.getParams()['externalId'];
                 fetchPeople(0, externalId);
             }
-
-
-            gadgets.window.adjustHeight();
         }
 
         jQuery(function($) {
