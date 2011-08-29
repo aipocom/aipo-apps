@@ -2,7 +2,7 @@
 <Module>
     <ModulePrefs
             title="マイクロブログ"
-            description="" height="70">
+            description="短いメッセージでやり取りするシンプルなコミュニケーションツールです。リアルタイムな情報共有に役立ちます。" height="100">
         <Require feature="views"/>
         <Require feature="tabs"/>
         <Require feature="dynamic-height"/>
@@ -41,6 +41,13 @@
                 border-top: 1px solid #dcdcdc;
             }
 
+            .comments .message {
+                padding: 2px;
+                border: none;
+                /*background: #FFECB4 url(../images/common/bg_slash.gif) repeat left top;*/
+                background: #efefef url(../images/common/bg_slash.gif) repeat left top;
+            }
+
             .on {
                 border-top: 1px solid #999999;
             }
@@ -56,11 +63,12 @@
             textarea.elastic {
                 width: 99%;
                 overflow: hidden;
-                border: none;
+                border: 0px;
                 resize: none;
                 outline: 0;
                 line-height: normal;
                 height: 21px;
+                -webkit-appearance: caret;
             }
 
             .commentField {
@@ -102,7 +110,8 @@
             .commentCaption {
                 margin-top: 5px;
                 padding: 3px;
-                background-color: #efefef;
+                /*background: #FFECB4 url(../images/common/bg_slash.gif) repeat left top;*/
+                background: #efefef url(../images/common/bg_slash.gif) repeat left top;
             }
 
             .readMore {
@@ -141,7 +150,7 @@
 
             .timeline .body {
                 padding-top: 3px;
-                min-height: 35px;
+                min-height: 25px;
                 padding-bottom: 5px;
             }
 
@@ -671,7 +680,7 @@
             <div id="inputField">
                 <form action="#" method="post" onsubmit="return false;">
                     <div class="outer">
-                        <textarea class="elastic" name="text" cols="10" rows="1"></textarea>
+                        <textarea class="elastic" name="text" cols="10" rows="1" style="border: 0px;"></textarea>
                     </div>
                     <div class="right">
                         <span style="display:none" id="indicator" class="indicator">&nbsp;</span><span id="textCount"
@@ -681,8 +690,8 @@
                     </div>
                 </form>
             </div>
-            <div class="timeline" style="height:0px;overflow: scroll;overflow-x: hidden;">
-                <div id="content"></div>
+            <div class="timeline" style="height:21px;overflow: scroll;overflow-x: hidden;">
+                <div id="content"><span id="indicatorContent" class="indicator">読み込み中</span></div>
             </div>
         </div>
         ]]></Content>
@@ -690,7 +699,7 @@
         <div id="wrapper" class="aipostyle">
             <div id="messageContainer"></div>
             <div class="timeline" style="height:500px;overflow: scroll;overflow-x: hidden;">
-                <div id="content"></div>
+                <div id="content"><span id="indicatorContent" class="indicator">読み込み中</span></div>
             </div>
         </div>
         ]]></Content>
@@ -821,7 +830,6 @@
         var peopleMap = {};
         var viewer = null;
         var currentCursor = null;
-        var scrollHeight = 500;
         var readMoreLock = false;
         var hasWave = false;
         var currentCommentId = null;
@@ -829,9 +837,19 @@
         var isFirst = true;
         var commentNotice = "近況を共有しましょう";
         var task = null;
+        var contentHeight = 500;
 
         function showMessage(text) {
             var timerMsg = msg.createTimerMessage(text, 3, function() {
+                msg.dismissMessage(timerMsg);
+                gadgets.window.adjustHeight();
+            });
+            gadgets.window.adjustHeight();
+        }
+
+        function showCommentMessage(id, text) {
+            var commentMsg = new gadgets.MiniMessage(__MODULE_ID__, document.getElementById("messageContainer" + id));
+            var timerMsg = commentMsg.createTimerMessage(text, 3, function() {
                 msg.dismissMessage(timerMsg);
                 gadgets.window.adjustHeight();
             });
@@ -943,10 +961,10 @@
             template = template.replace("___POST_TIME___", formatDate(new Date(data.created_at)));
             template = template.replace(/___ID___/g, data.id);
 
-            var comment = "<div id=\"commentField___ID___\" class=\"commentField\"><hr/>\
+            var comment = "<div id=\"commentField___ID___\" class=\"commentField\"><hr/><div id=\"messageContainer___ID___\"></div>\
                     <form action=\"#\" method=\"post\" onsubmit=\"return false;\">\
                     <div class=\"outer\">\
-                        <textarea class=\"elastic\" name=\"text\" cols=\"10\" rows=\"1\"></textarea>\
+                        <textarea class=\"elastic\" name=\"text\" style=\"border: 0px\" cols=\"10\" rows=\"1\"></textarea>\
                     </div>\
                     <div class=\"right\">\
                     <span style=\"display:none\" id=\"indicator___ID___\" class=\"indicator\">&nbsp;</span><input class=\"comment\" name=\"submit___ID___\" onclick=\"updateComment(this.form, '___ID___', '___USER_ID___');\" type=\"button\" value=\"コメントする\"/>\
@@ -1009,6 +1027,7 @@
 
             $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
                     function(response, status) {
+                        $("#indicatorContent").hide();
                         if (status == 'success') {
                             var list = response.data.list;
                             var resultHtml = "";
@@ -1042,7 +1061,12 @@
 
             $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
                     function(response, status) {
+                        $("#indicatorContent").hide();
                         if (status == 'success') {
+
+                            $(".timeline").css("height", contentHeight + "px");
+                            gadgets.window.adjustHeight();
+
                             var list = response.data.list;
                             var resultHtml = "";
                             $.each(list, function(i) {
@@ -1065,7 +1089,12 @@
 
             $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
                     function(response, status) {
+                        $("#indicatorContent").hide();
                         if (status == 'success') {
+
+                            $(".timeline").css("height", contentHeight + "px");
+                            gadgets.window.adjustHeight();
+
                             var list = response.data.list;
                             var resultHtml = "";
                             if (currentCommentId == null) {
@@ -1151,6 +1180,7 @@
                         if (status == 'success') {
                             if (data.status == 200) {
                                 showMessage('共有しました。');
+                                $(".timeline").scrollTop(0);
                                 var submitData = {};
                                 submitData.user = {};
                                 submitData.id = data.data.id;
@@ -1186,7 +1216,7 @@
                         $("#indicator" + id).hide();
                         if (status == 'success') {
                             if (data.status == 200) {
-                                showMessage('コメントしました。');
+                                //showCommentMessage(id, 'コメントしました。');
                                 var submitData = {};
                                 submitData.user = {};
                                 submitData.id = data.data.id;
@@ -1207,7 +1237,7 @@
                                 }
                                 createActivity(id, userId);
                             } else {
-                                showMessage(data.errorMessage);
+                                showCommentMessage(id, data.errorMessage);
                                 form.text.focus();
                             }
                         }
@@ -1318,6 +1348,12 @@
                 baseUrl = "https://aipo-microblog.appspot.com/";
             }
 
+            if (currentView.getName() == "home") {
+                contentHeight = prefs.getInt("p2homeHeight");
+            } else if (currentView.getName() == "canvas") {
+                contentHeight = prefs.getInt("p3canvasHeight");
+            }
+            
             try {
                 if (wave && wave.isInWaveContainer()) {
                     hasWave = true;
@@ -1372,7 +1408,7 @@
                 $("#inputField textarea").focus(commentFocus).blur(commentBlur).keyup(countUp).focus(countUp).blur();
 
                 $('.timeline').scroll(function(e) {
-                    if (e.target.scrollTop + scrollHeight + 100 >= e.target.scrollHeight && currentCursor != null && !readMoreLock) {
+                    if (e.target.scrollTop + contentHeight + 100 >= e.target.scrollHeight && currentCursor != null && !readMoreLock) {
                         readMoreLock = true;
                         readMore(currentCursor);
                     }
@@ -1385,14 +1421,6 @@
                 fetchPeople(0, externalId);
             }
 
-            var height = 500;
-            if (currentView.getName() == "home") {
-                height = prefs.getInt("p2homeHeight");
-            } else if (currentView.getName() == "canvas") {
-                height = prefs.getInt("p3canvasHeight");
-            }
-
-            $(".timeline").css("height", height + "px");
 
             gadgets.window.adjustHeight();
         }
