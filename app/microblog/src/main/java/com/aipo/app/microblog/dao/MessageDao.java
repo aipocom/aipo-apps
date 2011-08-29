@@ -27,6 +27,7 @@ import org.slim3.util.StringUtil;
 
 import com.aipo.app.microblog.meta.MessageMeta;
 import com.aipo.app.microblog.model.Message;
+import com.aipo.app.microblog.service.MessageService;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Transaction;
 
@@ -34,10 +35,10 @@ public class MessageDao extends DaoBase<Message> {
 
   protected MessageMeta meta = MessageMeta.get();
 
-  public S3QueryResultList<Message> fetch(int limit, String encodedCursor) {
+  public S3QueryResultList<Message> fetch(Integer limit, String encodedCursor) {
     ModelQuery<Message> query =
       query().filter(meta.parentId.equal(0L)).sort(meta.updatedAt.desc).limit(
-        limit);
+        limit == null ? MessageService.DEFAULT_MESSAGE_FETCH_COUNT : limit);
 
     if (!StringUtil.isEmpty(encodedCursor)) {
       query = query.encodedStartCursor(encodedCursor);

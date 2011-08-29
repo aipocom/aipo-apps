@@ -153,14 +153,15 @@ public class MessageService {
   }
 
   public Map<String, Object> fetchData(String encodedCursor) {
-    return fetchData(encodedCursor, null);
+    return fetchData(encodedCursor, null, DEFAULT_MESSAGE_FETCH_COUNT);
   }
 
-  public Map<String, Object> fetchData(String encodedCursor, Long id) {
+  public Map<String, Object> fetchData(String encodedCursor, Long id,
+      Integer count) {
 
     Map<String, Object> data = Maps.newHashMap();
 
-    S3QueryResultList<Message> resultList = fetchList(encodedCursor, id);
+    S3QueryResultList<Message> resultList = fetchList(encodedCursor, id, count);
     data.put("has_next", resultList.hasNext());
     data.put("cursor", resultList.getEncodedCursor());
     data.put("count", resultList.size());
@@ -191,18 +192,18 @@ public class MessageService {
   }
 
   public S3QueryResultList<Message> fetchList(String encodedCursor) {
-    return fetchList(encodedCursor, null);
+    return fetchList(encodedCursor, null, DEFAULT_MESSAGE_FETCH_COUNT);
   }
 
-  public S3QueryResultList<Message> fetchList(String encodedCursor, Long id) {
+  public S3QueryResultList<Message> fetchList(String encodedCursor, Long id,
+      Integer fetchCount) {
 
     MessageDao messageDao = new MessageDao();
 
     S3QueryResultList<Message> messageList = null;
 
     if (id == null) {
-      messageList =
-        messageDao.fetch(DEFAULT_MESSAGE_FETCH_COUNT, encodedCursor);
+      messageList = messageDao.fetch(fetchCount, encodedCursor);
     } else {
       Message message = messageDao.getOrNullWithoutTx(Message.createKey(id));
       List<Message> delegate = Lists.newArrayList();

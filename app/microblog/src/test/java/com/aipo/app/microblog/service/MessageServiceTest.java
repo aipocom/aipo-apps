@@ -101,7 +101,7 @@ public class MessageServiceTest extends AppEngineTestCase {
     assertThat(results2.get(0).getCommentIds().size(), is(0));
     assertThat(results2.get(1).getComments().size(), is(0));
     assertThat(results2.get(1).getCommentIds().size(), is(0));
-    assertThat(results2.hasNext(), is(false));
+    assertThat(results2.hasNext(), is(true));
 
   }
 

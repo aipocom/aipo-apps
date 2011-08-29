@@ -19,6 +19,7 @@ package com.aipo.app.microblog.controller.api.statuses;
 
 import java.util.Map;
 
+import org.slim3.util.IntegerUtil;
 import org.slim3.util.LongUtil;
 import org.slim3.util.StringUtil;
 
@@ -42,6 +43,13 @@ public class HomeController extends JSONController {
       cursor = null;
     }
 
+    Integer count = null;
+    try {
+      count = IntegerUtil.toInteger(request.getParameter("count"));
+    } catch (Throwable ignore) {
+      // ignore
+    }
+
     Long id = null;
 
     try {
@@ -50,7 +58,7 @@ public class HomeController extends JSONController {
       // ignore
     }
 
-    result.put("data", messageService.fetchData(cursor, id));
+    result.put("data", messageService.fetchData(cursor, id, count));
 
     return result;
   }
