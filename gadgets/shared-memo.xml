@@ -22,31 +22,31 @@
         </script>
         <style type="text/css"><!--
 
-            #formField {
-                border: 2px solid #cbcbcb;
-                background: #ffffff;
-                position: absolute;
-                width: 250px;
-                z-index: 9999;
-                padding: 5px;
-            }
+        #formField {
+            border: 2px solid #cbcbcb;
+            background: #ffffff;
+            position: absolute;
+            width: 250px;
+            z-index: 9999;
+            padding: 5px;
+        }
 
-            #formField .item {
-                padding-bottom: 5px;
-            }
+        #formField .item {
+            padding-bottom: 5px;
+        }
 
-            #formField .item h3 {
-                margin-bottom: 5px;
-            }
+        #formField .item h3 {
+            margin-bottom: 5px;
+        }
 
-            #addMemo {
-                background: url(https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/shared-memo/img/icon/icon_edit.gif) no-repeat;
-                padding-left: 20px;
-            }
+        #addMemo {
+            background: url(https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/shared-memo/img/icon/icon_edit.gif) no-repeat;
+            padding-left: 20px;
+        }
 
-            .ui-sortable li {
-                cursor: pointer;
-            }
+        .ui-sortable li {
+            cursor: pointer;
+        }
 
         --></style>
         <div class="aipostyle">
@@ -63,6 +63,13 @@
                             <textarea id="contents" class="text wide" rows="6"></textarea>
                         </div>
                         <div class="item">
+                            <div id="categoryInputField" style="display:none">
+                                <input id="categoryInput" type="hidden" value=""/>
+                            </div>
+                            <div id="categorySelectField">
+                                <input type="hidden" name="categorySelect" value="none"/>
+                            </div>
+                            <!--
                             <h3>カテゴリ</h3>
 
                             <div id="categoryInputField" style="display:none">
@@ -78,6 +85,7 @@
                                     <input id="categorySelectButton" type="button" onclick="swapCategoryField(true);"
                                            value="入力"/>
                             </div>
+                            -->
                         </div>
                         <p class="center">
                             <input id="submit" type="submit" value=""/>&nbsp;
@@ -98,6 +106,8 @@
                                 </select>
                             </td>
                         </tr>
+                        <input type="hidden" name="category" value="none"/>
+                        <!--
                         <tr>
                             <th>カテゴリ</th>
                             <td>
@@ -106,17 +116,18 @@
                                     <option value="">読み込み中</option>
                             </td>
                         </tr>
+                        -->
                     </table>
                     <a id="addMemo" href="javascript:showForm_add();" style="display:none">メモを追加する</a>
 
                     <div id="memos" class="w90" style="padding:5px;"></div>
                     <input id="clipCheck" type="checkbox" name="clip" onchange="swapClip(this);"
-                           onclick="this.blur();this.focus();" value="" />
+                           onclick="this.blur();this.focus();" value=""/>
                     <label for="clipCheck">このメモ集をクリップする</label>
                 </form>
             </div>
         </div>
-        <script type="text/javascript"><!--
+        <script type="text/javascript">
 
         var version = "1.0";
         var changeLogUrl = "javascript:void(0);";
@@ -138,7 +149,7 @@
 
         var submitFunc = function() {
             document.getElementById("errors").innerHTML = "";
-            var title    = document.form.title.value;
+            var title = document.form.title.value;
             var contents = document.form.contents.value;
             var categoryInput = document.form.categoryInput.value;
             var validate = true;
@@ -162,10 +173,12 @@
                 if (inputSelect) {
                     addCategory(title, contents, categoryInput);
                 } else {
-                    var category = document.form.categorySelect.value;
-                    if (category) {
-                        currentCategoryId = category;
-                    }
+                    /*
+                     var category = document.form.categorySelect.value;
+                     if (category) {
+                     currentCategoryId = category;
+                     }
+                     */
                     addMemo(title, contents, currentCategoryId);
                 }
                 hideForm();
@@ -312,8 +325,8 @@
         function adjustHeight() {
             if (document.getElementById('formField').style.display != "none") {
                 var dimensions = gadgets.window.getViewportDimensions();
-                if (dimensions['height'] <= 310) {
-                    gadgets.window.adjustHeight(310);
+                if (dimensions['height'] <= 260) {
+                    gadgets.window.adjustHeight(260);
                 }
             } else {
                 gadgets.window.adjustHeight();
@@ -327,9 +340,9 @@
         }
 
         function showForm_add() {
-            document.form.title   .value = "";
+            document.form.title.value = "";
             document.form.contents.value = "";
-            document.form.submit  .value = "追加する";
+            document.form.submit.value = "追加する";
 
             document.form.submit.style.display = "";
             document.form.onsubmit = submitFunc;
@@ -338,11 +351,11 @@
         }
 
         function showForm_edit(title, contents, deleteKey) {
-            document.form.title   .value = gadgets.util.unescapeString(title);
+            document.form.title.value = gadgets.util.unescapeString(title);
             document.form.contents.value = gadgets.util.unescapeString(contents);
-            document.form.submit  .value = "編集する";
+            document.form.submit.value = "編集する";
 
-            document.form.submit.style.display  = "";
+            document.form.submit.style.display = "";
             var submitEditFunc = function() {
                 deleteMemo_edit(deleteKey);
                 return false;
@@ -353,7 +366,7 @@
         }
 
         function showForm_read(title, contents) {
-            document.form.title   .value = gadgets.util.unescapeString(title);
+            document.form.title.value = gadgets.util.unescapeString(title);
             document.form.contents.value = gadgets.util.unescapeString(contents);
 
             document.form.submit.style.display = "none";
@@ -425,8 +438,8 @@
                                 for (var key in keys) {
                                     var value = memos2[keys[key]];
                                     var memo = gadgets.json.parse(value);
-                                    var title     = gadgets.util.escapeString(memo.title);
-                                    var contents  = gadgets.util.escapeString(memo.contents);
+                                    var title = gadgets.util.escapeString(memo.title);
+                                    var contents = gadgets.util.escapeString(memo.contents);
                                     var deleteKey = gadgets.util.escapeString(keys[key]);
 
                                     var li = document.createElement('li');
@@ -457,7 +470,7 @@
                                     }
                                 }
                                 var memos = document.getElementById('memos');
-                                for (var i = memos.childNodes.length-1; i>=0; i--) {
+                                for (var i = memos.childNodes.length - 1; i >= 0; i--) {
                                     memos.removeChild(memos.childNodes[i]);
                                 }
                                 memos.appendChild(ul);
@@ -717,7 +730,7 @@
         }
 
 
-        --></script>
+        </script>
         ]]>
     </Content>
 </Module>
