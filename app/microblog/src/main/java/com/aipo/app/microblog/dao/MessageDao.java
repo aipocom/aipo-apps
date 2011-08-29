@@ -47,7 +47,8 @@ public class MessageDao extends DaoBase<Message> {
   }
 
   public S3QueryResultList<Message> fetchAllComment(Long parentId) {
-    ModelQuery<Message> query = query().filter(meta.parentId.equal(parentId));
+    ModelQuery<Message> query =
+      query().filter(meta.parentId.equal(parentId)).sort(meta.updatedAt.asc);
 
     return query.asQueryResultList();
   }

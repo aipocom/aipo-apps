@@ -43,7 +43,7 @@ public class MessageService {
   private static final Logger logger = Logger.getLogger(MessageService.class
     .getName());
 
-  public static final int DEFAULT_MESSAGE_FETCH_COUNT = 20;
+  public static final int DEFAULT_MESSAGE_FETCH_COUNT = 10;
 
   public static final int DEFAULT_COMMENT_FETCH_COUNT = 2;
 

@@ -83,7 +83,7 @@ public class MessageServiceTest extends AppEngineTestCase {
 
     S3QueryResultList<Message> results1 = service.fetchList(null);
 
-    assertThat(results1.size(), is(20));
+    assertThat(results1.size(), is(MessageService.DEFAULT_MESSAGE_FETCH_COUNT));
     assertThat(results1.get(0).getComments().size(), is(0));
     assertThat(results1.get(0).getCommentIds().size(), is(0));
     assertThat(
@@ -96,7 +96,7 @@ public class MessageServiceTest extends AppEngineTestCase {
 
     S3QueryResultList<Message> results2 = service.fetchList(cursor);
 
-    assertThat(results2.size(), is(3));
+    assertThat(results2.size(), is(10));
     assertThat(results2.get(0).getComments().size(), is(0));
     assertThat(results2.get(0).getCommentIds().size(), is(0));
     assertThat(results2.get(1).getComments().size(), is(0));

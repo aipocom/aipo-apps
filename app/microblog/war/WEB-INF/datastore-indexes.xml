@@ -7,4 +7,9 @@
         <property name="uA" direction="desc"/>
     </datastore-index>
 
+    <datastore-index kind="Me" ancestor="false" source="auto">
+        <property name="pI" direction="asc"/>
+        <property name="uA" direction="asc"/>
+    </datastore-index>
+
 </datastore-indexes>
