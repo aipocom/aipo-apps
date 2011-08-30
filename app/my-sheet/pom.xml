@@ -363,6 +363,9 @@
 					<headerDefinitions>
 						<headerDefinition>header-definition.xml</headerDefinition>
 					</headerDefinitions>
+					<mapping>
+						<scala>javadoc_style</scala>
+					</mapping>
 				</configuration>
 			</plugin>
 		</plugins>
