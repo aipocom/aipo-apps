@@ -1,78 +1,232 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
     <ModulePrefs
-            title="ニュース"
-            description="社内全員へ向けてのニュース配信アプリです。更新情報へ通知がされます。">
+            title="News!"
+            description="社内全員へ向けてのニュース配信アプリです。更新情報へ通知がされます。"
+            height="40">
+        <Require feature="osapi"/>
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
+        <Require feature="minimessage"/>
         <Optional feature="aipostyle"/>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/shared-link/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
+    <UserPref name="destMess" display_name="通知する場所の選択" datatype="enum" default_value="0">
+        <EnumValue value="0" display_value="更新情報ポートレットへ通知"/>
+        <EnumValue value="1" display_value="あなたへのお知らせへ通知"/>
+    </UserPref>
+
     <Content type="html" view="popup"><![CDATA[
         <div class="aipostyle">
-            <table class="list wide">
-                <tbody id="status">
-                <tr>
-                    <th>投稿日時</th>
-                    <td>2011/08/10 (水) 11：25</td>
-                </tr>
-                <tr>
-                    <th>内容</th>
-                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <div id="NewsDetail">
+                <div id="DetailError">
+                    詳細画面の表示はできません。
+                </div>
+            </div>
         </div>
         <script type="text/javascript">
         </script>
         ]]></Content>
     <Content type="html" view="home,canvas"><![CDATA[
+        <a>
+        <style type="text/css">
+
+            #addNews {
+                background: url(https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/shared-link/img/icon/icon_edit.gif) no-repeat;
+                padding-left: 20px;
+            }
+
+        </style>
+
+
         <div class="aipostyle">
-            <table class="borderNone pb5">
-                <tbody>
-                <tr>
-                    <td><input type="text"
-                               id="comment"/><input type="button" value="配信する"/>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <h3>配信済みニュース一覧</h3>
-            <table class="list wide">
-                <thead>
-                <tr>
-                    <th>投稿日時</th>
-                    <th>内容</th>
-                    <th class="thin">削除</th>
-                </tr>
-                </thead>
-                <tbody id="status">
-                <tr>
-                    <td>2011/08/10 (水) 11：25</td>
-                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします</td>
-                    <td class="thin"><a href="">削除</a></td>
-                </tr>
-                <tr>
-                    <td>2011/08/10 (水) 11：25</td>
-                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします
-                    </td>
-                    <td class="thin"><a href="">削除</a></td>
-                </tr>
-                <tr>
-                    <td>2011/08/10 (水) 11：25</td>
-                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします
-                    </td>
-                    <td class="thin"><a href="">削除</a></td>
-                </tr>
-                <tr>
-                    <td>2011/08/10 (水) 11：25</td>
-                    <td>ハードウェアメンテナンスのため、​本日12:00 ～ 13:00 に15～20分程度の通信断が発生いたします</td>
-                    <th class="thin">削除</td>
-                </tr>
-                </tbody>
-            </table>
+            <div id="formContent">
+                <form id="form" name="form" action="#">
+                    <div id="formField">
+                        <div id="errors"></div>
+                        <div class="item"><h3>ニュース配信</h3>
+                            <input type="text" class="text wide" name="title" id="title" value=""/>
+                        </div>
+                        <p class="center">
+                            <input type="button" name="submit" onclick="eventSubmitNews();" value="ニュースを配信する。"/>
+                        </p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 開発中
+                <h3>配信済みニュース一覧</h3>
+
+                <div id="NewsList"></div>
+            -->
+
         </div>
         <script type="text/javascript">
+
+            var version = "1.0";
+            var changeLogUrl = "javascript:void(0);";
+
+            gadgets.util.registerOnLoadHandler(init);
+
+            /*
+             * init
+             */
+            function init() {
+                adjustHeight();
+            }
+
+
+            /*
+             * submit
+             */
+            function eventSubmitNews() {
+
+                // フォームから値の取得
+                var title = document.form.title.value;
+                var vali_title = validateLength(title, 21);
+
+                //var comment = document.form.comment.value;
+                // var vali_comment = validate(comment, 50);
+
+                var comment = "";
+
+                if(vali_title == false) {
+                    return false;
+                }
+
+                // 現在時刻の取得
+                var weeks = new Array('日', '月', '火', '水', '木', '金', '土');
+                var r = new Array();
+                var now = new Date();
+
+                r.year = now.getYear(); // 年
+                r.month = now.getMonth() + 1; // 月
+                r.day = now.getDate(); // 日
+                r.week = weeks[ now.getDay() ]; // 曜日
+                r.hour = now.getHours(); // 時
+                r.minute = now.getMinutes(); // 分
+                r.sec = now.getSeconds(); // 秒
+                r.msec = now.getMilliseconds(); // ミリセカンド
+
+                if (r.year < 2000) r.year += 1900;
+                if (r.month < 10) r.month = ("0" + r.month);
+                if (r.day < 10) r.day = ("0" + r.day);
+                if (r.hour < 10) r.hour = ("0" + r.hour);
+                if (r.minute < 10) r.minute = ("0" + r.minute);
+                if (r.sec < 10) r.sec = ("0" + r.sec);
+                if (r.msec < 10) r.msec = ("0" + r.msec);
+
+                var update_time = (r.year + '/' + r.month + '/' + r.day + '（' + r.week + '）' + r.hour + ':' + r.minute);
+                var update_char = (r.year + r.month + r.day + now.getDay() + r.hour + r.minute + r.sec + r.msec);
+
+                //ユーザー一覧の取得
+                osapi.people.get({ userId: '@viewer', groupId: '@all' }).execute(function(response) {
+
+                    var users = response.list;
+                    var userIds = new Array();
+
+                    for (var i in users) {
+
+                        // ユーザーID
+                        // 例）org001:sample1
+                        userIds[i] = users[i].id;
+                    }
+
+                    //newsId作成
+                    osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+
+                        // ユーザーID
+                        // 例）org001:sample1
+                        var userId = response.id;
+                        var newsId = (update_char - 0);
+
+                        // 開発中
+                        // keysの読み込み
+
+                        // データの作成
+                        var news_data = {};
+                        var news_post = {};
+                        // var key_ring = {};
+
+                        news_data['title'] = gadgets.util.escapeString(title);
+                        news_data['comment'] = gadgets.util.escapeString(comment);
+                        news_data['update_time'] = gadgets.util.escapeString(update_time);
+                        news_post[newsId] = gadgets.json.stringify(news_data);
+
+                        // データの保存
+                        osapi.appdata.update({ userId: '@viewer', data: news_post }).execute(function(response) {
+
+                            // minimessage
+                            var msg = new gadgets.MiniMessage();
+                            msg.createTimerMessage("配信しました。", 3, function() {
+                                adjustHeight(50);
+                                return true;
+                            });
+
+                        });
+
+                        // 更新情報にアクティビティの送信
+
+                        //送信先の取得
+                         var prefs = new gadgets.Prefs();
+                         var destMess = prefs.getInt("destMess");
+
+                        osapi.activities.create({ userId: '@viewer', activity: { title: title, priority: destMess }}).execute(function(response) {
+                        });
+                        document.form.title.value = "";
+                        //document.form.comment.value= "";
+                    });
+                });
+            }
+
+            /*
+             * validate
+             */
+            function validateLength(text, limit_num) {
+                document.getElementById('errors').style.display = "";
+                text = gadgets.util.escapeString(text);
+                var text_leng = text.length;
+                if(text_leng > limit_num){
+                    var html = new Array();
+                    html.push(limit_num + '文字以内で入力して下さい。');
+                    document.getElementById('errors').innerHTML = html.join('');
+                    adjustHeight(50);
+                    return false;
+                }
+            }
+
+            function showPopup(gn_id) {
+                //ユーザー一覧の取得
+                osapi.people.get({ userId: '@viewer', groupId: '@all' }).execute(function(response) {
+
+                    var users = response.list;
+                    var userIds = new Array();
+
+                    for (var i in users) {
+
+                        // ユーザーID
+                        // 例）org001:sample1
+                        userIds[i] = users[i].id;
+                    }
+
+                    // Newsデータの取得
+                    osapi.appdata.get({ userId: userIds ,fields: ['title', 'comment','update_time'] }).execute(function(response) {
+
+                        var html = new Array();
+
+                        document.getElementById('NewsDetail').innerHTML = html.join('');
+                    });
+                    adjustHeight();
+                });
+            }
+
+            function adjustHeight(time) {
+                if (time) {
+                    window.setTimeout("gadgets.window.adjustHeight()", time);
+                } else {
+                    gadgets.window.adjustHeight();
+                }
+            }
         </script>
         ]]></Content>
 </Module>
