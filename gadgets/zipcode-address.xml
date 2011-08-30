@@ -2,14 +2,14 @@
 <Module>
  <ModulePrefs title="郵便番号⇔住所 変換"
               description="郵便番号から住所、住所から郵便番号を調べられます。">
-  <Require feature="aipostyle"/>
   <Require feature="dynamic-height"/>
+  <Optional feature="aipostyle"/>
   <!--<Icon>http://~~.com</Icon>-->
  </ModulePrefs>
  <Content type="html"><![CDATA[
 
 <div class="aipostyle">
- <table class="input">
+ <table class="form wide">
   <tr>
    <th>郵便番号</th>
    <td>
@@ -23,7 +23,7 @@
    <td><input type="text" id="address" style="width: 20em;" maxlength="100" /></td>
   </tr>
  </table>
- <div id="codes"></div>
+ <div id="codes" style="overflow: scroll;"></div>
  <!-- クレジット表示 -->
  <div>API提供:<a href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a></div>
 </div>
