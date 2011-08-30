@@ -23,12 +23,14 @@
    <td><input type="text" id="address" style="width: 20em;" maxlength="100" /></td>
   </tr>
  </table>
- <div id="codes" style="height: 100px; overflow: scroll;"></div>
+ <div id="codes" style="height: 300px; overflow: scroll;"></div>
  <!-- クレジット表示 -->
- <div>API提供:<a href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a></div>
+ <div>Powered by <a href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a></div>
 </div>
 
 <script language="javascript" type="text/javascript">
+
+window.onload = gadgets.window.adjustHeight;
 
 function zipsearch() {
   var zipcode = document.getElementById('zipcode').value;
