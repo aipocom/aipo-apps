@@ -23,7 +23,7 @@
    <td><input type="text" id="address" style="width: 20em;" maxlength="100" /></td>
   </tr>
  </table>
- <div id="codes"></div>
+ <div id="codes" style="overflow-x: scroll;"></div>
  <!-- クレジット表示 -->
  <div>Powered by <a href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a></div>
 </div>
