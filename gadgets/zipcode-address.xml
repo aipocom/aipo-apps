@@ -9,7 +9,7 @@
  <Content type="html"><![CDATA[
 
 <div class="aipostyle">
- <table class="form" width="100%">
+ <table class="form narrow">
   <tr>
    <th>郵便番号</th>
    <td>
