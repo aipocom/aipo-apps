@@ -5,7 +5,7 @@
   <Require feature="osapi"/>
   <Optional feature="aipostyle" />
   <Icon><!-- http://~~.com --></Icon>
-  </ModulePrefs>
+ </ModulePrefs>
 <Content type="html"><![CDATA[
 
 <div class="aipostyle">
@@ -27,7 +27,6 @@
 </div>
 
 <script language="javascript" type="text/javascript">
-<!--
 
 function zipsearch() {
   var zipcode = document.getElementById('zipcode').value;
@@ -87,10 +86,6 @@ function callback1(data) {
   html += '</table>\n';
   document.getElementById('codes').innerHTML = html;
 }
-
-//-->
-</script>
-
-]]>
+</script>]]>
 </Content>
 </Module>
