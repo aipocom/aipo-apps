@@ -14,8 +14,8 @@
    <th width="40">郵便番号</th>
    <td>
     <input type="text" id="zipcode" style="width: 7em;" maxlength="8" />
-    <input type="button" onclick="zipsearch();gadgets.window.adjustHeight();return false;" value="住所検索" />
-    <input type="button" onclick="addresssearch();gadgets.window.adjustHeight();return false;" value="番号検索" />
+    <input type="button" onclick="zipsearch();return false;" value="住所検索" />
+    <input type="button" onclick="addresssearch();return false;" value="番号検索" />
    </td>
   </tr>
   <tr>
@@ -87,6 +87,7 @@ function callback1(data) {
   }
   html += '</table>\n';
   document.getElementById('codes').innerHTML = html;
+  setInterval('gadgets.window.adjustHeight()', 100);
 }
 </script>]]>
 </Content>
