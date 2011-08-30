@@ -2,11 +2,10 @@
 <Module>
  <ModulePrefs title="郵便番号⇔住所 変換"
               description="郵便番号から住所、住所から郵便番号を調べられます。">
-  <Require feature="osapi"/>
   <Optional feature="aipostyle" />
-  <Icon><!-- http://~~.com --></Icon>
+  <!--<Icon>http://~~.com</Icon>-->
  </ModulePrefs>
-<Content type="html"><![CDATA[
+ <Content type="html"><![CDATA[
 
 <div class="aipostyle">
  <table class="input">
@@ -14,8 +13,8 @@
    <th>郵便番号</th>
    <td>
     <input type="text" id="zipcode" style="width: 7em;" maxlength="8" />
-    <input type="button" onclick="zipsearch() ;return false;" value="Z" />
-    <input type="button" onclick="addresssearch();return false;" value="ԍ" />
+    <input type="button" onclick="zipsearch() ;return false;" value="住所検索" />
+    <input type="button" onclick="addresssearch();return false;" value="番号検索" />
    </td>
   </tr>
   <tr>
@@ -23,6 +22,7 @@
    <td><input type="text" id="address" style="width: 20em;" maxlength="100" /></td>
   </tr>
  </table>
+ <a href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a>
  <div id="codes" style="width: 800px; height: 400px; overflow: scroll;"></div>
 </div>
 
