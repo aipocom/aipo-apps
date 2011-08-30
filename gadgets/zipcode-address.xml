@@ -11,7 +11,7 @@
 <div class="aipostyle">
  <table class="form wide">
   <tr>
-   <th width="60">郵便番号</th>
+   <th width="30">郵便番号</th>
    <td>
     <input type="text" id="zipcode" style="width: 7em;" maxlength="8" />
     <input type="button" onclick="zipsearch() ;return false;" value="住所検索" />
@@ -19,11 +19,11 @@
    </td>
   </tr>
   <tr>
-   <th width="60">住所</th>
+   <th width="30">住所</th>
    <td><input type="text" id="address" style="width: 20em;" maxlength="100" /></td>
   </tr>
  </table>
- <div id="codes" style="height: 150px; overflow: scroll;"></div>
+ <div id="codes" style="height: 100px; overflow: scroll;"></div>
  <!-- クレジット表示 -->
  <div>API提供:<a href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a></div>
 </div>
