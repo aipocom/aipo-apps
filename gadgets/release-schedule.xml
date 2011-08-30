@@ -1,137 +1,388 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
     <ModulePrefs
-            title="リリーススケジュール"
+            title="リリース7"
             description="会社内でのリリース日共有のためのアプリです。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
-        <Optional feature="aipostyle"/>
+        <Require feature="minimessage"/>
+        <Require feature="tabs"/>
+        <Require feature="aipostyle"/>
+        <Require feature="osapi"/>
+        <Require feature="setprefs"/>
     </ModulePrefs>
-    <Content type="html" view="canvas"><![CDATA[
-        <div class="aipostyle">
-            <table class="form wide">
-                <tbody>
-                <tr>
-                    <th>リリース日</th>
-                    <td><select>
-                        <option value="">2011
-                        </option>
-                        年</select>
-                        <select>
-                            <option value="">8</option>
-                            月</select>
-                        <select>
-                            <option value="">20
-                            </option>
-                            日</select></td>
-                    <th>タイトル</th>
-                    <td><input type="text"
-                               id="comment"/></td>
-                    <th>担当者</th>
-                    <td><input type="text"
-                               id="staff"/></td>
-                </tr>
-                </tbody>
-            </table>
-            <div class="center"><input type="button" value="登録する"/></div>
+    <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
+    <UserPref name="p2-canvasRows" display_name="表示件数（最大化時）" datatype="enum" default_value="10">
+        <EnumValue value="5"/>
+        <EnumValue value="10"/>
+        <EnumValue value="50"/>
+    </UserPref>
 
-            <h3>リリーススケジュール</h3>
-            <table class="list wide">
-                <thead>
-                <tr>
-                    <th>リリース日
-                    </th>
-                    <th>内容</th>
-                    <th>担当者</th>
-                    <th class="thin">削除
-                    </th>
-                </tr>
-                </thead>
-                <tbody id="status">
-                <tr>
-                    <td>2011/08/10</td>
-                    <td>Aipoアプリリリース
-                    </td>
-                    <td>山田太郎、木村一郎</td>
-                    <td class="thin"><a href="">×</a></td>
-                </tr>
-                <tr>
-                    <td>2011/08/10</td>
-                    <td>Aipoアプリリリース
-                    </td>
-                    <td>山田太郎、木村一郎</td>
-                    <td class="thin"><a href="">×</a></td>
-                </tr>
-                <tr>
-                    <td>2011/08/10</td>
-                    <td>Aipoアプリリリース</td>
-                    <td>山田太郎、木村一郎</td>
-                    <td class="thin"><a href="">×</a></td>
-                </tr>
-                <tr>
-                    <td>2011/08/10</td>
-                    <td>Aipoアプリリリース
-                    </td>
-                    <td>山田太郎、木村一郎</td>
-                    <td class="thin"><a href="">×</a></td>
-                </tr>
-                </tbody>
-            </table>
+
+    <Content type="html"><![CDATA[
+        <div class="aipostyle">
+            <form name="date">
+                <table class="form wide">
+                    <tbody>
+                    <tr>
+                        <th>リリース日</th>
+                        <td>
+                            <select id="yearid" name="yearname" onchange="daySet()">年</select>
+                            <select id="monthid" name="monthname" onchange="daySet()">月</select>
+                            <select id="dayid" name="dayname">日</select>
+                        </td>
+                        <th>タイトル</th>
+                        <td><input type="text"
+                                   id="commentid"/></td>
+                        <th>担当者</th>
+                        <td><input type="text"
+                                   id="staffid"/></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="center">
+                    <input type="button" value="投稿する" onclick="eventSubmit()"/>
+                    <input type="button" value="データ一覧表示" onclick="datacheck()"/>
+                </div>
+            </form>
+
+            <form name="schedules">
+                <h3>リリーススケジュール</h3>
+                <table class="list wide">
+                    <thead>
+                    <tr>
+                        <th>リリース日
+                        </th>
+                        <th>内容</th>
+                        <th>担当者</th>
+                        <th class="thin">削除
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="status">
+                    <tr>
+                        <td>2011/08/10</td>
+                        <td>Aipoアプリリリース
+                        </td>
+                        <td>山田太郎、木村一郎</td>
+                        <td class="thin"><a href="">×</a></td>
+                    </tr>
+                    </tbody>
+                </table>
             <div id="pager" style="text-align:center;" class="pager"></div>
+            </form>
         </div>
-        <script type="text/javascript">
-            gadgets.util.registerOnLoadHandler(init);
 
+        <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
+        </script>
+        <script type="text/javascript">
+
+            //変数設定
+                //日時に関する変数
+                var dateToday = new Date();
+                var yearToday = dateToday.getYear();
+                var yearCEToday = (yearToday<2000) ? yearToday+1900 : yearToday ;
+                var monthToday = dateToday.getMonth() + 1;
+                var dayToday = dateToday.getDate();
+                var yearMonthDayToday = yearCEToday*10000 + monthToday*100 + dayToday;
+                var msg = new gadgets.MiniMessage();
+
+            //セレクトボックスを今年の1/1に初期化
+            function initSelectbox(){
+                //あとでセレクトボックスに挿入するHTML
+                var yearHtml = new Array();
+                var monthHtml = new Array();
+                //yearHtmlに現在から10年後までを代入
+                for (var i=yearCEToday ; i<=yearCEToday+10 ; i++){
+                    yearHtml.push('<option value="' + i + '">' + i + '</option>');
+                }
+
+                //monthHtmlに1から12を代入
+                for (var i=1 ; i<=12 ; i++){
+                    monthHtml.push('<option value="' + i + '">' + i + '</option>');
+                }
+
+                document.getElementById("yearid").innerHTML = yearHtml;
+                document.getElementById("monthid").innerHTML = monthHtml;
+                daySet();
+            }
+
+            //年月から日数を計算してセレクトボックスへ挿入
+            function daySet(){
+                //あとでセレクトボックスに挿入するHTML
+                var dayHtml = new Array();
+                //月ごとの日数を計算して入れておく変数
+                var daysOfMonth;
+                //現在セレクトボックスで選択されている年月
+                var yearSelectedNow = document.date.yearname.selectedIndex + yearCEToday;
+                var monthSelectedNow = document.date.monthname.selectedIndex + 1;
+
+                //月毎の日数を計算
+                if (monthSelectedNow == 4 || monthSelectedNow == 6 || monthSelectedNow == 9 || monthSelectedNow == 11){
+                    daysOfMonth = 30;
+                }else if(monthSelectedNow != 2){
+                    daysOfMonth = 31;
+                }else{
+                    daysOfMonth = daysOfFeb(yearSelectedNow);
+                }
+
+                //dayHtmlに、選択された年と月に合わせた日数を代入
+                for (var i=1 ; i <= daysOfMonth ; i++){
+                    dayHtml.push('<option value="' + i + '">' + i + '</option>');
+                }
+
+                document.getElementById("dayid").innerHTML = dayHtml;
+
+            }
+
+            //2月の日数を求める関数
+            function daysOfFeb(year){
+                if (year%4 == 0){
+                    if (year%100 ==0){
+                        return(29);
+                    }else{
+                    return(28);
+                    }
+                }else{
+                return(29);
+                }
+            }
+
+            //入力されたデータを保存する関数（自作）
+            function dataSubmit(){
+                //フォームからの値の取得
+                var yearSubmitted = $("#yearid").val() ;
+                var monthSubmitted = $("#monthid").val();
+                var daySubmitted = $("#dayid").val();
+                var commentSubmitted = $("#commentid").val();
+                var staffSubmitted = $("#staffid").val();
+
+                //ソート用に文字列状態の数字をint型に変換
+                var intYearSubmitted =parseInt(yearSubmitted);
+                var intMonthSubmitted =parseInt(monthSubmitted);
+                var intDaySubmitted =parseInt(daySubmitted);
+                var intYearMonthDaySubmitted = intYearSubmitted*10000 + intMonthSubmitted*100 + intDaySubmitted;
+
+                //データ保存用の年月日
+                var savedYearMonthDay = yearSubmitted + "年" + monthSubmitted + "月" + daySubmitted + "日";
+
+                //今回入力されたデータを入れておく配列
+                var allScheduleDataSaved = {};
+
+                //バリデート
+                if (!commentSubmitted || commentSubmitted.length > 100 || !staffSubmitted || staffSubmitted.length > 100){
+                    if (!commentSubmitted) {
+                        msg.createTimerMessage("コメントを入力してください。", 5);
+                        gadgets.window.adjustHeight();
+                    }
+                    if (commentSubmitted.length > 100) {
+                        msg.createTimerMessage("コメントは100文字までで入力してください。", 5);
+                        gadgets.window.adjustHeight();
+                    }
+                    if (!staffSubmitted) {
+                        msg.createTimerMessage("担当者を入力してください。", 5);
+                        gadgets.window.adjustHeight();
+                    }
+                    if (staffSubmitted.length > 100) {
+                        msg.createTimerMessage("担当者は100文字までで入力してください。", 5);
+                        gadgets.window.adjustHeight();
+                    }
+                    return false;
+                }
+
+                //appdataの要素である配列 '__MODULE_ID__' を取得し、配列 'allScheduleDataSaved'に入れる
+                osapi.appdata.get({ userId: '@admin' ,fields: ['__MODULE_ID__'] }).execute(function(response) {
+                // ユーザーID、アプリデータの連想配列
+                    console.log(response);
+                    for (var userId in response) {
+                       var data = response[userId];
+                       // キー, 値の連想配列
+                       for (var key in data) {
+                          // 値
+                          // 例）値1
+                          var allScheduleDataSaved2 = data[key];
+                                  allScheduleDataSaved = gadgets.json.parse(allScheduleDataSaved2);
+                       }
+                    }
+             //       alert(1); //取得成功
+                });
+
+                //appdata内の配列 '__MODULE_ID__'での各変数の番号設定。（例）2011年8月23日の2番目のコメントは11 08 23 2 1
+                //登録されたdateのスケジュールの重複度を記録する配列内の場所
+           //    alert(2); //取得失敗
+                var duplicationPlace =  (intYearMonthDaySubmitted - 20000000)*100; //11 08 23 0 0 まで入る。末尾が0に注意。
+                var duplication = allScheduleDataSaved[duplicationPlace]; //データを登録する直前の重複度が入る。0～9。
+                    if (isNaN(duplication)) {duplication = 0;}
+                var commentSavedNumber = duplicationPlace + (duplication + 1)*10 + 1 ; //11 08 23 2 1。末尾の1はコメントを表す
+                var staffSavedNumber = duplicationPlace + (duplication + 1)*10 + 2 ; //11 08 23 2 2。末尾の2はスタッフを表す
+                var dateSavedNumber = duplicationPlace + (duplication + 1)*10 + 3 ; //11 08 23 2 3。末尾の3は日付を表す
+
+                //同じ日に２つのデータがある場合の処理確認
+                alert(duplicationPlace);
+                alert(duplication);
+                alert(allScheduleDataSaved[duplicationPlace]); //1
+                alert(typeof(allScheduleDataSaved[duplicationPlace])); //number
+                alert(parseInt(allScheduleDataSaved[duplicationPlace] , 10) + 300); //301
+                alert(typeof(parseInt(allScheduleDataSaved[duplicationPlace] , 10) + 300)); //number
+                alert(commentSavedNumber);
+                alert(staffSavedNumber);
+                alert(dateSavedNumber);
+
+                //配列allScheduleDataSavedに、今回入力された要素を注入
+                allScheduleDataSaved[commentSavedNumber] = gadgets.util.escapeString(commentSubmitted);
+                allScheduleDataSaved[staffSavedNumber] = gadgets.util.escapeString(staffSubmitted);
+                allScheduleDataSaved[dateSavedNumber] = gadgets.util.escapeString(savedYearMonthDay);
+                //重複度を1増やしておく
+                allScheduleDataSaved[duplicationPlace] = duplication + 1;
+
+                alert(allScheduleDataSaved[commentSavedNumber]);
+                alert(allScheduleDataSaved[staffSavedNumber]);
+                alert(allScheduleDataSaved[dateSavedNumber]);
+                alert(allScheduleDataSaved[duplicationPlace]);
+
+                //今回入力されたデータの保存
+                var dataSaved = {}; //今回入力されたデータを一時的に入れておく配列。この配列は'__MODULE_ID__'成分にallScheduleDataSavedを文字化して入れるだけ
+                dataSaved['__MODULE_ID__'] = gadgets.json.stringify ( allScheduleDataSaved );
+                alert(dataSaved['__MODULE_ID__']);
+                alert(gadgets.json.stringify(dataSaved));
+
+                osapi.appdata.update({ userId: '@admin', data: dataSaved }).execute(function(res) {
+                    //保存失敗時の処理
+                    if (res.error) {
+                        alert("保存に失敗しました");
+                    }else{
+                        //保存後の処理
+                        $("#commentid").val("");
+                        $("#staffid").val("");
+                        msg.createTimerMessage("送信しました。", 3, function() {
+                            gadgets.window.adjustHeight();
+                            return true;
+                        });
+                        //テーブル再描画
+                        repaint();
+                    }
+                });
+            }
+
+            //入力されたデータを保存する関数（飲みイコ）
+            function eventSubmit() {
+                //フォームからの値の取得
+                var yearSubmitted = $("#yearid").val() ;
+                var monthSubmitted = $("#monthid").val();
+                var daySubmitted = $("#dayid").val();
+                var commentSubmitted = $("#commentid").val();
+                var staffSubmitted = $("#staffid").val();
+
+                //ソート用に文字列状態の数字をint型に変換
+                var intYearSubmitted =parseInt(yearSubmitted);
+                var intMonthSubmitted =parseInt(monthSubmitted);
+                var intDaySubmitted =parseInt(daySubmitted);
+                var intYearMonthDaySubmitted = intYearSubmitted*10000 + intMonthSubmitted*100 + intDaySubmitted;
+
+                //データ保存用の年月日
+                var savedYearMonthDay = yearSubmitted + "年" + monthSubmitted + "月" + daySubmitted + "日";
+
+                //今回入力されたデータを入れておく配列
+                var allScheduleDataSaved = {};
+
+                //バリデート
+                if (!commentSubmitted || commentSubmitted.length > 100 || !staffSubmitted || staffSubmitted.length > 100){
+                    if (!commentSubmitted) {
+                        msg.createTimerMessage("コメントを入力してください。", 5);
+                        gadgets.window.adjustHeight();
+                    }
+                    if (commentSubmitted.length > 100) {
+                        msg.createTimerMessage("コメントは100文字までで入力してください。", 5);
+                        gadgets.window.adjustHeight();
+                    }
+                    if (!staffSubmitted) {
+                        msg.createTimerMessage("担当者を入力してください。", 5);
+                        gadgets.window.adjustHeight();
+                    }
+                    if (staffSubmitted.length > 100) {
+                        msg.createTimerMessage("担当者は100文字までで入力してください。", 5);
+                        gadgets.window.adjustHeight();
+                    }
+                    return false;
+                }
+
+            var timestamp = new Date().getTime();
+            var key = '__MODULE_ID__.' + timestamp;
+            var date = timestamp + "";
+
+            osapi.appdata.get({ userId: ["@viewer"] ,fields: ['keys'] }).execute(function(response) {
+                for (var userId in response) {
+                    var tmp_data = response[userId];
+                }
+                var keys = new Array();
+                if (tmp_data && tmp_data['keys']) {
+                    keys = gadgets.json.parse(tmp_data['keys']);
+                }
+
+                keys.push(key);
+
+                var data = {};
+                var data1 = {};
+                var data2 = {};
+                data['date'] = gadgets.util.escapeString(date);
+                data['yearMonthDay'] = gadgets.util.escapeString(savedYearMonthDay);
+                data['comment'] = gadgets.util.escapeString(commentSubmitted);
+                data['staff'] = gadgets.util.escapeString(staffSubmitted);
+                data1[key] = gadgets.json.stringify(data);
+                data2['keys'] = gadgets.json.stringify(keys);
+
+                var batch = osapi.newBatch()
+                        .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
+                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }))
+                        .add('activities', osapi.activities.create({ userId: '@viewer', activity: { title: activity_event, externalId: key }}));
+                batch.execute(function(response) {
+                    $("#commentid").val("");
+                    $("#staffid").val("");
+                    // minimessage
+                    msg.createTimerMessage("送信しました。", 3, function() {
+                        gadgets.window.adjustHeight();
+                        return true;
+                    });
+                    // データの再表示
+                    repaint();
+                });
+            });
+        }
+
+            //テーブルの再描画関数
+            function repaint(){
+            }
+
+            function datacheck(){ //Aipo公式のまね
+                osapi.appdata.get({ userId: '@admin' ,fields: '__MODULE_ID__' }).execute(function(response) {
+                // ユーザーID、アプリデータの連想配列
+                    for (var userId in response) {
+                       var data = response[userId];
+                       // キー, 値の連想配列
+                       for (var key in data) {
+                          // 値
+                          // 例）値1
+                          var value = data[key];
+                          alert(value);
+                       }
+                    }
+                });
+            }
+
+
+            //初期化
             function init() {
+                initSelectbox();
                 gadgets.window.adjustHeight();
             }
-        </script>
-        ]]></Content>
-    <Content type="html" view="home"><![CDATA[
-        <div class="aipostyle">
-            <ul>
-                <li style="font-weight: bold;color: #FF0000;">2011/08/10
-                    <ul>
-                        <li>Aipoアプリリリース
-                        </li>
-                        <li>山田太郎、木村一郎</li>
-                    </ul>
-                </li>
-                <li>2011/08/10
-                    <ul>
-                        <li>Aipoアプリリリース
-                        </li>
-                        <li>山田太郎、木村一郎</li>
-                    </ul>
-                </li>
-                <li>2011/08/10
-                    <ul>
-                        <li>Aipoアプリリリース</li>
-                        <li>山田太郎、木村一郎</li>
-                    </ul>
-                </li>
-                <li>2011/08/10
-                    <ul>
-                        <li>Aipoアプリリリース</li>
-                        <li>山田太郎、木村一郎
-                        </li>
-                    </ul>
-                </li>
-                <li>2011/08/10
-                    <ul>
-                        <li>Aipoアプリリリース
-                        </li>
-                        <li>山田太郎、木村一郎</li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-        <script type="text/javascript">
-            gadgets.util.registerOnLoadHandler(init);
 
-            function init() {
-                gadgets.window.adjustHeight();
-            }
+        gadgets.util.registerOnLoadHandler(init);
         </script>
-        ]]></Content>
+    ]]></Content>
+
+
 </Module>
