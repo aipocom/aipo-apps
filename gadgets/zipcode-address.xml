@@ -25,7 +25,7 @@
  </table>
  <div id="codes" style="overflow: auto;"></div>
  <!-- クレジット表示 -->
- <div>Powered by <a href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a></div>
+ <div>Powered by <a target="_blank" href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a></div>
 </div>
 
 <script language="javascript" type="text/javascript">
