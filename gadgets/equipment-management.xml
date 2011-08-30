@@ -43,25 +43,21 @@
             }
         </style>
         <div class="aipostyle">
-            <table class="wide borderNone">
-                <tbody>
-                <tr>
-                    <td class="borderNone pb5"><input type="text" style="width:99%;color:black;"
-                                                      onfocus="eventItemFocus()"
-                                                      onblur="eventItemBlur()" maxlength=100
-                                                      id="item"/></td>
-                    <td class="borderNone pb5"><input type="text" style="width:99%;color:black;"
-                                                      onfocus="eventCommentFocus()"
-                                                      onblur="eventCommentBlur()" maxlength=100
-                                                      id="comment"/></td>
-                    <td class="borderNone pb5" nowrap>
-                        <input type="button" style="margin-right:3px;" value="補充済み" onclick="eventSubmit('on')"/>
-                        <input type="button" value="残り少ない" onclick="eventSubmit('min')"/>
-                        <input type="button" value="無くなった" onclick="eventSubmit('off')"/>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <form action="#" onsubmit="eventSubmit('on');return false;">
+                <table class="wide borderNone">
+                    <tbody>
+                    <tr>
+                        <td class="borderNone pb5"><input type="text" style="width:99%;color:black;"
+                                                          onfocus="eventItemFocus()"
+                                                          onblur="eventItemBlur()" maxlength=30
+                                                          id="item"/></td>
+                        <td class="borderNone pb5" nowrap>
+                            <input type="submit" style="margin-right:3px;" value="追加する"/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
             <hr/>
             <table class="wide borderNone" style="margin:5px 0 15px;">
                 <tbody>
@@ -84,11 +80,8 @@
 
         var groups = null;
 
-        var commentCheck = false;
-        var commentNotice = "コメントを書く（100文字まで）";
-
         var itemCheck = false;
-        var itemNotice = "備品名を書く（100文字まで）";
+        var itemNotice = "備品名を書く（30文字まで）";
 
         var table = null;
         var prefs = new gadgets.Prefs();
@@ -100,32 +93,29 @@
         var icon_alt_on = "補充済";
         var icon_alt_min = "少ない";
         var icon_alt_off = "在庫無";
-        var icon_alt_none = "未打刻";
+        var icon_alt_none = "登録無";
 
         /*
          * init
          */
         function init() {
             check();
-            eventCommentBlur();
             eventItemBlur();
             repaint();
-
         }
         /*
          * format
          */
-        function check(){
+        function check() {
             var data = {};
             osapi.appdata.get({ userId: ['@admin'] ,fields: ['format'] }).execute(function(response) {
-            if(response['@admin']==null)
-            format();
+                if (response['@admin'] == null)
+                    format();
             });
         }
 
         function format() {
             var type = gadgets.util.escapeString("none");
-            var comment = gadgets.util.escapeString("");
             var date = gadgets.util.escapeString("");
             var name = gadgets.util.escapeString("");
             var reporter = gadgets.util.escapeString("");
@@ -134,7 +124,6 @@
             var send_data = [];
             for (var i = 1; i <= 50; i++) {
                 data['type_' + i] = type;
-                data['comment_' + i] = comment;
                 data['date_' + i] = date;
                 data['name_' + i] = name;
                 data['reporter_' + i] = reporter;
@@ -143,7 +132,6 @@
                 osapi.appdata.update({ userId: '@admin', data: send_data.pop() }).execute(function(response) {
                 });
                 delete data['type_' + i];
-                delete data['comment_' + i];
                 delete data['date_' + i];
                 delete data['name_' + i];
                 delete data['reporter_' + i];
@@ -159,48 +147,31 @@
             repaint();
         }
 
-        function eventChange(type ,id){
+        function eventChange(type, id) {
 
-            if(type==3){
+            if (type == 3) {
                 type = "none"
             }
-            if(type==0){
+            if (type == 0) {
                 type = "on"
             }
-            if(type==1){
+            if (type == 1) {
                 type = "min"
             }
-            if(type==2){
+            if (type == 2) {
                 type = "off"
             }
 
-
-            var comment = $("#comment").val();
-            if (!commentCheck && comment == commentNotice) {
-                comment = "";
-            }
-
             var date = (new Date()).getTime() + "";
-            // バリデート
-            if (comment.length > 100) {
-                comment = comment.substr(0, 100);
-            }
+
             osapi.people.get({ userId: '@viewer' }).execute(function(response) {
                 // データの作成
                 var reporter = response.displayName;
                 var send_data = {};
                 send_data["type_" + id] = type;
-                send_data['comment_' + id] = comment;
                 send_data['date_' + id] = date;
                 send_data['reporter_' + id] = reporter;
                 osapi.appdata.update({ userId: '@admin', data: send_data }).execute(function(response) {
-                    // minimessage
-                    var msg = new gadgets.MiniMessage();
-                    msg.createTimerMessage("送信しました。", 3, function() {
-                        gadgets.window.adjustHeight();
-                        return true;
-                    });
-
                     // データの再表示
                     repaint();
                 });
@@ -211,11 +182,8 @@
          */
         function eventSubmit(type) {
             // フォームから値の取得
-            var comment = $("#comment").val();
-            if (!commentCheck && comment == commentNotice) {
-                comment = "";
-            }
             var item = $("#item").val();
+            $("#item").val("");
             // 時間の取得
             var date = (new Date()).getTime() + "";
             // バリデート
@@ -227,17 +195,13 @@
                 });
                 return;
             }
-            if (comment.length > 100) {
-                comment = comment.substr(0, 100);
-            }
 
-            if (item.length > 100) {
-                item = item.substr(0, 100);
+            if (item.length > 30) {
+                item = item.substr(0, 30);
             }
 
 
             type = gadgets.util.escapeString(type);
-            comment = gadgets.util.escapeString(comment);
             date = gadgets.util.escapeString(date);
             var name = gadgets.util.escapeString(item);
             var semi = 0;
@@ -246,22 +210,21 @@
             var keep2 = [];
             for (var i = 1; i <= 50; i++) {
                 keep.push("type_" + i);
-                keep.push("name_" + i);
             }
             osapi.appdata.get({ userId: ['@admin'] ,fields: keep }).execute(function(response) {
                 if (response.error) {
-                                        var msg = new gadgets.MiniMessage();
-                                        msg.createTimerMessage("送信できませんでした。。", 3, function() {
-                                            gadgets.window.adjustHeight();
-                                            return true;
-                                        });
-                }else{
+                    var msg = new gadgets.MiniMessage();
+                    msg.createTimerMessage("送信できませんでした。", 3, function() {
+                        gadgets.window.adjustHeight();
+                        return true;
+                    });
+                } else {
                     // ユーザーID、アプリデータの連想配列
                     for (var userId in response) {
                         var data = response[userId];
-                        for (var i = 1; i <= 50&&flag==0; i++) {
+                        for (var i = 1; i <= 50 && flag == 0; i++) {
 
-                            if (data["type_" + i] == 'none'||data["name_" + i] == name) {
+                            if (data["type_" + i] == 'none') {
                                 keep2.push(i);
                                 flag = 1;
                                 osapi.people.get({ userId: '@viewer' }).execute(function(response) {
@@ -270,23 +233,16 @@
                                     var reporter = response.displayName;
                                     var send_data = {};
                                     send_data["type_" + semi] = type;
-                                    send_data['comment_' + semi] = comment;
                                     send_data['date_' + semi] = date;
                                     send_data['name_' + semi] = name;
                                     send_data['reporter_' + semi] = reporter;
                                     osapi.appdata.update({ userId: '@admin', data: send_data }).execute(function(response) {
-                                        // minimessage
-                                        var msg = new gadgets.MiniMessage();
-                                        msg.createTimerMessage("送信しました。", 3, function() {
-                                            gadgets.window.adjustHeight();
-                                            return true;
-                                        });
                                         // データの再表示
                                         repaint();
                                     });
                                 });
                             }
-                            else if(i == 50){
+                            else if (i == 50) {
                                 var msg = new gadgets.MiniMessage();
                                 msg.createTimerMessage("51個以上はデータ登録ができません。", 5, function() {
                                     gadgets.window.adjustHeight();
@@ -299,27 +255,14 @@
                 }
             });
         }
-        function eventCommentFocus() {
-            if (!commentCheck && $("#comment").val() == commentNotice) {
-                $("#comment").val("");
-                commentCheck = true;
-            }
-            $("#comment").css("color", "black");
-        }
-        function eventCommentBlur() {
-            if ($("#comment").val() == "") {
-                $("#comment").val(commentNotice);
-                commentCheck = false;
-                $("#comment").css("color", "gray");
-            }
 
-        }
+
         function eventItemFocus() {
             if (!itemCheck && $("#item").val() == itemNotice) {
                 $("#item").val("");
                 itemCheck = true;
             }
-            $("#comment").css("color", "black");
+            $("#item").css("color", "black");
         }
         function eventItemBlur() {
             if ($("#item").val() == "") {
@@ -329,8 +272,6 @@
             }
 
         }
-
-
 
 
         /*
@@ -343,19 +284,18 @@
             for (var i = 1; i <= 50; i++) {
                 keep.push("type_" + i);
                 keep.push("date_" + i);
-                keep.push("comment_" + i);
                 keep.push("reporter_" + i);
                 keep.push("name_" + i);
             }
             osapi.appdata.get({ userId: ['@admin'] ,fields: keep }).execute(function(response) {
                 // ユーザーID、アプリデータの連想配列
                 if (response.error) {
-                                        var msg = new gadgets.MiniMessage();
-                                        msg.createTimerMessage("取得できませんでした。。", 3, function() {
-                                            gadgets.window.adjustHeight();
-                                            return true;
-                                        });
-                }else{
+                    var msg = new gadgets.MiniMessage();
+                    msg.createTimerMessage("取得できませんでした。。", 3, function() {
+                        gadgets.window.adjustHeight();
+                        return true;
+                    });
+                } else {
                     for (var userId in response) {
                         var data = response[userId];
                         for (var i = 1; i <= 50; i++) {
@@ -375,15 +315,14 @@
                                 icon_alt = icon_alt_off;
                             }
 
-                            if(data["type_" + i] != "none"){
+                            if (data["type_" + i] == "on" || data["type_" + i] == "min" || data["type_" + i] == "off") {
                                 // データの作成
                                 userData[i] = '\
 <tr>\
     <td valign="top" class="pb5" width="15" nowrap><img src="' + icon + '" alt="' + icon_alt + '" width="15" height="15" class="middle" /></td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + data["name_" + i]  + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + data["name_" + i] + '</td>\
     <td valign="top" class="pb5 fs10_g" nowrap style="padding-right:5px;">' + getDate(data["date_" + i]) + '</td>\
     <td valign="top" class="pb5 fs10_g">' + icon_alt + '</td>\
-    <td valign="top" style="color:#ff4500" class="pb5 fs10_g">' + data['comment_' + i] + '</td>\
     <td valign="top" style="color:#ff4600" class="pb5 fs10_g">' + data['reporter_' + i] + '</td>\
     <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" style="margin-right:3px;" value="補充済み" onclick="eventChange(0 , ' + i + ')"/></td>\
     <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" value="残り少ない" onclick="eventChange(1 , ' + i + ')"/></td>\
@@ -392,18 +331,19 @@
 </tr>\
                             ';
                             }
-                            else userData[i] ='';
-                            // テーブルの初期化
-                            $("#status").html("");
-                            // データの表示
-                            for (var id in userData) {
-                                $("#status").html($("#status").html() + userData[id]);
+                            else {
+                                userData[i] = '';
                             }
-                            // ウインドウの幅再調整
-                            gadgets.window.adjustHeight();
-
+                        }
+                        // テーブルの初期化
+                        $("#status").html("");
+                        // データの表示
+                        for (var id in userData) {
+                            $("#status").html($("#status").html() + userData[id]);
                         }
                     }
+                    // ウインドウの幅再調整
+                    gadgets.window.adjustHeight();
                 }
             });
         }
