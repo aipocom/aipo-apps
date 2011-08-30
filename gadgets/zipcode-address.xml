@@ -9,7 +9,7 @@
  <Content type="html"><![CDATA[
 
 <div class="aipostyle">
- <table class="form narrow">
+ <table class="formContent">
   <tr>
    <th width="40">郵便番号</th>
    <td>
@@ -23,7 +23,7 @@
    <td><input type="text" id="address" style="width: 20em;" maxlength="100" /></td>
   </tr>
  </table>
- <div id="codes" style="overflow-x: scroll;"></div>
+ <div id="codes" style="overflow: auto;"></div>
  <!-- クレジット表示 -->
  <div>Powered by <a href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a></div>
 </div>
