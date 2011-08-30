@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="war/WEB-INF/classes" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/scala"/>
+	<classpathentry kind="src" path="src/main/scala"/>
+	<classpathentry kind="src" output="war/WEB-INF/classes" path=".apt_generated"/>
+	<classpathentry excluding="**" kind="src" output="war/WEB-INF/classes" path="src/main/resources"/>
+	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry excluding="**" kind="src" output="target/test-classes" path="src/test/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
+	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/dispatch-json_2.9.0-0.8.1.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/liquidtpl-1.2.1.jar" sourcepath="/liquidtpl"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/objenesis-1.2.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/scala-library-2.9.0.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/sjson_2.9.0-0.12.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/slim3-1.0.12.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/slim3-gen-1.0.12.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.7/junit-4.7.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/scala-tools/testing/specs_2.9.0/1.6.8/specs_2.9.0-1.6.8.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/opensocial-oauth-filter-1.0.jar" sourcepath="lib/opensocial-oauth-filter-1.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/opensocial-oauth-filter-1.0-sources.jar"/>
+	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+</classpath>

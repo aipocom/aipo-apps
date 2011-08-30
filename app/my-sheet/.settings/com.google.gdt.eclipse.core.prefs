@@ -1,0 +1,5 @@
+#Thu Aug 11 00:19:55 JST 2011
+eclipse.preferences.version=1
+jarsExcludedFromWebInfLib=/Users/takase/.m2/repository/junit/junit/4.7/junit-4.7.jar|/Users/takase/.m2/repository/org/scala-tools/testing/specs_2.9.0/1.6.8/specs_2.9.0-1.6.8.jar
+warSrcDir=war
+warSrcDirIsOutput=true

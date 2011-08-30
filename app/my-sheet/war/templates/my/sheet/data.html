@@ -1,0 +1,74 @@
+<div id="subMenuDiv" style="display: none;">
+    <div class="toolBar">
+        <div class="toolBarMiddle">
+            <div class="toolBarRight">
+                <div class="toolBarLeft">
+                    <ul id="subMenuContainer">
+                        <li class="seleceted"><a id="linkList" href="#" class="icon_page">
+                            <liquidtpl:text key="list"/>
+                        </a></li>
+                        <li><a id="linkAdd" href="#" class="icon_edit">
+                            <liquidtpl:text key="add"/>
+                        </a></li>
+                        <li><a href="/my/sheet/" class="icon_inspection">
+                            <liquidtpl:text key="sheet.list"/>
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //<![CDATA[
+    $(function() {
+        var urlParams = $.getUrlParams();
+
+        //initialize menu
+        $("#linkList").attr("href", "/my/sheet/data?sheetKey=" + urlParams['sheetKey']);
+        $("#linkAdd").attr("href", "/my/sheet/dataform?sheetKey=" + urlParams['sheetKey']);
+        $("#subMenuDiv").show();
+
+        $.template("thTemplate", '<th>${name}<\/th>');
+        $.initDetail("dataList", "dataItem", "/my/sheet/columnjson", {id: urlParams['sheetKey']}, function(jsonData) {
+            var values = jsonData['values'];
+            var listColumns = [];
+            var templateString = '';
+            var length = values.length;
+            for (var i = 0; i < length; i++) {
+                var column = values[i];
+                if (column['list']) {
+                    listColumns.push(column);
+                    templateString += '<td>${' + column['columnName'] + '}<\/td>'
+                }
+            }
+            $.tmpl("thTemplate", listColumns).prependTo("#dataList tr.head");
+            $.template("tdTemplate", templateString);
+            $.listData(urlParams['sheetKey'], "dataList", "dataItem", "/my/sheet/datajson");
+        });
+
+    });
+    //]]>
+</script>
+<h4 id="dataTitle"></h4>
+
+<table id="dataList" class="listTable" style="display: none;">
+    <tr class="row head">
+        <th></th>
+        <th></th>
+    </tr>
+</table>
+
+<script id="dataItem" type="text/x-jquery-tmpl">
+    <tr class="row selectable">
+        {{html rowHtml}}
+        <td class='thin'><a href="/my/sheet/dataform?id=${key}&amp;sheetKey=${sheetKey}" class="icon_edit">
+            <liquidtpl:text key="edit"/>
+        </a></td>
+        <td class='thin'><a href="#" class="icon_delete"
+                            onclick="if(window.confirm('Are you sure you delete ?')){$.deleteSheetData('/my/sheet/datadelete', '${key}', '${sheetKey}', function(){location.reload();});} return false;">
+            <liquidtpl:text key="delete"/>
+        </a></td>
+    </tr>
+</script>

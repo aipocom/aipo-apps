@@ -1,0 +1,344 @@
+@charset "utf-8";
+/***************************************************
+各コンテンツごとのスタイルを定義：適宜編集
+***************************************************/
+
+/***************************************************
+	feature_list
+	トップ専用機能リスト
+--------------------------------------------------*/
+#feature_list dl {
+	float:left;
+	width:30%;
+	margin:0;
+	padding:0 1.5%;
+}
+#feature_list dt {
+	line-height:140%;
+	margin-bottom:10px;
+	padding:3px 5px;
+	font-weight:bold;
+	border-top:1px solid #EEEEEE;
+	border-right:1px solid #DDDDDD;
+	border-bottom:1px solid #DDDDDD;
+	background:transparent url(/img/common/bg_h3.gif) repeat scroll 0 0;
+}
+#feature_list dd li {
+	margin:1em 0;
+	padding:0;
+	background:none;
+}
+
+
+/***************************************************
+	確認画面・完了画面メッセージ枠
+--------------------------------------------------*/
+
+.confirmMessage{
+	background:#DCF0EF;
+	border:#A9D8D6 2px solid;
+	margin-bottom:10px;
+	padding:40px 20px;
+	text-align:center;
+}
+
+
+/***************************************************
+	エラーメッセージ枠
+--------------------------------------------------*/
+
+.alert{
+	background:#FFD5D5;
+	border:#F29C9F 1px solid;
+	padding:5px;
+	margin:5px 0px 5px;
+	font-size:0.8em;
+	line-height:140%;
+	color:#E5004F;
+}
+
+* html body .alert {
+	font-size:0.75em;
+}
+
+*+html body .alert {
+	font-size:0.75em;
+}
+
+/***************************************************
+	注意用メッセージ枠
+--------------------------------------------------*/
+
+.noticeMessage{
+	background:#DEEEB8;
+	border:#CCE198 2px solid;
+	margin-bottom:10px;
+	padding:20px;
+	text-align:center;
+}
+
+/***************************************************
+	メッセージ枠
+--------------------------------------------------*/
+
+.normalMessage{
+	background:#E4F3FA;
+	border:#A4D1E8 1px solid;
+	margin-bottom:10px;
+	padding:10px;
+	text-align:center;
+}
+
+/***************************************************
+	.rightTdTable
+--------------------------------------------------*/
+#sideBlock .rightTdTable{
+	width:200px;
+	padding:0px;
+	margin:0px 0px 1.0em 5px;
+}
+
+#sideBlock .rightTdTable caption{
+	text-align:left;
+	font-weight:bold;
+}
+
+#sideBlock .rightTdTable th{
+	font-weight:normal;
+
+}
+
+#sideBlock .rightTdTable td{
+	text-align:right;
+
+}
+
+* html body #sideBlock .rightTdTable th,
+* html body #sideBlock .rightTdTable td{
+	font-size:96%;
+}
+
+*+html body #sideBlock .rightTdTable th,
+*+html body #sideBlock .rightTdTable td{
+	font-size:96%;
+}
+
+
+
+/***************************************************
+  mail / WBList
+--------------------------------------------------*/
+textarea#white_value_lines, textarea#black_value_lines {
+  width:435px;
+  height:3em;
+}
+div.wbList_registList {
+  margin:1em 0 5px 0;
+  border: 1px solid #DDDDDD;
+  background:#eeeeee;
+}
+ul.wbList_listBox {
+  overflow:scroll;
+  overflow-x:hidden;
+  height: 16em;
+  margin:0 !important;
+  padding:0 !important;
+  background:#ffffff;
+}
+ul.wbList_listBox li {
+  width:100%;
+  margin:0 !important;
+  padding:0 !important;
+  background:none !important;
+}
+ul.wbList_listBox li input {
+  float:left;
+}
+ul.wbList_listBox li label {
+  display:block;
+  float:left;
+  width:400px;
+  margin:0;
+  padding:2px 0;
+}
+ul.wbList_listBox label:hover {
+  background:#f3f3f3;
+}
+
+/***************************************************
+	userinfo
+--------------------------------------------------*/
+#userinfo {
+	margin:0 !important;
+}
+#userinfo li {
+	padding:3px;
+	background:none;
+}
+#userinfo li.odd {
+	background:#f0f0f0;
+}
+#userinfo li.ui_alert {
+	color:#e5004f;
+	font-weight:bold;
+	border:solid 1px #f29c9f;
+	background:#FFD5D5;
+}
+#userinfo li img {
+	float:left;
+	margin-right:4px;
+}
+
+/***************************************************
+  domain_list
+  ドメイン管理一覧
+--------------------------------------------------*/
+#domain_list dl {
+  width:100%;
+  margin:0 0 10px 0;
+  border:solid 1px #cccccc;
+  background:url(/img/common/bg_h3.gif) repeat;
+}
+#domain_list dl dt {
+  float:left;
+  width:48%;
+  padding:1%;
+}
+#domain_list dl dt a {
+  font-weight:bold;
+}
+#domain_list dl dd ul {
+  float:left;
+  width:50%;
+  margin:0;
+  background:#ffffff;
+}
+#domain_list dl dd ul li {
+  display:block;
+  float:left;
+  width:50%;
+  margin:0;
+  padding:0;
+  background:none;
+}
+#domain_list dl dd ul li a {
+  display:block;
+  line-height:2.5em;
+  padding-left:25px;
+  font-size:x-small;
+}
+
+#domain_list dl dd ul li a.mail_list {background:#ffffff url(/img/common/icon/icon_mail_acount.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.mail_create {background:#ffffff url(/img/common/icon/icon_mail_acount.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.ml_list {background:#ffffff url(/img/common/icon/icon_mailing_list.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.ml_create {background:#ffffff url(/img/common/icon/icon_mailing_list.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.spam_mail {background:#ffffff url(/img/common/icon/icon_spam_mail.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.mail_virus {background:#ffffff url(/img/common/icon/icon_mail_virus.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.sub_list {background:#ffffff url(/img/common/icon/icon_inspection.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.sub_create {background:#ffffff url(/img/common/icon/icon_inspection.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.filelist {background:#ffffff url(/img/common/icon/icon_folder.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.accesslog {background:#ffffff url(/img/common/icon/icon_data_2.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.database {background:#ffffff url(/img/common/icon/icon_db.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.cms {background:#ffffff url(/img/common/icon/icon_install.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.domain_alias {background:#ffffff url(/img/common/icon/icon_domain.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.subdomain {background:#ffffff url(/img/common/icon/icon_subdomain.gif) no-repeat 3px center;}
+
+
+#domain_list dl dd ul li a.mail_list:hover {background:#ebf0f6 url(/img/common/icon/icon_mail_acount.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.mail_create:hover {background:#ebf0f6 url(/img/common/icon/icon_mail_acount.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.ml_list:hover {background:#ebf0f6 url(/img/common/icon/icon_mailing_list.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.ml_create:hover {background:#ebf0f6 url(/img/common/icon/icon_mailing_list.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.spam_mail:hover {background:#ebf0f6 url(/img/common/icon/icon_spam_mail.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.mail_virus:hover {background:#ebf0f6 url(/img/common/icon/icon_mail_virus.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.sub_list:hover {background:#ebf0f6 url(/img/common/icon/icon_inspection.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.sub_create:hover {background:#ebf0f6 url(/img/common/icon/icon_inspection.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.filelist:hover {background:#ebf0f6 url(/img/common/icon/icon_folder.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.accesslog:hover {background:#ebf0f6 url(/img/common/icon/icon_data_2.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.database:hover {background:#ebf0f6 url(/img/common/icon/icon_db.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.cms:hover {background:#ebf0f6 url(/img/common/icon/icon_install.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.domain_alias:hover {background:#ebf0f6 url(/img/common/icon/icon_domain.gif) no-repeat 3px center;}
+#domain_list dl dd ul li a.subdomain:hover {background:#ebf0f6 url(/img/common/icon/icon_subdomain.gif) no-repeat 3px center;}
+
+/***************************************************
+  help_list
+--------------------------------------------------*/
+#help_list dl {
+  width:100%;
+  border-top:solid 1px #dddddd;
+  background:url(/img/common/bg_h3.gif) repeat;
+}
+#help_list dl dt {
+	display:block;
+  float:left;
+	padding:10px 5px;
+	font-weight:bold;
+}
+#help_list dl dd {
+	display:block;
+  float:right;
+	width:65%;
+	padding:10px;
+	background:#ffffff;
+}
+#help_list ul {
+	margin:0;
+}
+
+/***************************************************
+  blank_link
+  外部リンク用
+  グループウェア、MySQL管理ツール（phpMyAdmin）、CMS（MTOS）
+--------------------------------------------------*/
+
+#blank_link{
+	text-align:center;
+	margin-top:40px;
+	margin-bottom:30px;
+	}
+
+	#top_blank_link{
+	text-align:center;
+	margin-top:5px;
+	margin-bottom:0px;
+	}
+
+	#top_blank_link a,#blank_link  a {
+  line-height:2.5em;
+  padding:5px 5px 5px 25px;
+}
+
+#top_blank_link a.database ,#blank_link a.database {background:#ffffff url(/img/common/icon/icon_db.gif) no-repeat 3px center;}
+#top_blank_link a.database:hover ,#blank_link a.database:hover {background:#ebf0f6 url(/img/common/icon/icon_db.gif) no-repeat 3px center;}
+#top_blank_link a.app ,#blank_link a.app {background:#ffffff url(/img/common/icon/icon_app.gif) no-repeat 3px center;}
+#top_blank_link a.app:hover  ,#blank_link a.app:hover  {background:#ebf0f6 url(/img/common/icon/icon_app.gif) no-repeat 3px center;}
+#top_blank_link a.cms ,#blank_link a.cms {background:#ffffff url(/img/common/icon/icon_install.gif) no-repeat 3px center;}
+#top_blank_link a.cms:hover  ,#blank_link a.cms:hover  {background:#ebf0f6 url(/img/common/icon/icon_install.gif) no-repeat 3px center;}
+
+
+/***************************************************
+	ClearFix
+--------------------------------------------------*/
+#help_list dl:after,
+#domain_list dl:after,
+#index:after {
+	content:".";
+	height:0px;
+	clear:both;
+	display:block;
+	visibility:hidden;
+}
+#help_list dl,
+#domain_list dl,
+#index {
+	display:inline-block;
+}
+* html #help_list dl,
+* html #domain_list dl,
+* html #index {
+	height:1%;
+}
+#help_list dl:after,
+#domain_list dl:after,
+#index:after {
+	display:block;
+}

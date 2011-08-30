@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+    <cron>
+        <url>/task/counter/cleanup</url>
+        <schedule>every 1 hours</schedule>
+    </cron>
+    <cron>
+        <url>/task/sheet/cleanup</url>
+        <schedule>every 1 hours</schedule>
+    </cron>
+    <cron>
+        <url>/_ah/sessioncleanup?clear</url>
+        <schedule>every 60 minutes</schedule>
+    </cron>
+</cronentries>

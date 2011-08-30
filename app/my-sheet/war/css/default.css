@@ -1,0 +1,133 @@
+@charset "utf-8";
+/***************************************************
+スタイル初期化：編集不要
+***************************************************/
+
+/*
+import YUI
+
+Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.4.1
+
+
+
+font-size:	77%		renders 10px
+font-size:	85%		renders 11px
+font-size:	100%	renders 13px
+font-size:	123.1%	renders 16px
+font-size:	138.5%	renders 18px
+font-size:	153,9%	renders	20px
+font-size:	182%	renders 24px
+
+/*
+
+/*
+import YUI
+
+Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Code licensed under the BSD License:
+http://developer.yahoo.net/yui/license.txt
+version: 2.4.1
+*/
+body {font:13px/1.231 arial,helvetica,clean,sans-serif;*font-size:small;*font:x-small;}table {font-size:inherit;font:100%;}pre,code,kbd,samp,tt{font-family:monospace;*font-size:108%;line-height:100%;}
+/*@import url(http://yui.yahooapis.com/2.4.1/build/fonts/fonts-min.css);*/
+
+/* content */
+html, body {
+	margin:0px;
+	padding:0px;
+	font-size:100%;
+}
+
+/* Text */
+h1,h2,h3,h4,h5,h6,
+pre,address,cite {
+	margin:0 auto 0.5em;
+	line-height:1.4;
+	font-size:100%;
+}
+
+p {
+	margin:1em auto;
+}
+
+blockquote {
+	margin:2em;
+	padding:10px;
+	border:solid 3px #e0e0e0;
+	background:#ffffff;
+}
+blockquote h1,
+blockquote h2,
+blockquote h3,
+blockquote h4,
+blockquote h5,
+blockquote h6,
+blockquote p {
+	margin-left:0.5em;
+}
+pre {
+	width:95%;
+	padding:0.4em 6px;
+	color:#3f3f3f;
+	border:solid 1px #ccc;
+	overflow:scroll;
+	background:#f6f6f9;
+}
+address {
+	font-style:normal;
+}
+
+/* List */
+ul,ol {
+	margin:1em 2em;
+	padding:1px 0;
+}
+li ul, li ol {
+	margin:0px 10px;
+}
+dd {
+	margin-left:0px;
+}
+
+/* table */
+table {
+}
+
+/* Form */
+form {
+	margin:0px;
+	padding:0px;
+}
+fieldset {
+	padding:0 0.5em 0.5em 0.5em;
+	border:solid 1px #ccc;
+}
+legend {
+	padding:0 7px;
+}
+input,textarea {
+	font-size:100%;
+        font-family: arial,sans-serif;
+}
+label {
+	cursor:pointer;
+}
+
+
+/* Table */
+table {
+}
+th,td {
+}
+th {
+}
+td {
+}
+
+/* Image */
+a img {
+	border:none;
+}

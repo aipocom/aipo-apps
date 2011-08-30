@@ -1,0 +1,43 @@
+<div id="subMenuDiv">
+    <div class="toolBar">
+        <div class="toolBarMiddle">
+            <div class="toolBarRight">
+                <div class="toolBarLeft">
+                    <ul id="subMenuContainer">
+                        <li class="seleceted"><a href="/my/sheet/" class="icon_inspection">
+                            <liquidtpl:text key="sheet.list"/>
+                        </a></li>
+                        <li><a id="linkAdd" href="/my/sheet/form" class="icon_edit">
+                            <liquidtpl:text key="add"/>
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //<![CDATA[
+    $(function(){
+        $.initList( "sheetList", "sheetItem", true, "/my/sheet/json");
+    });
+    //]]>
+</script>
+<h4><liquidtpl:text key="sheet.list"/></h4>
+
+<table id="sheetList" class="listTable" style="display: none;">
+    <tr class="row">
+        <th><liquidtpl:text key="sheet.name"/></th>
+<th></th>
+<th></th>
+</tr>
+</table>
+
+<script id="sheetItem" type="text/x-jquery-tmpl">
+    <tr class="row selectable">
+        <td><a href="/my/sheet/data?sheetKey=${key}">${name}</a></td>
+        <td class='thin'><a href="/my/sheet/form?id=${key}" class="icon_edit"><liquidtpl:text key="edit"/></a></td>
+        <td class='thin'><a href="#" class="icon_delete" onclick="if(window.confirm('Are you sure you delete ${name} ?')){$.deleteSheet('/my/sheet/delete', '${key}', function(){location.reload();});} return false;"><liquidtpl:text key="delete"/></a></td>
+    </tr>
+</script>

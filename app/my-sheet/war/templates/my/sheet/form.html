@@ -1,0 +1,94 @@
+<div id="subMenuDiv">
+    <div class="toolBar">
+        <div class="toolBarMiddle">
+            <div class="toolBarRight">
+                <div class="toolBarLeft">
+                    <ul id="subMenuContainer">
+                        <li><a href="/my/sheet/" class="icon_inspection">
+                            <liquidtpl:text key="sheet.list"/>
+                        </a></li>
+                        <li class="seleceted"><a id="linkAdd" href="/my/sheet/form" class="icon_edit">
+                            <liquidtpl:text key="add"/>
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 style="display:none;" id="addTitle">
+    <liquidtpl:text key="sheet"/>
+    <liquidtpl:text key="add"/>
+</h4>
+<h4 style="display:none;" id="editTitle">
+    <liquidtpl:text key="sheet"/>
+    <liquidtpl:text key="edit"/>
+</h4>
+<div class="mt10">
+    <script type="text/javascript">
+        //<![CDATA[
+
+        $(function() {
+            var urlParams = $.getUrlParams();
+            $.sheetForm = {};
+            $.initForm("sheetForm", "/my/sheet/json", null, function(jsonData) {
+                var callback = function(jsonDataAlt) {
+                    if (urlParams.id) {
+                        $("#editTitle").show();
+                    } else {
+                        $("#addTitle").show();
+                    }
+                    $.setFormValues("sheetForm", jsonData,
+                            function() {
+                                $("#submit").hide();
+                                $("#loader").show();
+                            },
+                            function() {
+                                $("#submit").remove();
+                                location.href = "/my/sheet/";
+                            },
+                            function() {
+                                $("#loader").hide();
+                                $("#submit").show();
+                            }
+                    );
+                };
+                $.membersForm("#sheetForm #membersContainer", jsonData);
+                if (jsonData.values && jsonData.values.key) {
+                    $.loadDefineForm("#sheetForm #formContainer", "/my/sheet/columnjson", jsonData.values.key, callback);
+                } else {
+                    $.addDefineForm("#sheetForm #formContainer");
+                    callback(jsonData);
+                }
+            });
+        });
+        //]]>
+    </script>
+    <form action="/my/sheet/commit" id="sheetForm" style="display: none;">
+        <div class="ma5">
+            <label class="bold">
+                <liquidtpl:text key="sheet.name"/>
+                <strong class="fcRed">(*)</strong></label>
+            <span id="nameError" class="warningMessageOne" style="display:none;"/>
+            <input id="nameField" name="name" class="w99"/>
+        </div>
+        <div class="ma5" id="formContainer">
+        </div>
+        <div class="right mr10">
+            <button href="#" onclick="$.addDefineForm('#sheetForm #formContainer');return false;">
+                +
+            </button>
+        </div>
+        <label class="bold">
+            <liquidtpl:text key="sheetMember"/>
+        </label>
+        <p class="small"><liquidtpl:text key="sheetMemberDescription"/></p>
+        <span id="membersError" class="warningMessageOne" style="display:none;"/>
+        <div id="membersContainer"></div>
+        <div id="grobalError" class="warningMessageOne" style="display:none;"/>
+    </form>
+    <div id="loader" style="display: none;"><img src="/img/common/ajax-loader.gif"/>
+        <liquidtpl:text key="loading"/>
+    </div>
+</div>

@@ -1,0 +1,79 @@
+<div id="subMenuDiv" style="display: none;">
+    <div class="toolBar">
+        <div class="toolBarMiddle">
+            <div class="toolBarRight">
+                <div class="toolBarLeft">
+                    <ul id="subMenuContainer">
+                        <li><a id="linkList" href="#" class="icon_page">
+                            <liquidtpl:text key="list"/>
+                        </a></li>
+                        <li class="seleceted"><a id="linkAdd" href="#" class="icon_edit">
+                            <liquidtpl:text key="add"/>
+                        </a></li>
+                        <li><a href="/my/sheet/" class="icon_inspection">
+                            <liquidtpl:text key="sheet.list"/>
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 style="display:none;" id="addTitle">
+    <liquidtpl:text key="add"/>
+</h4>
+<h4 style="display:none;" id="editTitle">
+    <liquidtpl:text key="edit"/>
+</h4>
+<div class="mt10">
+
+    <script type="text/javascript">
+        //<![CDATA[
+
+        $(function() {
+            var urlParams = $.getUrlParams();
+            //initialize menu
+            $("#linkList").attr("href", "/my/sheet/data?sheetKey=" + urlParams['sheetKey']);
+            $("#linkAdd").attr("href", "/my/sheet/dataform?sheetKey=" + urlParams['sheetKey']);
+            $("#subMenuDiv").show();
+
+            var urlParams = $.getUrlParams();
+            var callback = function(jsonDataAlt) {
+                $.initForm("dataForm", "/my/sheet/datajson", null, function(jsonData) {
+                    if (jsonData.info) {
+                        if (urlParams.id) {
+                            $("#editTitle").text(jsonData.info['dataTitle'] + $("#editTitle").text()).show();
+                        } else {
+                            $("#addTitle").text(jsonData.info['dataTitle'] + $("#addTitle").text()).show();
+                        }
+                    }
+                    $.setFormValues("dataForm", jsonData,
+                            function() {
+                                $("#submit").hide();
+                                $("#loader").show();
+                            },
+                            function() {
+                                $("#submit").remove();
+                                location.href = "/my/sheet/data?sheetKey=" + urlParams['sheetKey'];
+                            },
+                            function() {
+                                $("#loader").hide();
+                                $("#submit").show();
+                            }
+                    );
+                    $("#dataForm").fadeIn();
+                });
+            }
+            $.loadDataForm("#dataForm #dataFields", "/my/sheet/columnjson", urlParams['id'], urlParams['sheetKey'], callback)
+        });
+        //]]>
+    </script>
+    <form action="/my/sheet/datacommit" id="dataForm" style="display: none;">
+        <div id="dataFields"></div>
+        <div id="grobalError" class="warningMessageOne" style="display:none;"/>
+    </form>
+    <div id="loader" style="display: none;"><img src="/img/common/ajax-loader.gif"/>
+        <liquidtpl:text key="loading"/>
+    </div>
+</div>
