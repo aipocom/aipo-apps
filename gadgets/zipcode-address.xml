@@ -62,7 +62,7 @@ function check_address(address) {
 }
 
 function callback1(data) {
-  var html = '<table style="width:100%" class="dataview">\n';
+  var html = '<table style="width:100%" class="form">\n';
   html += '<col style="width:1em;">\n';
   for (var i in data.zipcode) {
     html += '<tr>\n';
