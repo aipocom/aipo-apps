@@ -87,6 +87,7 @@ function callback1(data) {
   }
   html += '</table>\n';
   document.getElementById('codes').innerHTML = html;
+  gadgets.window.adjustHeight(0);// IE対策に一度潰しておく
   gadgets.window.adjustHeight();
 }
 </script>]]>
