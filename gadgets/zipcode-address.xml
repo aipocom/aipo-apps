@@ -2,7 +2,8 @@
 <Module>
  <ModulePrefs title="郵便番号⇔住所 変換"
               description="郵便番号から住所、住所から郵便番号を調べられます。">
-  <Optional feature="aipostyle" />
+  <Require feature="aipostyle"/>
+  <Require feature="dynamic-height"/>
   <!--<Icon>http://~~.com</Icon>-->
  </ModulePrefs>
  <Content type="html"><![CDATA[
@@ -23,7 +24,7 @@
   </tr>
  </table>
  <a href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a>
- <div id="codes" style="width: 800px; height: 400px; overflow: scroll;"></div>
+ <div id="codes"></div>
 </div>
 
 <script language="javascript" type="text/javascript">
