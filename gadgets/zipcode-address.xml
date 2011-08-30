@@ -37,6 +37,7 @@ function zipsearch() {
   target.charset = 'utf-8';
   target.src = 'http://api.postalcode.jp/v1/zipsearch?zipcode=' + encodeURIComponent(zipcode) + '&callback=callback1';
   document.body.appendChild(target);
+  gadgets.window.adjustHeight();
 }
 
 function check_zipcode( zipcode ) {
@@ -53,6 +54,7 @@ function addresssearch() {
   target.charset = 'utf-8';
   target.src = 'http://api.postalcode.jp/v1/zipsearch?word=' + encodeURIComponent(address) + '&callback=callback1';
   document.body.appendChild(target);
+  gadgets.window.adjustHeight();
 }
 
 function check_address(address) {
@@ -87,7 +89,6 @@ function callback1(data) {
   }
   html += '</table>\n';
   document.getElementById('codes').innerHTML = html;
-  setInterval('gadgets.window.adjustHeight()', 100);
 }
 </script>]]>
 </Content>
