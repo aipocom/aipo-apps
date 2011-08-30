@@ -1,94 +1,128 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
- <ModulePrefs title="郵便番号⇔住所 変換"
-              description="郵便番号から住所、住所から郵便番号を調べられます。">
-  <Require feature="dynamic-height"/>
-  <Optional feature="aipostyle"/>
-  <!--<Icon>http://~~.com</Icon>-->
- </ModulePrefs>
- <Content type="html"><![CDATA[
+    <ModulePrefs title="郵便番号⇔住所 変換"
+                 description="郵便番号から住所、住所から郵便番号を調べられます。">
+        <Require feature="dynamic-height"/>
+        <Optional feature="aipostyle"/>
+        <!--<Icon>http://~~.com</Icon>-->
+    </ModulePrefs>
+    <Content type="html"><![CDATA[
+        <div class="aipostyle">
+            <table class="form">
+                <tr>
+                    <th width="40">郵便番号</th>
+                    <td>
+                        <form action="#" onsubmit="zipsearch();return false;">
+                            <input type="text" id="zipcode" style="width: 20em;" placeholder="郵便番号から住所を検索します"/>
+                            <input type="submit" value="検索"/>
+                        </form>
+                    </td>
+                </tr>
+                <tr>
+                    <th width="40">住所</th>
+                    <td>
+                        <form action="#" onsubmit="addresssearch();return false;">
+                            <input type="text" id="address" style="width: 20em;" maxlength="100"
+                                   placeholder="住所から郵便番号を検索します"/>
+                            <input type="button" value="検索"/>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+            <div id="codes" style="overflow: auto;"></div>
+            <!-- クレジット表示 -->
+            <div>Powered by <a target="_blank" href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a>
+            </div>
+        </div>
 
-<div class="aipostyle">
- <table class="form">
-  <tr>
-   <th width="40">郵便番号</th>
-   <td>
-    <input type="text" id="zipcode" style="width: 7em;" maxlength="8" />
-    <input type="button" onclick="zipsearch();return false;" value="住所検索" />
-    <input type="button" onclick="addresssearch();return false;" value="番号検索" />
-   </td>
-  </tr>
-  <tr>
-   <th width="40">住所</th>
-   <td><input type="text" id="address" style="width: 20em;" maxlength="100" /></td>
-  </tr>
- </table>
- <div id="codes" style="overflow: auto;"></div>
- <!-- クレジット表示 -->
- <div>Powered by <a target="_blank" href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a></div>
-</div>
+        <script language="javascript" type="text/javascript">
 
-<script language="javascript" type="text/javascript">
+            function zipsearch() {
+                var zipcode = document.getElementById('zipcode').value;
+                if (! check_zipcode(zipcode)) {
+                    return false;
+                }
+                var target = document.createElement('script');
+                target.charset = 'utf-8';
+                target.src = 'http://api.postalcode.jp/v1/zipsearch?zipcode=' + encodeURIComponent(zipcode) + '&callback=callback1';
+                document.body.appendChild(target);
+            }
 
-function zipsearch() {
-  var zipcode = document.getElementById('zipcode').value;
-  if(! check_zipcode(zipcode)) { return false; }
-  var target = document.createElement('script');
-  target.charset = 'utf-8';
-  target.src = 'http://api.postalcode.jp/v1/zipsearch?zipcode=' + encodeURIComponent(zipcode) + '&callback=callback1';
-  document.body.appendChild(target);
-}
+            function check_zipcode(zipcode) {
+                if (! zipcode) {
+                    return false;
+                }
+                if (0 == zipcode.length) {
+                    return false;
+                }
+                if (! zipcode.match(/^[0-9]{3}[-]?[0-9]{0,4}$/)) {
+                    return false;
+                }
+                return true;
+            }
 
-function check_zipcode( zipcode ) {
-  if(! zipcode) { return false; }
-  if(0 == zipcode.length) { return false; }
-  if(! zipcode.match(/^[0-9]{3}[-]?[0-9]{0,4}$/)) { return false; }
-  return true;
-}
+            function addresssearch() {
+                var address = document.getElementById('address').value;
+                if (! check_address(address)) {
+                    return false;
+                }
+                var target = document.createElement('script');
+                target.charset = 'utf-8';
+                target.src = 'http://api.postalcode.jp/v1/zipsearch?word=' + encodeURIComponent(address) + '&callback=callback1';
+                document.body.appendChild(target);
+            }
 
-function addresssearch() {
-  var address = document.getElementById('address').value;
-  if(! check_address(address)) { return false; }
-  var target = document.createElement('script');
-  target.charset = 'utf-8';
-  target.src = 'http://api.postalcode.jp/v1/zipsearch?word=' + encodeURIComponent(address) + '&callback=callback1';
-  document.body.appendChild(target);
-}
+            function check_address(address) {
+                if (! address) {
+                    return false;
+                }
+                if (0 == address.length) {
+                    return false;
+                }
+                return true;
+            }
 
-function check_address(address) {
-  if(! address) { return false; }
-  if(0 == address.length) { return false; }
-  return true;
-}
-
-function callback1(data) {
-  var html = '<table style="width:100%" class="form">\n';
-  html += '<col style="width:1em;">\n';
-  for (var i in data.zipcode) {
-    html += '<tr>\n';
-    html += ' <td style="white-space: nowrap">';
-    html += data.zipcode[i].zipcode.substr(0,3) + '-' + data.zipcode[i].zipcode.substr(3);
-    html += ' </td>\n';
-    html += ' <td style="white-space: nowrap">' + data.zipcode[i].prefecture + '</td>\n';
-    html += ' <td style="white-space: nowrap">' + data.zipcode[i].city  + '</td>\n';
-    html += ' <td style="white-space: nowrap; text-align: left;">' +  data.zipcode[i].town  + '</td>\n';
-    html += '</tr>\n';
-  }
-  for (var i in data.office) {
-    html += '<tr>\n';
-    html += ' <td style="white-space: nowrap">';
-    html += data.office[i].zipcode.substr(0, 3) + '-' + data.office[i].zipcode.substr(3);
-    html += ' </td>\n';
-    html += ' <td style="white-space: nowrap" colspan="3">' + data.office[i].office_name + '</td>\n';
-    html += ' <td style="white-space: nowrap">';
-    html += data.office[i].prefecture + data.office[i].city + data.office[i].town + data.office[i].street;
-    html += ' </td>\n';
-    html += '</tr>\n';
-  }
-  html += '</table>\n';
-  document.getElementById('codes').innerHTML = html;
-  gadgets.window.adjustHeight();
-}
-</script>]]>
+            function callback1(data) {
+                var count = 0;
+                var html = '<table id="resultTable" style="width:100%" class="form">\n';
+                html += '<tr>\
+<th>郵便番号<\/th>\
+<th>都道府県<\/th>\
+<th>市区町村<\/th>\
+<th>町名番地<\/th>\
+                <\/tr>';
+                for (var i in data.zipcode) {
+                    html += '<tr>\n';
+                    html += ' <td style="white-space: nowrap">';
+                    html += data.zipcode[i].zipcode.substr(0, 3) + '-' + data.zipcode[i].zipcode.substr(3);
+                    html += ' </td>\n';
+                    html += ' <td style="white-space: nowrap">' + data.zipcode[i].prefecture + '</td>\n';
+                    html += ' <td style="white-space: nowrap">' + data.zipcode[i].city + '</td>\n';
+                    html += ' <td style="white-space: nowrap; text-align: left;">' + data.zipcode[i].town + '</td>\n';
+                    html += '</tr>\n';
+                    count++;
+                }
+                for (var i in data.office) {
+                    html += '<tr>\n';
+                    html += ' <td style="white-space: nowrap">';
+                    html += data.office[i].zipcode.substr(0, 3) + '-' + data.office[i].zipcode.substr(3);
+                    html += ' </td>\n';
+                    html += ' <td style="white-space: nowrap" colspan="3">' + data.office[i].office_name + '</td>\n';
+                    html += ' <td style="white-space: nowrap">';
+                    html += data.office[i].prefecture + data.office[i].city + data.office[i].town + data.office[i].street;
+                    html += ' </td>\n';
+                    html += '</tr>\n';
+                    count++;
+                }
+                html += '</table>\n';
+                if (count) {
+                    document.getElementById('codes').innerHTML = html;
+                } else {
+                    document.getElementById('codes').innerHTML = "条件に一致する住所が見つかりませんでした";
+                }
+                gadgets.window.adjustHeight();
+            }
+        </script>
+        ]]>
 </Content>
 </Module>
