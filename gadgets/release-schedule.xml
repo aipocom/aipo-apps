@@ -53,24 +53,9 @@
             <form name="schedules">
                 <h3>リリーススケジュール</h3>
                 <table class="list wide">
-                    <thead>
-                    <tr>
-                        <th>リリース日
-                        </th>
-                        <th>内容</th>
-                        <th>担当者</th>
-                        <th class="thin">削除
-                        </th>
-                    </tr>
+                    <thead id = "header">
                     </thead>
                     <tbody id="status">
-                    <tr>
-                        <td>2011/08/10</td>
-                        <td>Aipoアプリリリース
-                        </td>
-                        <td>山田太郎、木村一郎</td>
-                        <td class="thin"><a href="">×</a></td>
-                    </tr>
                     </tbody>
                 </table>
             <div id="pager" style="text-align:center;" class="pager"></div>
@@ -90,6 +75,8 @@
                 var dayToday = dateToday.getDate();
                 var yearMonthDayToday = yearCEToday*10000 + monthToday*100 + dayToday;
                 var msg = new gadgets.MiniMessage();
+                var max_per_page = getPrefRows();
+                var prefs = new gadgets.Prefs();
 
             //セレクトボックスを今年の1/1に初期化
             function initSelectbox(){
@@ -150,122 +137,6 @@
                 }else{
                 return(29);
                 }
-            }
-
-            //入力されたデータを保存する関数（自作）
-            function dataSubmit(){
-                //フォームからの値の取得
-                var yearSubmitted = $("#yearid").val() ;
-                var monthSubmitted = $("#monthid").val();
-                var daySubmitted = $("#dayid").val();
-                var commentSubmitted = $("#commentid").val();
-                var staffSubmitted = $("#staffid").val();
-
-                //ソート用に文字列状態の数字をint型に変換
-                var intYearSubmitted =parseInt(yearSubmitted);
-                var intMonthSubmitted =parseInt(monthSubmitted);
-                var intDaySubmitted =parseInt(daySubmitted);
-                var intYearMonthDaySubmitted = intYearSubmitted*10000 + intMonthSubmitted*100 + intDaySubmitted;
-
-                //データ保存用の年月日
-                var savedYearMonthDay = yearSubmitted + "年" + monthSubmitted + "月" + daySubmitted + "日";
-
-                //今回入力されたデータを入れておく配列
-                var allScheduleDataSaved = {};
-
-                //バリデート
-                if (!commentSubmitted || commentSubmitted.length > 100 || !staffSubmitted || staffSubmitted.length > 100){
-                    if (!commentSubmitted) {
-                        msg.createTimerMessage("コメントを入力してください。", 5);
-                        gadgets.window.adjustHeight();
-                    }
-                    if (commentSubmitted.length > 100) {
-                        msg.createTimerMessage("コメントは100文字までで入力してください。", 5);
-                        gadgets.window.adjustHeight();
-                    }
-                    if (!staffSubmitted) {
-                        msg.createTimerMessage("担当者を入力してください。", 5);
-                        gadgets.window.adjustHeight();
-                    }
-                    if (staffSubmitted.length > 100) {
-                        msg.createTimerMessage("担当者は100文字までで入力してください。", 5);
-                        gadgets.window.adjustHeight();
-                    }
-                    return false;
-                }
-
-                //appdataの要素である配列 '__MODULE_ID__' を取得し、配列 'allScheduleDataSaved'に入れる
-                osapi.appdata.get({ userId: '@admin' ,fields: ['__MODULE_ID__'] }).execute(function(response) {
-                // ユーザーID、アプリデータの連想配列
-                    console.log(response);
-                    for (var userId in response) {
-                       var data = response[userId];
-                       // キー, 値の連想配列
-                       for (var key in data) {
-                          // 値
-                          // 例）値1
-                          var allScheduleDataSaved2 = data[key];
-                                  allScheduleDataSaved = gadgets.json.parse(allScheduleDataSaved2);
-                       }
-                    }
-             //       alert(1); //取得成功
-                });
-
-                //appdata内の配列 '__MODULE_ID__'での各変数の番号設定。（例）2011年8月23日の2番目のコメントは11 08 23 2 1
-                //登録されたdateのスケジュールの重複度を記録する配列内の場所
-           //    alert(2); //取得失敗
-                var duplicationPlace =  (intYearMonthDaySubmitted - 20000000)*100; //11 08 23 0 0 まで入る。末尾が0に注意。
-                var duplication = allScheduleDataSaved[duplicationPlace]; //データを登録する直前の重複度が入る。0～9。
-                    if (isNaN(duplication)) {duplication = 0;}
-                var commentSavedNumber = duplicationPlace + (duplication + 1)*10 + 1 ; //11 08 23 2 1。末尾の1はコメントを表す
-                var staffSavedNumber = duplicationPlace + (duplication + 1)*10 + 2 ; //11 08 23 2 2。末尾の2はスタッフを表す
-                var dateSavedNumber = duplicationPlace + (duplication + 1)*10 + 3 ; //11 08 23 2 3。末尾の3は日付を表す
-
-                //同じ日に２つのデータがある場合の処理確認
-                alert(duplicationPlace);
-                alert(duplication);
-                alert(allScheduleDataSaved[duplicationPlace]); //1
-                alert(typeof(allScheduleDataSaved[duplicationPlace])); //number
-                alert(parseInt(allScheduleDataSaved[duplicationPlace] , 10) + 300); //301
-                alert(typeof(parseInt(allScheduleDataSaved[duplicationPlace] , 10) + 300)); //number
-                alert(commentSavedNumber);
-                alert(staffSavedNumber);
-                alert(dateSavedNumber);
-
-                //配列allScheduleDataSavedに、今回入力された要素を注入
-                allScheduleDataSaved[commentSavedNumber] = gadgets.util.escapeString(commentSubmitted);
-                allScheduleDataSaved[staffSavedNumber] = gadgets.util.escapeString(staffSubmitted);
-                allScheduleDataSaved[dateSavedNumber] = gadgets.util.escapeString(savedYearMonthDay);
-                //重複度を1増やしておく
-                allScheduleDataSaved[duplicationPlace] = duplication + 1;
-
-                alert(allScheduleDataSaved[commentSavedNumber]);
-                alert(allScheduleDataSaved[staffSavedNumber]);
-                alert(allScheduleDataSaved[dateSavedNumber]);
-                alert(allScheduleDataSaved[duplicationPlace]);
-
-                //今回入力されたデータの保存
-                var dataSaved = {}; //今回入力されたデータを一時的に入れておく配列。この配列は'__MODULE_ID__'成分にallScheduleDataSavedを文字化して入れるだけ
-                dataSaved['__MODULE_ID__'] = gadgets.json.stringify ( allScheduleDataSaved );
-                alert(dataSaved['__MODULE_ID__']);
-                alert(gadgets.json.stringify(dataSaved));
-
-                osapi.appdata.update({ userId: '@admin', data: dataSaved }).execute(function(res) {
-                    //保存失敗時の処理
-                    if (res.error) {
-                        alert("保存に失敗しました");
-                    }else{
-                        //保存後の処理
-                        $("#commentid").val("");
-                        $("#staffid").val("");
-                        msg.createTimerMessage("送信しました。", 3, function() {
-                            gadgets.window.adjustHeight();
-                            return true;
-                        });
-                        //テーブル再描画
-                        repaint();
-                    }
-                });
             }
 
             //入力されたデータを保存する関数（飲みイコ）
@@ -330,6 +201,7 @@
                 var data2 = {};
                 data['date'] = gadgets.util.escapeString(date);
                 data['yearMonthDay'] = gadgets.util.escapeString(savedYearMonthDay);
+                data['intYearMonthDay'] = gadgets.util.escapeString(intYearMonthDaySubmitted);
                 data['comment'] = gadgets.util.escapeString(commentSubmitted);
                 data['staff'] = gadgets.util.escapeString(staffSubmitted);
                 data1[key] = gadgets.json.stringify(data);
@@ -337,8 +209,7 @@
 
                 var batch = osapi.newBatch()
                         .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
-                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }))
-                        .add('activities', osapi.activities.create({ userId: '@viewer', activity: { title: activity_event, externalId: key }}));
+                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }));
                 batch.execute(function(response) {
                     $("#commentid").val("");
                     $("#staffid").val("");
@@ -348,17 +219,111 @@
                         return true;
                     });
                     // データの再表示
-                    repaint();
+                   repaint();
                 });
             });
         }
 
             //テーブルの再描画関数
-            function repaint(){
+            function repaint() {
+                osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+                    var users = [];
+                    var userIds = [];
+                    var row_datas = [];
+                    var keys = [];
+                    var counter = 0;
+
+                    // ユーザーID
+                    var currentUserid = response.id;
+
+                    // ユーザーの読み込み
+                    osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
+
+                        var list = response.list;
+                        for (var i in list) {
+                            users[list[i].id] = list[i];
+                            userIds.push(list[i].id);
+                        }
+                        // データの取得
+                        osapi.appdata.get({ userId: userIds ,fields: ['keys'] }).execute(function(response) {
+                            // 全てのkeyを取得して配列keysに入れる
+                            for (var userId in response) {
+                                var tmp_keys = gadgets.json.parse(response[userId]['keys']);
+                                for (var tmp_key in tmp_keys) {
+                                    keys.push(tmp_keys[tmp_key]);
+                                }
+                            }
+                                    // 配列keysの中身をkeyとして使ってアプリデータを取得
+                                    osapi.appdata.get({ userId: userIds ,fields: keys }).execute(function(response) {
+                                        for (var userId2 in response) {
+                                            var data = response[userId2];
+
+                                            for (var key in data) {
+                                                // データの作成
+                                                var rowdata = gadgets.json.parse(data[key]);
+                                                rowdata["key"] = key;
+                                                row_datas.push(rowdata);
+                                            }
+                                        }
+
+                                        // 日付降順
+                                        row_datas.sort(function(a, b) {
+                                            return a["intYearMonthDay"] < b["intYearMonthDay"] ? 1 : -1;
+                                        });
+
+                                        // テーブルヘッダー
+                                        if (row_datas.length > 0) {
+                                            $("#header").html("");
+                                            var header = '\
+                                                 <tr>\
+                                                 <th>リリース日</th>\
+                                                 <th>内容</th>\
+                                                 <th>担当者</th>\
+                                                 <th class="thin">削除</th>\
+                                                 </tr>\
+                                                  ';
+                                            $("#header").html($("#header").html() + header);
+                                        }
+                                        if (row_datas.length > max_per_page) {
+                                            var pager = '<a href="javascript:void(0);" onclick="showMore();">全件表示</a>';
+                                            $("#pager").html(pager);
+                                            $("#pager").show();
+                                        }
+
+                                            $("#status").html("");
+                                        for (var i in row_datas) {
+                                            var css_class = '';
+                                            if (counter % 2 == 0) {
+                                                css_class = ' class="odd"';
+                                            }
+                                            if (counter >= max_per_page) {
+                                                css_class += ' style="display:none;"';
+                                            }
+                                            counter++;
+                                            var delete_html = '';
+
+                                            var key_data = '\
+                                                   <tr' + css_class + '>\
+                                                   <td>' + gadgets.util.escapeString(row_datas[i]["yearMonthDay"]) + '</td>\
+                                                   <td>' + gadgets.util.escapeString(row_datas[i]["comment"]) + '</td>\
+                                                   <td>' + gadgets.util.escapeString(row_datas[i]["staff"]) + '</td>\
+                                                   <td>' + delete_html + '</td>\
+                                                   </tr>\
+                                                   ';
+                                            // データの表示
+                                            $("#status").html($("#status").html() + key_data);
+                                        }
+                                        // ウインドウの幅再調整
+                                        gadgets.window.adjustHeight();
+                                    });
+                        });
+                    });
+                });
             }
 
+
             function datacheck(){ //Aipo公式のまね
-                osapi.appdata.get({ userId: '@admin' ,fields: '__MODULE_ID__' }).execute(function(response) {
+                osapi.appdata.get({ userId: '@viewer' ,fields: 'keys' }).execute(function(response) {
                 // ユーザーID、アプリデータの連想配列
                     for (var userId in response) {
                        var data = response[userId];
@@ -373,10 +338,23 @@
                 });
             }
 
+        /*
+         * 設定の読み込み
+         */
+        function getPrefRows() {
+            // 設定の読み込み
+            var currentView = gadgets.views.getCurrentView();
+            if (currentView.getName() == "home") {
+                return parseInt("p1-homeRows");
+            } else {
+                return parseInt("p2-canvasRows");
+            }
+        }
 
             //初期化
             function init() {
                 initSelectbox();
+                repaint();
                 gadgets.window.adjustHeight();
             }
 
