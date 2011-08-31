@@ -58,7 +58,6 @@
             .comments .message {
                 padding: 2px;
                 border: none;
-                /*background: #FFECB4 url(../images/common/bg_slash.gif) repeat left top;*/
                 background: #efefef url(../images/common/bg_slash.gif) repeat left top;
             }
 
@@ -124,7 +123,6 @@
             .commentCaption {
                 margin-top: 5px;
                 padding: 3px;
-                /*background: #FFECB4 url(../images/common/bg_slash.gif) repeat left top;*/
                 background: #efefef url(../images/common/bg_slash.gif) repeat left top;
             }
 
@@ -142,24 +140,20 @@
 
             .timeline {
                 width: 100%;
+                word-break: break-all;
                 word-wrap: break-word;
             }
 
             .timeline .name {
-                color: #369;
+                /*color: #369;*/
                 font-weight: bold;
                 padding-right: 5px;
             }
 
             .timeline .name a {
-                text-decoration: none;
-                color: #ff9900;
-                font-weight: bold;
             }
 
             .timeline .name a:hover {
-                text-decoration: underline;
-                color: #ff9900;
             }
 
             .timeline .body {
@@ -180,7 +174,6 @@
 
 
         </style>
-       
         <script type="text/javascript"
                 src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js"></script>
         ]]></Content>
@@ -957,11 +950,7 @@
             }
         }
 
-        gadgets.util.registerOnLoadHandler(function() {
-            jQuery(function($) {
-                init();
-            });
-        });
+        gadgets.util.registerOnLoadHandler(init);
 
         </script>
         ]]></Content>
