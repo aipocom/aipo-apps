@@ -834,6 +834,7 @@
                 }
             };
             tabs.addTab("管理", sheetTab);
+            tabs.setSelectedTab(0);
         });
 
         </script>
