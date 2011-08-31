@@ -1,0 +1,943 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+    <ModulePrefs title="簡易データシート"
+                 description="項目をカスタマイズしてお好みの一覧データを作成するアプリです。細やかなデータ共有にご利用くださいませ。">
+        <Require feature="osapi"/>
+        <Require feature="tabs"/>
+        <Require feature="dynamic-height"/>
+        <Require feature="setprefs"/>
+        <Optional feature="aipostyle"/>
+    </ModulePrefs>
+    <Content type="html" preferred_height="200">
+        <![CDATA[
+        <link media="screen" href="https://my-sheet.appspot.com/js/plugins/jquery-ui-1.8.16.custom.css" type="text/css"
+              rel="stylesheet"/>
+        <link media="screen" href="https://my-sheet.appspot.com/js/plugins/jquery.ui.datetimepicker.css" type="text/css"
+              rel="stylesheet"/>
+
+        <script type="text/javascript" src="https://my-sheet.appspot.com/js/common/jquery-1.6.2.min.js"></script>
+        <script src="https://my-sheet.appspot.com/js/common/jquery.tmpl.min.js" type="text/javascript"></script>
+        <script src="https://my-sheet.appspot.com/js/common/jquery.tmplPlus.min.js" type="text/javascript"></script>
+        <script src="https://my-sheet.appspot.com/js/common/jquery.datalink.js" type="text/javascript"></script>
+        <script src="https://my-sheet.appspot.com/js/common/jquery.json-2.2.min.js" type="text/javascript"></script>
+        <script src="https://my-sheet.appspot.com/js/common/liquidtpl.js" type="text/javascript"></script>
+        <script type="text/javascript" src="https://my-sheet.appspot.com/js/my-sheet.js"></script>
+
+        <script type="text/javascript"
+                src="https://my-sheet.appspot.com/js/plugins/jquery-ui-1.8.16.custom.min.js"></script>
+        <script type="text/javascript"
+                src="https://my-sheet.appspot.com/js/plugins/jquery.ui.datetimepicker.min.js"></script>
+
+        <style type="text/css">
+        .indicator {
+            background: url(https://my-sheet.appspot.com/img/common/ajax-loader.gif) no-repeat left;
+            padding-left: 18px;
+        }
+
+        .mt0 {
+            margin-top: 0px !important;
+        }
+
+        .mr0 {
+            margin-right: 0px !important;
+        }
+
+        .mb0 {
+            margin-bottom: 0px !important;
+        }
+
+        .ml0 {
+            margin-left: 0px !important;
+        }
+
+        .ma0 {
+            margin: 0px !important;
+        }
+
+        .mt5 {
+            margin-top: 5px !important;
+        }
+
+        .mr5 {
+            margin-right: 5px !important;
+        }
+
+        .mb5 {
+            margin-bottom: 5px !important;
+        }
+
+        .ml5 {
+            margin-left: 5px !important;
+        }
+
+        .ma5 {
+            margin: 5px !important;
+        }
+
+        .mt10 {
+            margin-top: 10px !important;
+        }
+
+        .mr10 {
+            margin-right: 10px !important;
+        }
+
+        .mb10 {
+            margin-bottom: 10px !important;
+        }
+
+        .ml10 {
+            margin-left: 10px !important;
+        }
+
+        .ma10 {
+            margin: 10px !important;
+        }
+
+        .mt15 {
+            margin-top: 15px !important;
+        }
+
+        .mr15 {
+            margin-right: 15px !important;
+        }
+
+        .mb15 {
+            margin-bottom: 15px !important;
+        }
+
+        .ml15 {
+            margin-left: 15px !important;
+        }
+
+        .ma15 {
+            margin: 15px !important;
+        }
+
+        .mt20 {
+            margin-top: 20px !important;
+        }
+
+        .mr20 {
+            margin-right: 20px !important;
+        }
+
+        .mb20 {
+            margin-bottom: 20px !important;
+        }
+
+        .ml20 {
+            margin-left: 20px !important;
+        }
+
+        .ma20 {
+            margin: 20px !important;
+        }
+
+        .mh0 {
+            margin-top: 0px !important;
+            margin-bottom: 0px !important
+        }
+
+        .mh5 {
+            margin-top: 5px !important;
+            margin-bottom: 5px !important
+        }
+
+        .mh10 {
+            margin-top: 10px !important;
+            margin-bottom: 10px !important
+        }
+
+        .mh15 {
+            margin-top: 15px !important;
+            margin-bottom: 15px !important
+        }
+
+        .mh20 {
+            margin-top: 20px !important;
+            margin-bottom: 20px !important
+        }
+
+        .noPadding {
+            padding: 0px;
+        }
+
+        .pt0 {
+            padding-top: 0px !important;
+        }
+
+        .pr0 {
+            padding-right: 0px !important;
+        }
+
+        .pb0 {
+            padding-bottom: 0px !important;
+        }
+
+        .pl0 {
+            padding-left: 0px !important;
+        }
+
+        .pa0 {
+            padding: 0px !important;
+        }
+
+        .pt5 {
+            padding-top: 5px !important;
+        }
+
+        .pr5 {
+            padding-right: 5px !important;
+        }
+
+        .pb5 {
+            padding-bottom: 5px !important;
+        }
+
+        .pl5 {
+            padding-left: 5px !important;
+        }
+
+        .pa5 {
+            padding: 5px !important;
+        }
+
+        .pt10 {
+            padding-top: 10px !important;
+        }
+
+        .pr10 {
+            padding-right: 10px !important;
+        }
+
+        .pb10 {
+            padding-bottom: 10px !important;
+        }
+
+        .pl10 {
+            padding-left: 10px !important;
+        }
+
+        .pa10 {
+            padding: 10px !important;
+        }
+
+        .pt15 {
+            padding-top: 15px !important;
+        }
+
+        .pr15 {
+            padding-right: 15px !important;
+        }
+
+        .pb15 {
+            padding-bottom: 15px !important;
+        }
+
+        .pl15 {
+            padding-left: 15px !important;
+        }
+
+        .pa15 {
+            padding: 15px !important;
+        }
+
+        .pt20 {
+            padding-top: 20px !important;
+        }
+
+        .pr20 {
+            padding-right: 20px !important;
+        }
+
+        .pb20 {
+            padding-bottom: 20px !important;
+        }
+
+        .pl20 {
+            padding-left: 20px !important;
+        }
+
+        .pa20 {
+            padding: 20px !important;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .center img {
+            display: block;
+            margin: inherit auto;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .left {
+            text-align: left;
+        }
+
+        .middle {
+            vertical-align: middle;
+        }
+
+        .warningMessage {
+            border: 1px solid #FFBFB5;
+            padding: 5px;
+            background-color: #FFE4DD;
+            margin-bottom: 5px;
+        }
+
+        .confirmMessage {
+            border: 1px solid #99CC99;
+            padding: 5px;
+            background-color: #DDFFDD;
+            margin-bottom: 5px;
+        }
+
+        .noticeMessage {
+            border: 1px solid #EEDFD5;
+            padding: 5px;
+            background-color: #FFF4EA;
+            margin-bottom: 5px;
+        }
+
+        .warningMessageOne {
+            border: 1px solid #FFBFB5;
+            padding: 5px;
+            background-color: #FFE4DD;
+            margin: 3px 0px 3px 0px;
+            color: #FF3500;
+            font-size: 83%;
+            line-height: 1.3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+            /** Field */
+        .label {
+            font-weight: bold;
+            margin-top: 5px;
+            margin-right: 10px;
+            font-size: 1.0em;
+        }
+
+        .defineFormHead {
+            border: solid 1px #cccccc;
+            background-color: #dddddd;
+            margin-bottom: 5px;
+            padding: 2px;
+            width: 98%;
+        }
+
+        .defineFormHead .headLeft {
+
+        }
+
+        .defineFormHead .headRight {
+            padding-top: 4px;
+        }
+
+        .defineFormBody {
+            margin-bottom: 10px;
+        }
+
+        .descriptionField {
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+
+        .defaultValueField {
+            width: 50%;
+            margin: 5px 0px 5px 0px;
+        }
+
+        textarea.defaultValueField {
+            width: 98%;
+            height: 120px;
+        }
+
+        .selectValuesField {
+            width: 98%;
+            height: 120px;
+            margin: 5px 0px 5px 0px;
+        }
+
+        a.deleteColumnLink {
+            padding: 1px 0 1px 20px;
+            min-height: 16px;
+            text-align: right;
+        }
+
+        .textField {
+            width: 50%;
+            margin: 5px 0px 10px 0px;
+        }
+
+        .longtextField {
+            width: 98%;
+            height: 120px;
+            margin: 5px 0px 10px 0px;
+        }
+
+        .numberField {
+            width: 50%;
+            margin: 5px 0px 10px 0px;
+        }
+
+        .selectField {
+            margin: 5px 0px 10px 0px;
+        }
+
+        .radiobuttonField {
+            margin: 5px 0px 10px 0px;
+        }
+
+        .checkboxsetField {
+            margin: 5px 0px 10px 0px;
+        }
+
+        .checkboxField {
+            margin: 5px 0px 10px 0px;
+        }
+
+        .dateField {
+            width: 50%;
+            margin: 5px 0px 10px 0px;
+        }
+
+        .datetimeField {
+            width: 50%;
+            margin: 5px 0px 10px 0px;
+        }
+
+        #submit {
+            margin-top: 10px;
+        }
+
+            /* MemberPicker*/
+        .memberlistToTop {
+            float: left;
+            width: 45%;
+            padding-right: 3%;
+        }
+
+        .memberlistFromTop {
+            float: left;
+            width: 48%;
+        }
+
+        .memberlistToBody {
+            float: left;
+            width: 45%;
+            padding-right: 3%;
+        }
+
+        .memberlistFromBody {
+            float: left;
+            width: 48%;
+        }
+
+        .memberlistToBottom {
+            float: left;
+            width: 45%;
+            padding-right: 3%;
+        }
+
+        .memberlistFromBottom {
+            float: left;
+            width: 48%;
+        }
+        </style>
+        <script type="text/javascript">
+        //Initialize
+        $(function() {
+            $.defaultHeight = 200;
+            $.deleteDataConfirm = function(key, sheetKey) {
+                if (window.confirm("データを削除してもよろしいですか？")) {
+                    $.deleteSheetData($.appUrl + "aipoapps/sheet/datadelete", key, sheetKey, function() {
+                        $.dataListPane(sheetKey);
+                    });
+                }
+                return false;
+            }
+
+            $.deleteSheetConfirm = function(sheetKey, name) {
+                if (window.confirm("登録されたデータの復旧はできません。本当にシート「" + name + "」を削除しますか")) {
+                    $.deleteSheet($.appUrl + "aipoapps/sheet/delete", sheetKey, function() {
+                        $.sheetListPane();
+                    });
+                }
+                return false;
+            }
+
+            //Initialize dataList
+            $.dataListPane = function(sheetKey) {
+                $("#loader").show(0, function() {
+                    gadgets.window.adjustHeight($.defaultHeight);
+                });
+                $("#dataPane").hide(0, function() {
+                    $("#dataPane").html($("#dataListPane").html());
+                    $("#dataPane #_dataList").attr("id", "dataList");
+                    $("#dataPane #_dataAdd").attr("id", "dataAdd")
+                            .bind('click', function(e) {
+                                $.dataFormPane(sheetKey);
+                                return false;
+                            });
+                    $.template("thTemplate", '<th>${name}<\/th>');
+                    $.initDetail("dataList", "dataItem", $.appUrl + "aipoapps/sheet/columnjson", {id: sheetKey}, function(jsonData) {
+                        var values = jsonData['values'];
+                        var listColumns = [];
+                        var templateString = '';
+                        var length = values.length;
+                        for (var i = 0; i < length; i++) {
+                            var column = values[i];
+                            if (column['list']) {
+                                listColumns.push(column);
+                                templateString += '<td>${' + column['columnName'] + '}<\/td>'
+                            }
+                        }
+                        $("#dataList tr.head").hide();
+                        $.tmpl("thTemplate", listColumns).prependTo("#dataList tr.head");
+                        $.template("tdTemplate", templateString);
+                        $.listData(sheetKey, "dataList", "dataItem", $.appUrl + "aipoapps/sheet/datajson", {}, function(jsonData) {
+                            $("#dataList a").each(function(elem) {
+                                var editLinkId = $(this).attr("id").match("^editData_(.+)");
+                                if (editLinkId && editLinkId.length > 1) {
+                                    var key = editLinkId[1];
+                                    $(this).bind("click", function(e) {
+                                        $.dataFormPane(sheetKey, key);
+                                        return false;
+                                    });
+                                }
+                                var deleteLinkId = $(this).attr("id").match("^deleteData_(.+)");
+                                if (deleteLinkId && deleteLinkId.length > 1) {
+                                    var key = deleteLinkId[1];
+                                    $(this).bind("click", function(e) {
+                                        $.deleteDataConfirm(key, sheetKey);
+                                        return false;
+                                    });
+                                }
+                            });
+                            $("#dataList tr.head").show();
+                            $("#loader").hide();
+                            $("#dataPane").fadeIn("fast", $.ajustHeight());
+                        });
+                    });
+                });
+            };
+
+            $.dataFormPane = function(sheetKey, id) {
+                $("#loader").show(0, function() {
+                    gadgets.window.adjustHeight($.defaultHeight);
+                });
+                $("#dataPane").hide(0, function() {
+                    $("#dataPane").html($("#dataFormPane").html());
+                    $("#dataPane #_dataForm").attr("id", "dataForm");
+                    $("#dataPane #_dataCancel").attr("id", "dataAdd")
+                            .bind('click', function(e) {
+                                $.dataListPane(sheetKey);
+                                return false;
+                            });
+                    $.params = {};
+                    if (sheetKey) {
+                        $.params['sheetKey'] = sheetKey;
+                    }
+                    if (id) {
+                        $.params['id'] = id;
+                    }
+                    var callback = function(jsonDataAlt) {
+                        $.initForm("dataForm", $.appUrl + "aipoapps/sheet/datajson", $.params, function(jsonData) {
+                            if (jsonData.info) {
+                                if (id) {
+                                    $("#editTitle").text(jsonData.info['dataTitle'] + $("#editTitle").text()).show();
+                                } else {
+                                    $("#addTitle").text(jsonData.info['dataTitle'] + $("#addTitle").text()).show();
+                                }
+                            }
+                            $.setFormValues("dataForm", jsonData,
+                                    function() {
+                                        $(".submitContainer").hide();
+                                        $("#loader").show(0, function() {
+                                            gadgets.window.adjustHeight($.defaultHeight);
+                                        });
+                                    },
+                                    function() {
+                                        $.dataListPane(sheetKey);
+                                    },
+                                    function() {
+                                        $("#loader").hide();
+                                        $(".submitContainer").show();
+                                    }
+                            );
+                            $("#loader").hide(0, function() {
+                                $(".submitContainer").show();
+                            });
+                            $("#dataForm").show();
+                            $("#dataPane").fadeIn("fast", $.ajustHeight());
+                        });
+                    };
+                    $.loadDataForm("#dataForm #dataFields", $.appUrl + "aipoapps/sheet/columnjson", id, sheetKey, callback);
+                });
+            };
+
+            $.sheetListPane = function() {
+                $("#loader").show(0, function() {
+                    gadgets.window.adjustHeight($.defaultHeight);
+                });
+                $("#sheetPane").hide(0, function() {
+                    $("#sheetPane").html($("#sheetListPane").html());
+                    $("#sheetPane #_sheetList").attr("id", "sheetList");
+                    $.initList("sheetList", "sheetItem", true, $.appUrl + "aipoapps/sheet/json", {}, function(jsonData) {
+                        $.setListValues("sheetList", "sheetItem", false, jsonData, function() {
+                            //on empty
+                            $.sheetFormPane();
+                        });
+                        $("#sheetList a").each(function(elem) {
+                            var listLinkId = $(this).attr("id").match("^listSheet_(.+)");
+                            if (listLinkId && listLinkId.length > 1) {
+                                $(this).bind("click", function(e) {
+                                    var sheetKey = listLinkId[1];
+                                    var _prefs = new gadgets.Prefs();
+                                    _prefs.set('initialSheetKey', sheetKey);
+                                    tabs.setSelectedTab(0);
+                                    return false;
+                                });
+                            }
+                            var editLinkId = $(this).attr("id").match("^editSheet_(.+)");
+                            if (editLinkId && editLinkId.length > 1) {
+                                var sheetKey = editLinkId[1];
+                                $(this).bind("click", function(e) {
+                                    $.sheetFormPane(sheetKey);
+                                    return false;
+                                });
+                            }
+                            var deleteLinkId = $(this).attr("id").match("^deleteSheet_(.+)");
+                            if (deleteLinkId && deleteLinkId.length > 1) {
+                                var sheetKey = deleteLinkId[1];
+                                $(this).bind("click", function(e) {
+                                    $.deleteSheetConfirm(sheetKey, $("#listSheet_" + sheetKey).text());
+                                    return false;
+                                });
+                            }
+                        });
+                        $("#loader").hide();
+                        $("#sheetPane").fadeIn("fast", $.ajustHeight());
+                    });
+                });
+            };
+
+            $.sheetFormPane = function(sheetKey) {
+                $("#loader").show(0, function() {
+                    gadgets.window.adjustHeight($.defaultHeight);
+                });
+                $("#sheetPane").hide(0, function() {
+                    $("#sheetPane").html($("#sheetFormPane").html());
+                    $("#sheetPane #_sheetForm").attr("id", "sheetForm");
+                    $.sheetForm = {};
+                    $.params = {};
+                    if (sheetKey) {
+                        $.params['id'] = sheetKey;
+                    }
+                    $.initForm("sheetForm", $.appUrl + "aipoapps/sheet/json", $.params, function(jsonData) {
+                        var callback = function(jsonDataAlt) {
+                            if (sheetKey) {
+                                $("#editTitle").show();
+                            } else {
+                                $("#addTitle").show();
+                            }
+                            $.setFormValues("sheetForm", jsonData,
+                                    function() {
+                                        $(".submitContainer").hide();
+                                        $("#loader").show(0, function() {
+                                            gadgets.window.adjustHeight($.defaultHeight);
+                                        });
+                                    },
+                                    function() {
+                                        $.sheetListPane();
+                                    },
+                                    function() {
+                                        $("#loader").hide();
+                                        $(".submitContainer").show();
+                                    }
+                            );
+                            $("#loader").hide(0, function() {
+                                $(".submitContainer").show();
+                            });
+                            $("#sheetPane").fadeIn("fast", $.ajustHeight());
+                        };
+                        $.membersForm("#sheetForm #membersContainer", jsonData);
+                        if (jsonData.values && jsonData.values.key) {
+                            $.loadDefineForm("#sheetForm #formContainer", $.appUrl + "aipoapps/sheet/columnjson", jsonData.values.key, callback);
+                        } else {
+                            $.addDefineForm("#sheetForm #formContainer");
+                            callback(jsonData);
+                        }
+                    });
+                });
+            };
+
+            $.fn.extend({
+                aipoMemberPicker: function(name, values) {
+                    function syncHidden() {
+                        $('#hidden_' + name).empty();
+                        $('#tmp_member_to-' + name + ' option').each(function() {
+                            $('#hidden_' + name).append($('<input>')
+                                    .attr('name', name + '[]')
+                                    .attr('type', 'hidden').val($(this).val())
+                            );
+                        });
+                    }
+
+                    $(this).empty();
+                    $('<div>').attr('id', 'hidden_' + name).hide().appendTo(this);
+                    $('<div>').addClass('clearfix')
+                            .append($('<div>').text('共有メンバー').addClass('memberlistToTop'))
+                            .append($('<div>').addClass('memberlistFromTop')
+                            .append($('<select>').width('98%').attr('id', 'tmp_group-' + name)
+                            .bind('change', function(e) {
+                                $('#tmp_member_from-' + name).empty();
+                                var groupId = $(this).val();
+                                osapi.people.get({ userId: '@viewer', groupId: groupId, count:1000 }).execute(function(response) {
+                                    var users = response.list;
+                                    for (var i in users) {
+                                        var userId = users[i].id;
+                                        var displayName = users[i].displayName;
+                                        $('#tmp_member_from-' + name).append($('<option>').val(userId).text(displayName));
+                                    }
+                                });
+                            })
+                            .append($('<option>').text('(グループを選択してください)'))
+                    ))
+                            .appendTo(this);
+                    $('<div>').addClass('clearfix')
+                            .append($('<div>').addClass('memberlistToBody')
+                            .append($('<select>').width('98%')
+                            .attr('size', 10)
+                            .attr('multiple', 'multiple')
+                            .attr('name', 'tmp_member_to-' + name)
+                            .attr('id', 'tmp_member_to-' + name)))
+                            .append($('<div>').addClass('memberlistFromBody')
+                            .append($('<select>').width('98%')
+                            .attr('size', 10)
+                            .attr('multiple', 'multiple')
+                            .attr('name', 'tmp_member_from-' + name)
+                            .attr('id', 'tmp_member_from-' + name)))
+                            .appendTo(this);
+                    $('<div>').addClass('clearfix')
+                            .append($('<div>').addClass('memberlistToBottom').append($('<input>').attr('type', 'button').val('削除')
+                            .bind('click', function(e) {
+                                $('#tmp_member_to-' + name + ' option:selected').each(function() {
+                                    $(this).remove();
+                                });
+                                syncHidden();
+                            })))
+                            .append($('<div>').addClass('memberlistFromBottom').append($('<input>').attr('type', 'button').val(' < 追加')
+                            .bind('click', function(e) {
+                                $('#tmp_member_from-' + name + ' option:selected').each(function() {
+                                    if ($('#tmp_member_to-' + name + ' option[value="' + $(this).val() + '"]').size() == 0) {
+                                        $('#tmp_member_to-' + name).append($('<option>').val($(this).val()).text($(this).text()));
+                                    }
+                                });
+                                syncHidden();
+                            })))
+                            .appendTo(this);
+
+
+                    osapi.groups.get({ userId: '@viewer', count:1000 }).execute(function(response) {
+                        var groups = response.list;
+                        for (var i in groups) {
+                            var groupId = groups[i].id.groupId;
+                            var title = groups[i].title;
+                            $('#tmp_group-' + name).append($('<option>').val(groupId).text(title));
+                        }
+                    });
+
+                    for (var j = 0; j < values.length; j++) {
+                        var _userId = values[j];
+                        osapi.people.get({ userId: _userId, count:1000 }).execute(function(response) {
+                            var userId = response.id;
+                            var displayName = response.displayName;
+                            $('#tmp_member_to-' + name).append($('<option>').val(userId).text(displayName));
+                            syncHidden();
+                        });
+                    }
+
+                    return this;
+                }
+            });
+
+            $.membersForm = function(selector, jsonData) {
+                var info = jsonData['info'];
+                var members = info['members'];
+　　　　　　　　　
+                var _count = 0;
+                for (var k in members) {
+                    _count++;
+                }
+
+                if (typeof(members) == 'undefined' || members == null || _count == 0) {
+                    members = {};
+                    members[info['permissionMap'][0]['key']] = [];
+                }
+
+                var count = 1;
+                for (var k in members) {
+                    var membersText = "";
+                    var size = members[k].length;
+
+                    var name2 = 'members_' + count;
+                    $('<div>').aipoMemberPicker(name2, members[k])
+                            .css('margin-top', '10px')
+                            .css('margin-bottom', '10px').appendTo(selector);
+
+                    var name = 'permission_' + count;
+                    $('<select>')
+                            .css('margin-bottom', '10px')
+                            .attr('name', name)
+                            .attr('id', name + 'Field').appendTo(selector);
+                    $.tmpl("optionsTemplate", info['permissionMap']).appendTo('#' + name + 'Field');
+                    $('#' + name + 'Field').val(k);
+                }
+
+            };
+
+            //Initialize Page
+            $.overrideAjaxFunc('signed');
+            $.appUrl = 'https://my-sheet.appspot.com/';
+            $.helperJsonUrl = "https://my-sheet.appspot.com/aipoapps/sheet/helperjson";
+
+
+            var prefs = new gadgets.Prefs();
+            var tabs = new gadgets.TabSet(__MODULE_ID__, null, document.getElementById("tabs"));
+            var dataTab = {
+                contentContainer: document.getElementById("data"),
+                callback: function() {
+                    var initialSheetKey = prefs.getString('initialSheetKey');
+                    if (!initialSheetKey) {
+                        tabs.setSelectedTab(1);
+                    } else if ($.isString(initialSheetKey) && initialSheetKey.length > 0) {
+                        $.dataListPane(initialSheetKey);
+                    }
+                }
+            };
+            tabs.addTab("共有データ", dataTab);
+            var sheetTab = {
+                contentContainer: document.getElementById("sheet"),
+                callback: function() {
+                    $.sheetListPane();
+                }
+            };
+            tabs.addTab("管理", sheetTab);
+        });
+
+        </script>
+
+        <div id="tabs" class="aipostyle"></div>
+        <div id="data">
+            <div id="dataPane"></div>
+        </div>
+        <div id="sheet">
+            <div id="sheetPane"></div>
+        </div>
+        <div id="grobalError" class="warningMessageOne" style="display:none;"></div>
+        <div id="loader" class="indicator" style="display: none;">読み込み中<br/></div>
+
+        <!-- templates -->
+        <div id="dataListPane" style="display: none;">
+            <h4 id="dataTitle"></h4>
+            <a href="#" id="_dataAdd">新規作成</a>
+            <table id="_dataList" class="form" style="display: none;">
+                <tr class="row head">
+                    <th></th>
+                    <th></th>
+                </tr>
+            </table>
+        </div>
+        <div id="dataFormPane" style="display: none;">
+            <h4 style="display:none;" id="addTitleData">新規作成</h4>
+            <h4 style="display:none;" id="editTitleData">編集</h4>
+
+            <div class="mt10">
+                <form action="https://my-sheet.appspot.com/aipoapps/sheet/datacommit" id="_dataForm"
+                      style="display: none;">
+                    <div id="dataFields"></div>
+                    <div class="center submitContainer">
+                        <input id="submitData" type="submit" value="登録"/>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <input id="_dataCancel" type="button" value="キャンセル"/>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+        <div id="sheetListPane" style="display: none;">
+            <a href="#" onclick="$.sheetFormPane();return false;">新規作成</a>
+            <table id="_sheetList" class="form" style="display: none;">
+                <tr class="row">
+                    <th>タイトル
+                    </th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </table>
+        </div>
+        <div id="sheetFormPane" style="display: none;">
+            <h4 style="display:none;" id="addTitleSheet">新規作成</h4>
+            <h4 style="display:none;" id="editTitleSheet">編集</h4>
+
+            <div class="mt10">
+                <form action="https://my-sheet.appspot.com/aipoapps/sheet/commit" id="_sheetForm"
+                      style="display: none;">
+                    <div class="ma5">
+                        <label class="bold">タイトル<strong class="fcRed">(*)</strong></label>
+                        <span id="nameError" class="warningMessageOne" style="display:none;"></span>
+                        <input id="nameField" name="name" class="w99"/>
+                    </div>
+                    <div class="ma5" id="formContainer">
+                    </div>
+                    <div class="right mr10">
+                        <input type="button" value="項目を追加する" href="#"
+                               onclick="$.addDefineForm('#sheetForm #formContainer');return false;"/>
+                    </div>
+                    <label class="bold">
+                        <liquidtpl:text key="sheetMember"/>
+                    </label>
+
+                    <p class="small">
+                        <liquidtpl:text key="sheetMemberDescription"/>
+                    </p>
+                    <span id="membersError" class="warningMessageOne" style="display:none;"></span>
+
+                    <div id="membersContainer"></div>
+                    <div class="center submitContainer">
+                        <input id="submitSheet" type="submit" value="登録"/>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="button" value="キャンセル" onclick="$.sheetListPane();return false;"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script id="sheetItem" type="text/x-jquery-tmpl">
+            <tr class="row selectable">
+                <td><a href="#" id="listSheet_${key}">${name}</a></td>
+                <td class='thin'><a href="#" class="icon_edit" id="editSheet_${key}">管理</a></td>
+                <td class='thin'><a href="#" class="icon_delete" id="deleteSheet_${key}">削除</a></td>
+            </tr>
+        </script>
+
+        <script id="dataItem" type="text/x-jquery-tmpl">
+            <tr class="row selectable">
+                {{html rowHtml}}
+                <td class='thin'><a href="#" class="icon_edit" id="editData_${key}">編集</a></td>
+                <td class='thin'><a href="#" class="icon_delete" id="deleteData_${key}">削除</a></td>
+            </tr>
+        </script>
+        ]]>
+    </Content>
+</Module>
