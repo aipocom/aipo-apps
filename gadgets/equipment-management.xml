@@ -9,7 +9,7 @@
         <Require feature="tabs"/>
         <Require feature="aipostyle"/>
         <Require feature="osapi"/>
-        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon16-trans.png</Icon>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/equipment-management/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <Content type="html"><![CDATA[
         <style>
