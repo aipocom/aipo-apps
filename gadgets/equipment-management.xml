@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
     <ModulePrefs
-            title="美品管理"
-            description="備品を美しく管理。">
+            title="備品管理"
+            description="備品の補充状況を簡単設定で一目で確認できるアプリです。残り少なくなれば誰でも状態を更新できます。快適な職場づくりにお役立てください。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>
@@ -41,6 +41,19 @@
             .middle {
                 vertical-align: middle;
             }
+
+            .status_on {
+                color: #000000;
+            }
+
+            .status_min {
+                color: #B8860B;
+            }
+
+            .status_off {
+                color: #DC143C;
+            }
+
         </style>
         <div class="aipostyle">
             <form action="#" onsubmit="eventSubmit('on');return false;">
@@ -51,22 +64,15 @@
                                                           onfocus="eventItemFocus()"
                                                           onblur="eventItemBlur()" maxlength=30
                                                           id="item"/></td>
-                        <td class="borderNone pb5" nowrap>
+                        <td class="borderNone pb5">
                             <input type="submit" style="margin-right:3px;" value="追加する"/>
+                            <input type="button" value="更新" onclick="repaint()"/>
                         </td>
                     </tr>
                     </tbody>
                 </table>
             </form>
             <hr/>
-            <table class="wide borderNone" style="margin:5px 0 15px;">
-                <tbody>
-                <tr>
-                    <td nowrap="" align="right"><input type="button" value="更新"
-                                                       onclick="repaint()"/></td>
-                </tr>
-                </tbody>
-            </table>
             <table class="borderNone" style="margin-bottom:15px;">
                 <tbody id="status">
                 </tbody>
@@ -85,15 +91,6 @@
 
         var table = null;
         var prefs = new gadgets.Prefs();
-
-        var icon_on = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_on.png"; // 在席アイコン
-        var icon_off = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_off.png"; // 外出アイコン
-        var icon_min = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_off.png"; // 外出アイコン
-        var icon_none = "https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chair-checker/img/icon/icon_zaiseki_off.png"; // 未打刻アイコン
-        var icon_alt_on = "補充済";
-        var icon_alt_min = "少ない";
-        var icon_alt_off = "在庫無";
-        var icon_alt_none = "登録無";
 
         /*
          * init
@@ -300,34 +297,29 @@
                         var data = response[userId];
                         for (var i = 1; i <= 50; i++) {
                             // 在席アイコン
-                            var icon = icon_off;
-                            var icon_alt = icon_alt_off;
+                            var statusText = "";
                             if (data["type_" + i] == "on") {
-                                icon = icon_on;
-                                icon_alt = icon_alt_on;
+                                statusText = "補充済";
                             }
                             else if (data["type_" + i] == "min") {
-                                icon = icon_min;
-                                icon_alt = icon_alt_min;
+                                statusText = "少ない";
                             }
                             else if (data["type_" + i] == "off") {
-                                icon = icon_off;
-                                icon_alt = icon_alt_off;
+                                statusText = "無し";
                             }
 
                             if (data["type_" + i] == "on" || data["type_" + i] == "min" || data["type_" + i] == "off") {
                                 // データの作成
                                 userData[i] = '\
 <tr>\
-    <td valign="top" class="pb5" width="15" nowrap><img src="' + icon + '" alt="' + icon_alt + '" width="15" height="15" class="middle" /></td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + data["name_" + i] + '</td>\
-    <td valign="top" class="pb5 fs10_g" nowrap style="padding-right:5px;">' + getDate(data["date_" + i]) + '</td>\
-    <td valign="top" class="pb5 fs10_g">' + icon_alt + '</td>\
-    <td valign="top" style="color:#ff4600" class="pb5 fs10_g">' + data['reporter_' + i] + '</td>\
-    <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" style="margin-right:3px;" value="補充済み" onclick="eventChange(0 , ' + i + ')"/></td>\
-    <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" value="残り少ない" onclick="eventChange(1 , ' + i + ')"/></td>\
-    <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" value="無くなった" onclick="eventChange(2 , ' + i + ')"/></td>\
-    <td valign="top" style="color:#ff4600" class="pb5 fs10_g"><input type="button" value="削除" onclick="eventChange(3 , ' + i + ')"/></td>\
+    <td valign="top" class="pb5">\
+    ' + '<div class="' + " status_" + data["type_" + i] + '">[' + statusText + '] ' + data["name_" + i] + '&nbsp;&nbsp;</div><div class="fs10_g">' + getDate(data["date_" + i]) + ' ' + '(' + data['reporter_' + i] + ')</div>' + '</td>\
+    <td valign="top" class="pb5 fs10_g">\
+      <input type="button" value="補充済" onclick="eventChange(0 , ' + i + ')"/>\
+      <input type="button" value="少ない" onclick="eventChange(1 , ' + i + ')"/>\
+      <input type="button" value="無し" onclick="eventChange(2 , ' + i + ')"/>\
+      <input type="button" value="削除" onclick="if(window.confirm(\'備品データを削除しますか？\')) eventChange(3 , ' + i + ')"/>\
+    </td>\
 </tr>\
                             ';
                             }
@@ -359,7 +351,7 @@
             // 整形して返す
             if (date.year == date_now.year) {
                 if (date.month == date_now.month && date.day == date_now.day) {
-                    return date_now.month + "月" + date.day + "日" + date.hour + "：" + date.minute;
+                    return date_now.month + "月" + date.day + "日 " + date.hour + ":" + date.minute;
                 } else {
                     return date.month + "/" + date.day;
                 }
