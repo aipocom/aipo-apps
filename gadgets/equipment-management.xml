@@ -47,13 +47,14 @@
             }
 
             .status_min {
-                color: #B8860B;
+               color: #ff9900;
+               font-weight: bold;
             }
 
             .status_off {
-                color: #DC143C;
+               color: #ff0000;
+               font-weight: bold;
             }
-
         </style>
         <div class="aipostyle">
             <form action="#" onsubmit="eventSubmit('on');return false;">
