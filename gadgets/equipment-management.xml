@@ -57,20 +57,9 @@
         </style>
         <div class="aipostyle">
             <form action="#" onsubmit="eventSubmit('on');return false;">
-                <table class="wide borderNone">
-                    <tbody>
-                    <tr>
-                        <td class="borderNone pb5"><input type="text" style="width:99%;color:black;"
-                                                          onfocus="eventItemFocus()"
-                                                          onblur="eventItemBlur()" maxlength=30
-                                                          id="item"/></td>
-                        <td class="borderNone pb5">
-                            <input type="submit" style="margin-right:3px;" value="追加する"/>
-                            <input type="button" value="更新" onclick="repaint()"/>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                <input type="text" onfocus="eventItemFocus()" onblur="eventItemBlur()" maxlength=30 id="item" style="width: 17em;"/>
+                <input type="submit" style="margin-right:2px;" value="追加する"/>
+                <input type="button" value="更新" onclick="repaint()"/>
             </form>
             <hr/>
             <table class="borderNone" style="margin-bottom:15px;">
@@ -87,7 +76,7 @@
         var groups = null;
 
         var itemCheck = false;
-        var itemNotice = "備品名を書く（30文字まで）";
+        var itemNotice = "備品名を追加する（30文字まで）";
 
         var table = null;
         var prefs = new gadgets.Prefs();
@@ -278,11 +267,13 @@
             var userData = [];
             // データの取得
             var keep = [];
+            var selectedAttr = {};
             for (var i = 1; i <= 50; i++) {
                 keep.push("type_" + i);
                 keep.push("date_" + i);
                 keep.push("reporter_" + i);
                 keep.push("name_" + i);
+                selectedAttr[i] = {0:"", 1:"", 2:""};
             }
             osapi.appdata.get({ userId: ['@admin'] ,fields: keep }).execute(function(response) {
                 // ユーザーID、アプリデータの連想配列
@@ -300,12 +291,15 @@
                             var statusText = "";
                             if (data["type_" + i] == "on") {
                                 statusText = "補充済";
+                                selectedAttr[i][0] = 'selected="selected"';
                             }
                             else if (data["type_" + i] == "min") {
                                 statusText = "少ない";
+                                selectedAttr[i][1] = 'selected="selected"';
                             }
                             else if (data["type_" + i] == "off") {
                                 statusText = "無し";
+                                selectedAttr[i][2] = 'selected="selected"';
                             }
 
                             if (data["type_" + i] == "on" || data["type_" + i] == "min" || data["type_" + i] == "off") {
@@ -313,11 +307,13 @@
                                 userData[i] = '\
 <tr>\
     <td valign="top" class="pb5">\
-    ' + '<div class="' + " status_" + data["type_" + i] + '">[' + statusText + '] ' + data["name_" + i] + '&nbsp;&nbsp;</div><div class="fs10_g">' + getDate(data["date_" + i]) + ' ' + '(' + data['reporter_' + i] + ')</div>' + '</td>\
-    <td valign="top" class="pb5 fs10_g">\
-      <input type="button" value="補充済" onclick="eventChange(0 , ' + i + ')"/>\
-      <input type="button" value="少ない" onclick="eventChange(1 , ' + i + ')"/>\
-      <input type="button" value="無し" onclick="eventChange(2 , ' + i + ')"/>\
+    ' + '<div class="' + " status_" + data["type_" + i] + '">' + data["name_" + i] + '&nbsp;&nbsp;</div><div class="fs10_g">' + getDate(data["date_" + i]) + ' ' + '(' + data['reporter_' + i] + ')&nbsp;&nbsp;</div>' + '</td>\
+    <td valign="top" class="pb5">\
+      <select name="status" onchange="eventChange(this.options[this.selectedIndex].value, ' + i + ');">\
+        <option value="0" ' + selectedAttr[i][0] + '>補充済</option>\
+        <option value="1" ' + selectedAttr[i][1] + '>少ない</option>\
+        <option value="2" ' + selectedAttr[i][2] + '>無し</option>\
+      </select>\
       <input type="button" value="削除" onclick="if(window.confirm(\'備品データを削除しますか？\')) eventChange(3 , ' + i + ')"/>\
     </td>\
 </tr>\
