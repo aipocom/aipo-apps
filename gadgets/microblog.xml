@@ -9,6 +9,7 @@
         <Require feature="minimessage"/>
         <Require feature="osapi"/>
         <Require feature="setprefs"/>
+        <Require feature="jquery"/>
         <Optional feature="wave"/>
         <Optional feature="aipostyle"/>
         <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/microblog/img/icon/icon16-trans.png</Icon>
@@ -174,8 +175,6 @@
 
 
         </style>
-        <script type="text/javascript"
-                src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js"></script>
         ]]></Content>
     <Content type="html" view="canvas,home"><![CDATA[
         <div id="wrapper" class="aipostyle">
@@ -524,175 +523,341 @@
         }
 
         function fetchOne(id, childId) {
-            var params = {};
+
+            var data = {};
             if (id > 0) {
-                params['id'] = id;
+                data['id'] = id;
             }
 
-            $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
-                    function(response, status) {
-                        $("#indicatorContent").hide();
-                        if (status == 'success') {
-                            var list = response.data.list;
-                            var resultHtml = "";
-                            $.each(list, function(i) {
-                                if (childId > 0) {
-                                    if (currentCommentId == list[i].id) {
-                                        $.each(list[i].comments, function(j) {
-                                            if (childId == list[i].comments[j].id) {
-                                                var html = convertCommentHtml(list[i].comments[j], list[i].id);
-                                                $(html).hide().appendTo("#message" + list[i].id + " .comments").fadeIn("fast");
-                                            }
-                                        });
-                                    } else {
-                                        resultHtml += convertTimelineHtml(list[i]);
-                                        $("#message" + list[i].id).fadeOut("fast").remove();
+            var params = {};
+            params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+            params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.SIGNED;
+            params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.POST;
+            params[gadgets.io.RequestParameters.POST_DATA] = gadgets.io.encodeValues(data);
+            gadgets.io.makeRequest(baseUrl + 'api/statuses/home?ts=' + new Date().getTime(), function(response) {
+                $("#indicatorContent").hide();
+                if (response.rc == 200) {
+                    var list = response.data.data.list;
+                    var resultHtml = "";
+                    $.each(list, function(i) {
+                        if (childId > 0) {
+                            if (currentCommentId == list[i].id) {
+                                $.each(list[i].comments, function(j) {
+                                    if (childId == list[i].comments[j].id) {
+                                        var html = convertCommentHtml(list[i].comments[j], list[i].id);
+                                        $(html).hide().appendTo("#message" + list[i].id + " .comments").fadeIn("fast");
                                     }
-                                } else {
-                                    resultHtml += convertTimelineHtml(list[i]);
-                                }
-                            });
-                            $(resultHtml).hide().prependTo("#content").fadeIn("fast");
+                                });
+                            } else {
+                                resultHtml += convertTimelineHtml(list[i]);
+                                $("#message" + list[i].id).fadeOut("fast").remove();
+                            }
+                        } else {
+                            resultHtml += convertTimelineHtml(list[i]);
                         }
-                    }, 'json');
+                    });
+                    $(resultHtml).hide().prependTo("#content").fadeIn("fast");
+                }
+            }, params);
+            /*
+             $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
+             function(response, status) {
+             $("#indicatorContent").hide();
+             if (status == 'success') {
+             var list = response.data.list;
+             var resultHtml = "";
+             $.each(list, function(i) {
+             if (childId > 0) {
+             if (currentCommentId == list[i].id) {
+             $.each(list[i].comments, function(j) {
+             if (childId == list[i].comments[j].id) {
+             var html = convertCommentHtml(list[i].comments[j], list[i].id);
+             $(html).hide().appendTo("#message" + list[i].id + " .comments").fadeIn("fast");
+             }
+             });
+             } else {
+             resultHtml += convertTimelineHtml(list[i]);
+             $("#message" + list[i].id).fadeOut("fast").remove();
+             }
+             } else {
+             resultHtml += convertTimelineHtml(list[i]);
+             }
+             });
+             $(resultHtml).hide().prependTo("#content").fadeIn("fast");
+             }
+             }, 'json');
+             */
         }
 
         function fetchHome(id) {
-            var params = {};
+            var data = {};
             if (id > 0) {
-                params['id'] = id;
+                data['id'] = id;
             }
-            params['count'] = viewCount;
+            data['count'] = viewCount;
 
-            $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
-                    function(response, status) {
-                        $("#indicatorContent").hide();
-                        if (status == 'success') {
+            var params = {};
+            params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+            params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.SIGNED;
+            params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.POST;
+            params[gadgets.io.RequestParameters.POST_DATA] = gadgets.io.encodeValues(data);
+            gadgets.io.makeRequest(baseUrl + 'api/statuses/home?ts=' + new Date().getTime(), function(response) {
+                $("#indicatorContent").hide();
+                if (response.rc == 200) {
+                    if (contentHeight > 0) {
+                        $(".timeline").css("height", contentHeight + "px");
+                        $(".timeline").css("overflow", "scroll");
+                        $(".timeline").css("overflow-x", "hidden");
+                        gadgets.window.adjustHeight();
+                    }
 
-                            if (contentHeight > 0) {
-                                $(".timeline").css("height", contentHeight + "px");
-                                $(".timeline").css("overflow", "scroll");
-                                $(".timeline").css("overflow-x", "hidden");
-                                gadgets.window.adjustHeight();
-                            }
+                    var list = response.data.data.list;
+                    var resultHtml = "";
+                    $.each(list, function(i) {
+                        resultHtml += convertTimelineHtml(list[i]);
+                    });
 
-                            var list = response.data.list;
-                            var resultHtml = "";
-                            $.each(list, function(i) {
-                                resultHtml += convertTimelineHtml(list[i]);
-                            });
-
-                            if (contentHeight == 0) {
-                                if (response.data.has_next) {
-                                    resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
-                                }
-                            }
-                            currentCursor = response.data.has_next ? response.data.cursor : null;
-                            $("#content").empty();
-                            $(resultHtml).hide().appendTo("#content").fadeIn("fast");
-
-                            gadgets.window.adjustHeight();
+                    if (contentHeight == 0) {
+                        if (response.data.data.has_next) {
+                            resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.data.cursor);
                         }
-                    }, 'json');
+                    }
+                    currentCursor = response.data.data.has_next ? response.data.data.cursor : null;
+                    $("#content").empty();
+                    $(resultHtml).hide().appendTo("#content").fadeIn("fast");
+
+                    gadgets.window.adjustHeight();
+                }
+            }, params);
+
+            /*
+             $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
+             function(response, status) {
+             $("#indicatorContent").hide();
+             if (status == 'success') {
+
+             if (contentHeight > 0) {
+             $(".timeline").css("height", contentHeight + "px");
+             $(".timeline").css("overflow", "scroll");
+             $(".timeline").css("overflow-x", "hidden");
+             gadgets.window.adjustHeight();
+             }
+
+             var list = response.data.list;
+             var resultHtml = "";
+             $.each(list, function(i) {
+             resultHtml += convertTimelineHtml(list[i]);
+             });
+
+             if (contentHeight == 0) {
+             if (response.data.has_next) {
+             resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
+             }
+             }
+             currentCursor = response.data.has_next ? response.data.cursor : null;
+             $("#content").empty();
+             $(resultHtml).hide().appendTo("#content").fadeIn("fast");
+
+             gadgets.window.adjustHeight();
+             }
+             }, 'json');
+             */
         }
 
         function refreshHome(retry) {
+            var data = {};
+            data['count'] = viewCount;
+
             var params = {};
-            params['count'] = viewCount;
+            params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+            params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.SIGNED;
+            params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.POST;
+            params[gadgets.io.RequestParameters.POST_DATA] = gadgets.io.encodeValues(data);
+            gadgets.io.makeRequest(baseUrl + 'api/statuses/home?ts=' + new Date().getTime(), function(response) {
+                $("#indicatorContent").hide();
+                if (response.rc == 200) {
+                    if (contentHeight > 0) {
+                        $(".timeline").css("height", contentHeight + "px");
+                        $(".timeline").css("overflow", "scroll");
+                        $(".timeline").css("overflow-x", "hidden");
+                        gadgets.window.adjustHeight();
+                    }
 
-            $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
-                    function(response, status) {
-                        $("#indicatorContent").hide();
-                        if (status == 'success') {
+                    var list = response.data.data.list;
+                    var resultHtml = "";
+                    if (currentCommentId == null) {
+                        $.each(list, function(i) {
+                            resultHtml += convertTimelineHtml(list[i]);
+                            $("#message" + list[i].id).fadeOut("fast").remove();
+                        });
 
-                            if (contentHeight > 0) {
-                                $(".timeline").css("height", contentHeight + "px");
-                                $(".timeline").css("overflow", "scroll");
-                                $(".timeline").css("overflow-x", "hidden");
-                                gadgets.window.adjustHeight();
+
+                        if (contentHeight == 0) {
+                            if (response.data.data.has_next) {
+                                resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.data.cursor);
                             }
-
-                            var list = response.data.list;
-                            var resultHtml = "";
-                            if (currentCommentId == null) {
-                                $.each(list, function(i) {
-                                    resultHtml += convertTimelineHtml(list[i]);
-                                    $("#message" + list[i].id).fadeOut("fast").remove();
-                                });
-
-
-                                if (contentHeight == 0) {
-                                    if (response.data.has_next) {
-                                        resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
-                                    }
-                                }
-
-                                if (isFirst) {
-                                    currentCursor = response.data.has_next ? response.data.cursor : null;
-                                    isFirst = false;
-                                }
-                                $(resultHtml).hide().prependTo("#content").fadeIn("fast");
-                            }
-
-                            gadgets.window.adjustHeight();
-
-                            retry();
                         }
-                    }, 'json');
+
+                        if (isFirst) {
+                            currentCursor = response.data.data.has_next ? response.data.data.cursor : null;
+                            isFirst = false;
+                        }
+                        $(resultHtml).hide().prependTo("#content").fadeIn("fast");
+                    }
+
+                    gadgets.window.adjustHeight();
+
+                    retry();
+                }
+            }, params);
+            /*
+             $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
+             function(response, status) {
+             $("#indicatorContent").hide();
+             if (status == 'success') {
+
+             if (contentHeight > 0) {
+             $(".timeline").css("height", contentHeight + "px");
+             $(".timeline").css("overflow", "scroll");
+             $(".timeline").css("overflow-x", "hidden");
+             gadgets.window.adjustHeight();
+             }
+
+             var list = response.data.list;
+             var resultHtml = "";
+             if (currentCommentId == null) {
+             $.each(list, function(i) {
+             resultHtml += convertTimelineHtml(list[i]);
+             $("#message" + list[i].id).fadeOut("fast").remove();
+             });
+
+
+             if (contentHeight == 0) {
+             if (response.data.has_next) {
+             resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
+             }
+             }
+
+             if (isFirst) {
+             currentCursor = response.data.has_next ? response.data.cursor : null;
+             isFirst = false;
+             }
+             $(resultHtml).hide().prependTo("#content").fadeIn("fast");
+             }
+
+             gadgets.window.adjustHeight();
+
+             retry();
+             }
+             }, 'json');
+             */
         }
 
         function readMore(cursor) {
+            var data = {};
+            data['start'] = cursor;
+            data['count'] = viewCount;
+
             var params = {};
-            params['start'] = cursor;
-            params['count'] = viewCount;
+            params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+            params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.SIGNED;
+            params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.POST;
+            params[gadgets.io.RequestParameters.POST_DATA] = gadgets.io.encodeValues(data);
+            gadgets.io.makeRequest(baseUrl + 'api/statuses/home?ts=' + new Date().getTime(), function(response) {
+                if (response.rc == 200) {
+                    var list = response.data.data.list;
+                    var resultHtml = "";
+                    $.each(list, function(i) {
+                        resultHtml += convertTimelineHtml(list[i]);
+                    });
 
-            $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
-                    function(response, status) {
-                        if (status == 'success') {
-                            var list = response.data.list;
-                            var resultHtml = "";
-                            $.each(list, function(i) {
-                                resultHtml += convertTimelineHtml(list[i]);
-                            });
-
-                            if (contentHeight == 0) {
-                                if (response.data.has_next) {
-                                    resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
-                                }
-                            }
-                            currentCursor = response.data.has_next ? response.data.cursor : null;
-                            resultHtml = resultHtml.replace("class=\"message\"", "class=\"message on\"");
-
-                            if (contentHeight == 0) {
-                                $(".readMore").hide();
-                            }
-                            $(resultHtml).hide().appendTo("#content").show();
-                            readMoreLock = false;
-
-                            gadgets.window.adjustHeight();
+                    if (contentHeight == 0) {
+                        if (response.data.data.has_next) {
+                            resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.data.cursor);
                         }
-                    }, 'json');
+                    }
+                    currentCursor = response.data.data.has_next ? response.data.data.cursor : null;
+                    resultHtml = resultHtml.replace("class=\"message\"", "class=\"message on\"");
+
+                    if (contentHeight == 0) {
+                        $(".readMore").hide();
+                    }
+                    $(resultHtml).hide().appendTo("#content").show();
+                    readMoreLock = false;
+
+                    gadgets.window.adjustHeight();
+                }
+            }, params);
+            /*
+             $.get(baseUrl + 'api/statuses/home?ts=' + new Date().getTime() + ' signed', params,
+             function(response, status) {
+             if (status == 'success') {
+             var list = response.data.list;
+             var resultHtml = "";
+             $.each(list, function(i) {
+             resultHtml += convertTimelineHtml(list[i]);
+             });
+
+             if (contentHeight == 0) {
+             if (response.data.has_next) {
+             resultHtml += "<div class=\"readMore\"><a href=\"javascript:void(0);\" onclick=\"readMore('___CURSOR___');\">もっと見る</a></div>".replace(/___CURSOR___/g, response.data.cursor);
+             }
+             }
+             currentCursor = response.data.has_next ? response.data.cursor : null;
+             resultHtml = resultHtml.replace("class=\"message\"", "class=\"message on\"");
+
+             if (contentHeight == 0) {
+             $(".readMore").hide();
+             }
+             $(resultHtml).hide().appendTo("#content").show();
+             readMoreLock = false;
+
+             gadgets.window.adjustHeight();
+             }
+             }, 'json');
+             */
         }
 
         function fetchAllComment(parentId) {
+            var data = {};
+            data['parentId'] = parentId;
             var params = {};
-            params['parentId'] = parentId;
+            params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+            params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.SIGNED;
+            params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.POST;
+            params[gadgets.io.RequestParameters.POST_DATA] = gadgets.io.encodeValues(data);
+            gadgets.io.makeRequest(baseUrl + 'api/statuses/comment?ts=' + new Date().getTime(), function(response) {
+                if (response.rc == 200) {
+                    var list = response.data.data.list;
+                    var resultHtml = "";
+                    $.each(list, function(i) {
+                        resultHtml += convertCommentHtml(list[i], parentId);
+                    });
+                    resultHtml += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\">コメントする</div>".replace(/___ID___/g, gadgets.util.escapeString(parentId));
+                    $('#message' + parentId + " .comments").empty();
+                    $(resultHtml).hide().appendTo('#message' + parentId + " .comments").fadeIn("fast");
 
-            $.get(baseUrl + 'api/statuses/comment?ts=' + new Date().getTime() + ' signed', params,
-                    function(response, status) {
-                        if (status == 'success') {
-                            var list = response.data.list;
-                            var resultHtml = "";
-                            $.each(list, function(i) {
-                                resultHtml += convertCommentHtml(list[i], parentId);
-                            });
-                            resultHtml += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\">コメントする</div>".replace(/___ID___/g, gadgets.util.escapeString(parentId));
-                            $('#message' + parentId + " .comments").empty();
-                            $(resultHtml).hide().appendTo('#message' + parentId + " .comments").fadeIn("fast");
+                    gadgets.window.adjustHeight();
+                }
+            }, params);
 
-                            gadgets.window.adjustHeight();
-                        }
-                    }, 'json');
+            /*
+             $.get(baseUrl + 'api/statuses/comment?ts=' + new Date().getTime() + ' signed', params,
+             function(response, status) {
+             if (status == 'success') {
+             var list = response.data.list;
+             var resultHtml = "";
+             $.each(list, function(i) {
+             resultHtml += convertCommentHtml(list[i], parentId);
+             });
+             resultHtml += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\">コメントする</div>".replace(/___ID___/g, gadgets.util.escapeString(parentId));
+             $('#message' + parentId + " .comments").empty();
+             $(resultHtml).hide().appendTo('#message' + parentId + " .comments").fadeIn("fast");
+
+             gadgets.window.adjustHeight();
+             }
+             }, 'json');
+             */
         }
 
 
@@ -702,107 +867,209 @@
                 form.text.focus();
                 return;
             }
+
+            var data = {};
+            data['body'] = form.text.value;
             var params = {};
-            params['body'] = form.text.value;
-
+            params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+            params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.SIGNED;
+            params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.POST;
+            params[gadgets.io.RequestParameters.POST_DATA] = gadgets.io.encodeValues(data);
             $("#indicator").show();
-            $.post(baseUrl + 'api/statuses/update signed', params,
-                    function(data, status) {
-                        $("#indicator").hide();
-                        if (status == 'success') {
-                            if (data.status == 200) {
-                                showMessage('発言しました。');
-                                $(".timeline").scrollTop(0);
-                                var submitData = {};
-                                submitData.user = {};
-                                submitData.id = data.data.id;
-                                submitData.user.id = viewer.id;
-                                submitData.text = form.text.value;
-                                submitData.created_at = new Date().toString();
-                                appendTimelineHtml(submitData);
-                                form.text.value = "";
-                                form.text.focus();
+            gadgets.io.makeRequest(baseUrl + 'api/statuses/update', function(response) {
+                $("#indicator").hide();
+                if (response.rc == 200) {
+                    if (response.data.status == 200) {
+                        showMessage('発言しました。');
+                        $(".timeline").scrollTop(0);
+                        var submitData = {};
+                        submitData.user = {};
+                        submitData.id = response.data.data.id;
+                        submitData.user.id = viewer.id;
+                        submitData.text = form.text.value;
+                        submitData.created_at = new Date().toString();
+                        appendTimelineHtml(submitData);
+                        form.text.value = "";
+                        form.text.focus();
 
-                                if (hasWave) {
-                                    var stateValue = {};
-                                    stateValue.method = "update_status";
-                                    stateValue.id = data.data.id;
-                                    wave.getState().submitValue(viewer.id, stateValue);
-                                }
-                            } else {
-                                showMessage(data.errorMessage);
-                                form.text.focus();
-                            }
+                        if (hasWave) {
+                            var stateValue = {};
+                            stateValue.method = "update_status";
+                            stateValue.id = response.data.data.id;
+                            wave.getState().submitValue(viewer.id, stateValue);
                         }
-                    }, 'json');
+                    } else {
+                        showMessage(response.data.errorMessage);
+                        form.text.focus();
+                    }
+                }
+            }, params);
+            /*
+             $.post(baseUrl + 'api/statuses/update signed', params,
+             function(data, status) {
+             $("#indicator").hide();
+             if (status == 'success') {
+             if (data.status == 200) {
+             showMessage('発言しました。');
+             $(".timeline").scrollTop(0);
+             var submitData = {};
+             submitData.user = {};
+             submitData.id = data.data.id;
+             submitData.user.id = viewer.id;
+             submitData.text = form.text.value;
+             submitData.created_at = new Date().toString();
+             appendTimelineHtml(submitData);
+             form.text.value = "";
+             form.text.focus();
+
+             if (hasWave) {
+             var stateValue = {};
+             stateValue.method = "update_status";
+             stateValue.id = data.data.id;
+             wave.getState().submitValue(viewer.id, stateValue);
+             }
+             } else {
+             showMessage(data.errorMessage);
+             form.text.focus();
+             }
+             }
+             }, 'json');
+             */
         }
 
         function updateComment(form, id, userId) {
+            var data = {};
+            data['body'] = form.text.value;
+            data['parentId'] = id;
             var params = {};
-            params['body'] = form.text.value;
-            params['parentId'] = id;
+            params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+            params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.SIGNED;
+            params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.POST;
+            params[gadgets.io.RequestParameters.POST_DATA] = gadgets.io.encodeValues(data);
+            $("#indicator").show();
+            gadgets.io.makeRequest(baseUrl + 'api/statuses/update', function(response) {
+                $("#indicator").hide();
+                if (response.rc == 200) {
+                    if (response.data.status == 200) {
+                        //showCommentMessage(id, 'コメントしました。');
+                        var submitData = {};
+                        submitData.user = {};
+                        submitData.id = response.data.data.id;
+                        submitData.user.id = viewer.id;
+                        submitData.text = form.text.value;
+                        submitData.created_at = new Date().toString();
+                        appendCommentHtml(submitData, id);
+                        form.text.value = "";
+                        $('#commentField' + id).hide();
+                        currentCommentId = null;
 
-            $("#indicator" + id).show();
-            $.post(baseUrl + 'api/statuses/update signed', params,
-                    function(data, status) {
-                        $("#indicator" + id).hide();
-                        if (status == 'success') {
-                            if (data.status == 200) {
-                                //showCommentMessage(id, 'コメントしました。');
-                                var submitData = {};
-                                submitData.user = {};
-                                submitData.id = data.data.id;
-                                submitData.user.id = viewer.id;
-                                submitData.text = form.text.value;
-                                submitData.created_at = new Date().toString();
-                                appendCommentHtml(submitData, id);
-                                form.text.value = "";
-                                $('#commentField' + id).hide();
-                                currentCommentId = null;
-
-                                if (hasWave) {
-                                    var stateValue = {};
-                                    stateValue.method = "update_comment";
-                                    stateValue.parentId = id;
-                                    stateValue.id = data.data.id;
-                                    wave.getState().submitValue(viewer.id, stateValue);
-                                }
-                                createActivity(id, userId);
-
-                                gadgets.window.adjustHeight();
-                            } else {
-                                showCommentMessage(id, data.errorMessage);
-                                form.text.focus();
-                            }
+                        if (hasWave) {
+                            var stateValue = {};
+                            stateValue.method = "update_comment";
+                            stateValue.parentId = id;
+                            stateValue.id = response.data.data.id;
+                            wave.getState().submitValue(viewer.id, stateValue);
                         }
-                    }, 'json');
+                        createActivity(id, userId);
+
+                        gadgets.window.adjustHeight();
+                    } else {
+                        showCommentMessage(id, response.data.errorMessage);
+                        form.text.focus();
+                    }
+                }
+            }, params);
+            /*
+             $("#indicator" + id).show();
+             $.post(baseUrl + 'api/statuses/update signed', params,
+             function(data, status) {
+             $("#indicator" + id).hide();
+             if (status == 'success') {
+             if (data.status == 200) {
+             //showCommentMessage(id, 'コメントしました。');
+             var submitData = {};
+             submitData.user = {};
+             submitData.id = data.data.id;
+             submitData.user.id = viewer.id;
+             submitData.text = form.text.value;
+             submitData.created_at = new Date().toString();
+             appendCommentHtml(submitData, id);
+             form.text.value = "";
+             $('#commentField' + id).hide();
+             currentCommentId = null;
+
+             if (hasWave) {
+             var stateValue = {};
+             stateValue.method = "update_comment";
+             stateValue.parentId = id;
+             stateValue.id = data.data.id;
+             wave.getState().submitValue(viewer.id, stateValue);
+             }
+             createActivity(id, userId);
+
+             gadgets.window.adjustHeight();
+             } else {
+             showCommentMessage(id, data.errorMessage);
+             form.text.focus();
+             }
+             }
+             }, 'json');
+             */
         }
 
         function deleteStatus(id, parentId) {
             if (confirm(parentId > 0 ? 'コメントを削除してよろしいでしょうか？' : '投稿を削除してよろしいでしょうか？')) {
-                var params = {};
-                params['id'] = id;
-                if (parentId > 0) {
-                    params['parentId'] = parentId;
-                }
-                $.post(baseUrl + 'api/statuses/delete signed', params,
-                        function(data, status) {
-                            if (status == 'success') {
-                                if (data.status == 200) {
-                                    deleteCommentHtml(id);
 
-                                    if (hasWave) {
-                                        var stateValue = {};
-                                        stateValue.method = "delete_status";
-                                        stateValue.id = id;
-                                        wave.getState().submitValue(viewer.id, stateValue);
-                                    }
-                                } else {
-                                    showMessage(data.errorMessage);
-                                    form.text.focus();
-                                }
+                var data = {};
+                data['id'] = id;
+                if (parentId > 0) {
+                    data['parentId'] = parentId;
+                }
+                var params = {};
+                params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+                params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.SIGNED;
+                params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.POST;
+                params[gadgets.io.RequestParameters.POST_DATA] = gadgets.io.encodeValues(data);
+                $("#indicator").show();
+                gadgets.io.makeRequest(baseUrl + 'api/statuses/delete', function(response) {
+                    $("#indicator").hide();
+                    if (response.rc == 200) {
+                        if (response.data.status == 200) {
+                            deleteCommentHtml(id);
+
+                            if (hasWave) {
+                                var stateValue = {};
+                                stateValue.method = "delete_status";
+                                stateValue.id = id;
+                                wave.getState().submitValue(viewer.id, stateValue);
                             }
-                        }, 'json');
+                        } else {
+                            showMessage(response.data.errorMessage);
+                            form.text.focus();
+                        }
+                    }
+                }, params);
+
+                /*
+                 $.post(baseUrl + 'api/statuses/delete signed', params,
+                 function(data, status) {
+                 if (status == 'success') {
+                 if (data.status == 200) {
+                 deleteCommentHtml(id);
+
+                 if (hasWave) {
+                 var stateValue = {};
+                 stateValue.method = "delete_status";
+                 stateValue.id = id;
+                 wave.getState().submitValue(viewer.id, stateValue);
+                 }
+                 } else {
+                 showMessage(data.errorMessage);
+                 form.text.focus();
+                 }
+                 }
+                 }, 'json');
+                 */
             }
         }
 
@@ -935,6 +1202,9 @@
                 $("#inputField textarea").focus(commentFocus).blur(commentBlur).keyup(countUp).focus(countUp).blur();
 
                 $('.timeline').scroll(function(e) {
+                    gadgets.log(e.target.scrollTop + contentHeight + 100);
+                    gadgets.log(e.target.scrollHeight);
+                    gadgets.log(readMoreLock);
                     if (e.target.scrollTop + contentHeight + 100 >= e.target.scrollHeight && currentCursor != null && !readMoreLock) {
                         readMoreLock = true;
                         readMore(currentCursor);
@@ -950,7 +1220,11 @@
             }
         }
 
-        gadgets.util.registerOnLoadHandler(init);
+        gadgets.util.registerOnLoadHandler(function() {
+            jQuery(function($) {
+                init();
+            });
+        });
 
         </script>
         ]]></Content>
