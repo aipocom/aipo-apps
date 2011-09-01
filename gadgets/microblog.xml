@@ -425,7 +425,11 @@
         }
 
         function link(src) {
-            return src.replace(/(http:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
+            return src.replace(/(https?:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
+        }
+
+        function space(src) {
+            return src.replace(/ /g, "&nbsp;");
         }
 
         function br(src) {
@@ -460,7 +464,7 @@
             }
             template += "</div>";
             template = template.replace("___USER_NAME___", gadgets.util.escapeString(peopleMap[data.user.id]) || "_");
-            template = template.replace("___TEXT___", br(link(gadgets.util.escapeString(data.text))));
+            template = template.replace("___TEXT___", br(link(space(gadgets.util.escapeString(data.text)))));
             template = template.replace("___POST_TIME___", formatDate(new Date(data.created_at)));
             template = template.replace(/___ID___/g, data.id);
 
@@ -510,7 +514,7 @@
             }
             template += "</div></div>";
             template = template.replace("___USER_NAME___", gadgets.util.escapeString(peopleMap[data.user.id]) || "_");
-            template = template.replace("___TEXT___", br(link(gadgets.util.escapeString(data.text))));
+            template = template.replace("___TEXT___", br(link(space(gadgets.util.escapeString(data.text)))));
             template = template.replace("___POST_TIME___", formatDate(new Date(data.created_at)));
             template = template.replace(/___ID___/g, data.id);
             template = template.replace(/___PARENT_ID___/g, parentId);
