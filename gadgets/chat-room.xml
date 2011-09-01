@@ -73,7 +73,7 @@
 
         </style>
         <div class="aipostyle">
-            <table class="wide">
+            <table style="width:99%;">
                 <tbody>
                 <tr>
                     <td><textarea onKeyUp="updateCount(value, 'count', max_length)" cols="40" rows="2"
@@ -376,6 +376,7 @@
                     callback: pageselectCallback,
                     items_per_page:1,
                     load_first_page:true,
+                    link_to: '#chat_room',
                     current_page:currentPage
                 });
             } else {
