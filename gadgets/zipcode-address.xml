@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-    <ModulePrefs title="郵便番号⇔住所 変換"
+    <ModulePrefs title="郵便番号検索"
                  description="郵便番号から住所、住所から郵便番号を調べられます。">
         <Require feature="dynamic-height"/>
         <Optional feature="aipostyle"/>
