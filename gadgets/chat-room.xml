@@ -259,7 +259,7 @@
 
                                 key_data += '\
 <p style="padding:3px;0"><strong style="font-weight:bold;color: #' + gadgets.util.escapeString(row_datas[i]["color"]) + '">' + gadgets.util.escapeString(row_datas[i]["owner"]) + '</strong>\
- ＞' + urlAutoLink(gadgets.util.escapeString(row_datas[i]["comment"])) + ' \
+ ＞' + br(link(space(gadgets.util.escapeString(row_datas[i]["comment"])))) + ' \
 <span style="color: #666666;">(' + gadgets.util.escapeString(getDate(row_datas[i]["date"])) + ')</span>' + delete_html + '</p>\
 ';
                                 if (counter % max_per_page == 0) {
@@ -399,13 +399,20 @@
             );
         }
 
-
         /**
          * 自動リンク
          * @param text
          */
-        function urlAutoLink(text) {
-            return text.replace(/(https?:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
+        function link(src) {
+            return src.replace(/(https?:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
+        }
+
+        function space(src) {
+            return src.replace(/ /g, "&nbsp;");
+        }
+
+        function br(src) {
+            return src.replace(/\r\n/g, "<br/>").replace(/(\n|\r)/g, "<br/>").replace(/(&#13;&#10;)/g, "<br/>").replace(/(&#10;|&#13;)/g, "<br/>");
         }
 
         /**
