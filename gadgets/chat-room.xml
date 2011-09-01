@@ -411,8 +411,12 @@
             return src.replace(/ /g, "&nbsp;");
         }
 
+        /**
+         * 改行削除
+         * @param text
+         */
         function br(src) {
-            return src.replace(/\r\n/g, "<br/>").replace(/(\n|\r)/g, "<br/>").replace(/(&#13;&#10;)/g, "<br/>").replace(/(&#10;|&#13;)/g, "<br/>");
+            return src.replace(/\r\n/g, "&nbsp;").replace(/(\n|\r)/g, "&nbsp;").replace(/(&#13;&#10;)/g, "&nbsp;").replace(/(&#10;|&#13;)/g, "&nbsp;");
         }
 
         /**
