@@ -405,7 +405,7 @@
          * @param text
          */
         function urlAutoLink(text) {
-            return  text.replace(/(http:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
+            return text.replace(/(https?:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
         }
 
         /**
