@@ -62,7 +62,7 @@ class DatacommitController extends AbstractJsonCommitController {
           } else if (column.getDataType() == SheetService.DataType.LONGTEXT.toString()) {
             if (valueString.size > 0 && valueString.size > AppConstants.VALIDATE_LONGTEXT_LENGTH) {
               addError(column.getColumnName(), LanguageUtil.get("error.stringLength", Some(Array(
-                column.getName(), "1", AppConstants.VALIDATE_STRING_LENGTH.toString))));
+                column.getName(), "1", AppConstants.VALIDATE_LONGTEXT_LENGTH.toString))));
             } else if (required && valueString.size == 0) {
               addError(column.getColumnName(), LanguageUtil.get("error.required", Some(Array(
                 column.getName()))));
@@ -196,7 +196,7 @@ class DatacommitController extends AbstractJsonCommitController {
                 if (column.getDataType() == SheetService.DataType.TEXT.toString()) {
                   data.setProperty(column.getColumnName(), valueString)
                 } else if (column.getDataType() == SheetService.DataType.LONGTEXT.toString()) {
-                  data.setProperty(column.getColumnName(), valueString)
+                  data.setProperty(column.getColumnName(), new com.google.appengine.api.datastore.Text(valueString))
                 } else if (column.getDataType() == SheetService.DataType.NUMBER.toString()) {
                   try {
                     data.setProperty(column.getColumnName(), valueString.toInt)

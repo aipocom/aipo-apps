@@ -238,7 +238,10 @@ object SheetDataService {
           case data =>
             val dataType: String = column.getDataType()
 
-            if (dataType == SheetService.DataType.DATETIME.toString) {
+            if (dataType == SheetService.DataType.LONGTEXT.toString) {
+              (JsString(column.getColumnName()),
+                JsString((data.asInstanceOf[com.google.appengine.api.datastore.Text]).getValue()))
+            } else if (dataType == SheetService.DataType.DATETIME.toString) {
               (JsString(column.getColumnName()),
                 JsString(AppConstants.dateTimeFormat.format(data.asInstanceOf[Date])))
             } else if (dataType == SheetService.DataType.DATE.toString) {
