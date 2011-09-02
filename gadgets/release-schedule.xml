@@ -26,8 +26,8 @@
     <Content type="html" view="home,canvas"><![CDATA[
         <div class="aipostyle">
             <form name="date">
-                <table class="form wide">
-                    <tbody>
+                <h3>新規登録</h3>
+                <table class="form wide" width="100%">
                     <tr>
                         <th>リリース日</th>
                         <td>
@@ -35,14 +35,16 @@
                             <select id="monthid" name="monthname" onchange="daySet()">月</select>
                             <select id="dayid" name="dayname">日</select>
                         </td>
-                        <th>タイトル</th>
+                    </tr>
+                    <tr>
+                         <th>タイトル</th>
                         <td><input type="text"
-                                   id="commentid"/></td>
+                                   id="commentid" size="15"/></td>
+                    </tr>
                         <th>担当者</th>
                         <td><input type="text"
-                                   id="staffid"/></td>
+                                   id="staffid" size="15"/></td>
                     </tr>
-                    </tbody>
                 </table>
                 <div class="center">
                     <input type="button" value="投稿する" onclick="eventSubmit()"/>
@@ -54,7 +56,7 @@
                 <table class="list wide">
                     <thead id = "header">
                     </thead>
-                    <tbody id="status">
+                    <tbody id= "status">
                     </tbody>
                 </table>
             <div id="pager" style="text-align:center;" class="pager"></div>
@@ -230,6 +232,7 @@
                 }
 
                 var timestamp = new Date().getTime();
+                    if (timestamp % 10 == 0){timestamp++;} //timestampの末尾が０になって捨てられることを防止
                 var key = '__MODULE_ID__.' + timestamp;
                 var date = timestamp + "";
 
@@ -271,97 +274,7 @@
                     });
                 });
             }
-
-            //お誘い削除
-            function deleteItem2(key) {
-                if (confirm("このスケジュールを削除してよろしいでしょうか？")) {
-
-                    osapi.appdata.get({ userId: ["@viewer"] ,fields: [key] }).execute(function(response) {
-                        if (response.error) {
-                            // minimessage
-                            msg.createTimerMessage("削除に失敗しました。", 3, function() {
-                                gadgets.window.adjustHeight();
-                                return true;
-                            });
-                        }
-                        // ユーザーの読み込み
-                        osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
-                            var userIds = [];
-                            var counter = 0;
-
-                            var list = response.list;
-                            for (var i in list) {
-                                userIds.push(list[i].id);
-                            }
-
-                            // 参加者データの取得
-                            osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response) {
-                                // ユーザーID、アプリデータの連想配列
-                                for (var userId3 in response) {
-                                    var tmp_add = gadgets.json.parse(response[userId3]['add']);
-                                    for (var i in tmp_add) {
-                                        if (tmp_add[i] == key) {
-                                            counter++
-                                        }
-                                    }
-                                }
-                                if (counter > 0) {
-                                    // minimessage
-                                    msg.createTimerMessage("参加者がいるため削除できません。", 3, function() {
-                                        gadgets.window.adjustHeight();
-                                        return true;
-                                    });
-                                } else {
-                                    osapi.appdata.get({ userId: ["@viewer"] ,fields: ["keys"] }).execute(function(response) {
-                                        for (var userId in response) {
-                                            var links = response[userId];
-                                        }
-                                        var keys = new Array();
-                                        if (links && links["keys"]) {
-                                            keys = gadgets.json.parse(links["keys"]);
-                                        }
-
-                                        // 削除後の処理
-                                        var callback = function(response) {
-                                            if (response.error) {
-                                                // minimessage
-                                                msg.createTimerMessage("削除に失敗しました。", 3, function() {
-                                                    gadgets.window.adjustHeight();
-                                                    return true;
-                                                });
-                                            } else {
-                                                // minimessage
-                                                msg.createTimerMessage("削除しました。", 3, function() {
-                                                    gadgets.window.adjustHeight();
-                                                    return true;
-                                                });
-                                                // データの再表示
-                                                repaint();
-                                            }
-                                        };
-
-                                        var newKeys = new Array();
-                                        for (var i in keys) {
-                                            if (keys[i] != key) {
-                                                newKeys.push(keys[i]);
-                                            }
-                                        }
-
-                                        var data = {};
-                                        data["keys"] = gadgets.json.stringify(newKeys);
-
-                                        var batch = osapi.newBatch()
-                                                .add('delete', osapi.appdata['delete']({ userId: '@viewer', fields: [key], appId: '@app' }))
-                                                .add('update', osapi.appdata.update({ userId: '@viewer', data: data,  appId: '@app' }));
-                                        batch.execute(callback);
-                                    });
-                                }
-                            });
-                        });
-                    });
-                }
-            }
-
+            
             function deleteItem(key){
                     if (confirm("このスケジュールを削除してよろしいでしょうか？")) {
                     osapi.appdata['delete']({ userId: '@viewer' , fields: [key] }).execute(function(response) {
@@ -370,6 +283,10 @@
                         gadgets.window.adjustHeight();
                     });
                 }
+            }
+
+            function deleteOldData(){
+
             }
 
             //テーブルの再描画関数
@@ -419,9 +336,39 @@
                                             return a["intYearMonthDay"] < b["intYearMonthDay"] ? -1 : 1;
                                         });
 
+                                        //本日以降のデータのみを表示（データベースからは過去のデータは消去しない）
+                                        $("#status").html("");
+                                        for (var i in row_datas) {
+                                            if (row_datas[i]["intYearMonthDay"] >= yearMonthDayToday){
+                                                var css_class = '';
+                                                if (counter >= max_per_page) {
+                                                    css_class += ' style="display:none;"';
+                                                }
+                                                counter++;
+                                                var delete_html = '<input type="button" value="削除" onclick="deleteItem(' + row_datas[i]["key"] + ')"/>';
+                                                var key_data = '\
+                                                       <tr' + css_class + '>\
+                                                       <td>' + gadgets.util.escapeString(row_datas[i]["yearMonthDay"]) + '</td>\
+                                                       <td>' + gadgets.util.escapeString(row_datas[i]["comment"]) + '</td>\
+                                                       <td>' + gadgets.util.escapeString(row_datas[i]["staff"]) + '</td>\
+                                                       <td>' + delete_html + '</td>\
+                                                       </tr>\
+                                                       ';
+                                                // データの表示
+                                                $("#status").html($("#status").html() + key_data);
+                                            }
+                                        }
+
+                                        //表示件数切り替え
+                                        if (counter > max_per_page) {
+                                            var pager = '<a href="javascript:void(0);" onclick="showMore();">全件表示</a>';
+                                            $("#pager").html(pager);
+                                            $("#pager").show();
+                                        }
+
                                         // テーブルヘッダー
-                                        if (row_datas.length > 0) {
-                                            $("#header").html("");
+                                        $("#header").html("");
+                                        if (counter > 0) {
                                             var header = '\
                                                  <tr>\
                                                  <th>リリース日</th>\
@@ -431,33 +378,15 @@
                                                  </tr>\
                                                   ';
                                             $("#header").html($("#header").html() + header);
-                                        }
-                                        if (row_datas.length > max_per_page) {
-                                            var pager = '<a href="javascript:void(0);" onclick="showMore();">全件表示</a>';
-                                            $("#pager").html(pager);
-                                            $("#pager").show();
+                                        }else{
+                                            var header =  '\
+                                                 <tr>\
+                                                 <th>リリーススケジュールはありません。</th>\
+                                                 </tr>\
+                                                  ';
+                                            $("#header").html($("#header").html() + header);
                                         }
 
-                                            $("#status").html("");
-                                        for (var i in row_datas) {
-                                            var css_class = '';
-                                            if (counter >= max_per_page) {
-                                                css_class += ' style="display:none;"';
-                                            }
-                                            counter++;
-                                            var delete_html = '<input type="button" value="削除" onclick="deleteItem(' + gadgets.util.escapeString(row_datas[i]["key"]) + ')"/>';
-
-                                            var key_data = '\
-                                                   <tr' + css_class + '>\
-                                                   <td>' + gadgets.util.escapeString(row_datas[i]["yearMonthDay"]) + '</td>\
-                                                   <td>' + gadgets.util.escapeString(row_datas[i]["comment"]) + '</td>\
-                                                   <td>' + gadgets.util.escapeString(row_datas[i]["staff"]) + '</td>\
-                                                   <td>' + delete_html + '</td>\
-                                                   </tr>\
-                                                   ';
-                                            // データの表示
-                                            $("#status").html($("#status").html() + key_data);
-                                        }
                                         // ウインドウの幅再調整
                                         gadgets.window.adjustHeight();
                                     });
