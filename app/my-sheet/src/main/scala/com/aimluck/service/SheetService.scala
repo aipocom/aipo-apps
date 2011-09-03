@@ -344,9 +344,8 @@ object SheetService {
     _cursor match {
       case Some(cursor) =>
         query.encodedStartCursor(cursor).asQueryResultList()
-      case None => try {
+      case None =>
         query.asQueryResultList()
-      }
     }
   }
 
@@ -385,6 +384,8 @@ object SheetService {
       Datastore.delete(column.getKey())
     }
 
+    ReverseCounterLogService.delete(model.getKindName())
+    
     val mm: SheetMemberMeta = SheetMemberMeta.get
     Datastore.query(mm).filter(mm.sheetRef.equal(model.getKey)).asIterable().foreach { member =>
       Datastore.delete(member.getKey())

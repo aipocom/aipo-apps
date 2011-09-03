@@ -18,24 +18,44 @@
 package com.aimluck.controller.task.counter
 
 import org.dotme.liquidtpl.lib.memcache.ReverseCounterLogService
+import org.dotme.liquidtpl.Constants
 import org.slim3.controller.Controller
 import org.slim3.controller.Navigation
+import org.slim3.datastore.ModelQuery
 import org.slim3.datastore.Datastore
+import org.slim3.datastore.S3QueryResultList
+
+import com.aimluck.meta.SheetMeta
 import com.aimluck.model.Sheet
-import com.aimluck.service.SheetDataService
-import com.google.appengine.api.datastore.KeyFactory
-import com.aimluck.service.SheetService
 import com.google.appengine.api.taskqueue.QueueFactory
 import com.google.appengine.api.taskqueue.TaskOptions
 
-class CleanupController extends Controller {
+class CleanupdatacounterController extends Controller {
 
   @throws(classOf[Exception])
   override def run(): Navigation = {
     try {
-      ReverseCounterLogService.cleanupDatastore("Sh")
-      val queue = QueueFactory.getDefaultQueue();
-      queue.add(TaskOptions.Builder.withUrl("/task/counter/cleanupdatacounter"))
+      val cursor: String = request.getParameter(Constants.KEY_CURSOR_NEXT)
+      val m: SheetMeta = SheetMeta.get
+      val query: ModelQuery[Sheet] = Datastore.query(m)
+      val resultList: S3QueryResultList[Sheet] = cursor match {
+        case null =>
+          query.asQueryResultList()
+        case cursor: String =>
+          query.encodedStartCursor(cursor).asQueryResultList()
+        case _ => null
+      }
+      if (resultList != null) {
+        if (resultList.hasNext) {
+          val queue = QueueFactory.getDefaultQueue();
+          queue.add(TaskOptions.Builder.withUrl("/task/counter/cleanupdatacounter")
+            .param(Constants.KEY_CURSOR_NEXT, resultList.getEncodedCursor()))
+        }
+        resultList.toArray.toList.foreach { sheet =>
+          ReverseCounterLogService.cleanupDatastore(sheet.asInstanceOf[Sheet].getKindName())
+        }
+      }
+
     } catch {
       case e: Exception => e.printStackTrace(response.getWriter())
     }

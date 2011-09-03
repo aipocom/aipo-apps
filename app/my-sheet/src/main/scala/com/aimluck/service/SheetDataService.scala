@@ -23,15 +23,12 @@
 package com.aimluck.service
 import java.util.logging.Logger
 import java.util.Date
-
 import scala.collection.JavaConversions._
 import scala.xml.Node
 import scala.xml.NodeSeq
 import scala.xml.Text
-
 import org.dotme.liquidtpl.lib.datastore.LowLevelResultList
 import org.dotme.liquidtpl.Constants
-
 import com.aimluck.lib.util.AppConstants
 import com.aimluck.model.Sheet
 import com.aimluck.model.SheetColumn
@@ -42,8 +39,8 @@ import com.google.appengine.api.datastore.Entity
 import com.google.appengine.api.datastore.FetchOptions
 import com.google.appengine.api.datastore.Key
 import com.google.appengine.api.datastore.KeyFactory
-
 import dispatch.json._
+import org.dotme.liquidtpl.lib.memcache.ReverseCounterLogService
 
 object SheetDataService {
   val logger = Logger.getLogger(SheetDataService.getClass.getName)
@@ -52,6 +49,7 @@ object SheetDataService {
   val ENTITY_RELATION_TYPE = "rT"
   val ENTITY_CREATED_AT = "cA"
   val ENTITY_UPDATED_AT = "uA"
+  val NAMESPACE = "ShD"
   val KIND_SUFFIX_COMMENT = "cmt"
   val datastoreService: DatastoreService = DatastoreServiceFactory.getDatastoreService()
 
@@ -280,7 +278,7 @@ object SheetDataService {
   def save(model: Entity, sheet: Sheet, relationName: String, relationType: String, isNew: Boolean): Key = {
     val now: Date = new Date
     val entity: Entity = if (isNew) {
-      val _entity: Entity = new Entity(sheet.getKindName())
+      val _entity: Entity = new Entity(sheet.getKindName(), ReverseCounterLogService.increment(sheet.getKindName()))
       _entity.setProperty(ENTITY_RELATION_NAME, relationName)
       _entity.setProperty(ENTITY_RELATION_TYPE, relationType)
       _entity.setProperty(ENTITY_CREATED_AT, now)
