@@ -10,6 +10,7 @@
         <Require feature="aipostyle"/>
         <Require feature="osapi"/>
         <Require feature="setprefs"/>
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/release-schedule/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
         <EnumValue value="5"/>
