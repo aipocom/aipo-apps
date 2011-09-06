@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
     <ModulePrefs
-            title="リリース7"
-            description="会社内でのリリース日共有のためのアプリです。">
+            title="リリーススケジュール共有"
+            description="会社内のリリーススケジュール情報共有のためのアプリです。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>
@@ -14,26 +14,28 @@
     <UserPref name="p1-homeRows" display_name="表示件数（通常時）" datatype="enum" default_value="5">
         <EnumValue value="5"/>
         <EnumValue value="10"/>
+        <EnumValue value="20"/>
         <EnumValue value="50"/>
     </UserPref>
     <UserPref name="p2-canvasRows" display_name="表示件数（最大化時）" datatype="enum" default_value="10">
         <EnumValue value="5"/>
         <EnumValue value="10"/>
+        <EnumValue value="20"/>
         <EnumValue value="50"/>
     </UserPref>
 
 
     <Content type="html" view="home,canvas"><![CDATA[
         <div class="aipostyle">
-            <form name="date">
+            <form>
                 <h3>新規登録</h3>
                 <table class="form wide" width="100%">
                     <tr>
                         <th>リリース日</th>
                         <td>
-                            <select id="yearid" name="yearname" onchange="monthSet() ; daySet()">年</select>
-                            <select id="monthid" name="monthname" onchange="daySet()">月</select>
-                            <select id="dayid" name="dayname">日</select>
+                            <select id="yearid" onchange="monthSet() ; daySet()">年</select>
+                            <select id="monthid" onchange="daySet()">月</select>
+                            <select id="dayid">日</select>
                         </td>
                     </tr>
                     <tr>
@@ -51,15 +53,10 @@
                 </div>
             </form>
 
-            <form name="schedules">
+            <form>
                 <h3>リリーススケジュール</h3>
-                <table class="list wide">
-                    <thead id = "header">
-                    </thead>
-                    <tbody id= "status">
-                    </tbody>
-                </table>
-            <div id="pager" style="text-align:center;" class="pager"></div>
+                <div class="aipostyle" id="dataAndPager">
+                </div>
             </form>
         </div>
 
@@ -70,14 +67,22 @@
             //変数設定
                 //日時に関する変数
                 var dateToday = new Date();
-                var yearToday = dateToday.getYear();
-                var yearCEToday = (yearToday<2000) ? yearToday+1900 : yearToday ;
+                var yearToday = dateToday.getYear(); //今が2011の場合、ブラウザによって2011にも111にもなる
+                var yearCEToday;
+                    if (yearToday < 2000){
+                        yearCEToday = yearToday + 1900;
+                    }else{
+                        yearCEToday = yearToday;
+                    }
+
                 var monthToday = dateToday.getMonth() + 1;
                 var dayToday = dateToday.getDate();
                 var yearMonthDayToday = yearCEToday*10000 + monthToday*100 + dayToday;
                 var msg = new gadgets.MiniMessage();
                 var prefs = new gadgets.Prefs();
                 var max_per_page = getPrefRows();
+                //現在表示されているページ番号
+                var currentPage =0;
 
             //セレクトボックスを今日に初期化
             function initSelectbox(){
@@ -110,9 +115,12 @@
                     dayHtml.push('<option value="' + i + '">' + i + '</option>');
                 }
 
-                document.getElementById("yearid").innerHTML = yearHtml;
-                document.getElementById("monthid").innerHTML = monthHtml;
-                document.getElementById("dayid").innerHTML = dayHtml;
+                $("yearid").html("");
+                $("#yearid").html(""+yearHtml);
+                $("monthid").html("");
+                $("#monthid").html(""+monthHtml);
+                $("dayid").html("");
+                $("#dayid").html(""+dayHtml);
             }
 
             //月をセレクトボックスに挿入
@@ -120,12 +128,12 @@
                 //あとでセレクトボックスに挿入するHTML
                 var monthHtml = new Array();
                 //現在セレクトボックスで選択されている年月
-                var yearSelectedNow = document.date.yearname.selectedIndex + yearCEToday;
+                var yearSelectedNow = document.getElementById("yearid").selectedIndex + yearCEToday;
                 var monthSelectedNow;
                     if ( yearSelectedNow == yearCEToday ){
-                        monthSelectedNow = document.date.monthname.selectedIndex + monthToday ;
+                        monthSelectedNow = document.getElementById("monthid").selectedIndex + monthToday ;
                     }else{
-                        monthSelectedNow = document.date.monthname.selectedIndex + 1;
+                        monthSelectedNow = document.getElementById("monthid").selectedIndex + 1;
                 }
                 if ( yearSelectedNow == yearCEToday ) {
                     //monthHtmlに今月から12を代入
@@ -137,7 +145,8 @@
                         monthHtml.push('<option value="' + i + '">' + i + '</option>');
                     }
                 }
-                document.getElementById("monthid").innerHTML = monthHtml;
+                $("monthid").html("");
+                $("#monthid").html(""+monthHtml);
             }
 
             //日をセレクトボックスへ挿入
@@ -147,12 +156,12 @@
                 //月ごとの日数を計算して入れておく変数
                 var daysOfMonth;
                 //現在セレクトボックスで選択されている年月
-                var yearSelectedNow = document.date.yearname.selectedIndex + yearCEToday;
+                var yearSelectedNow = document.getElementById("yearid").selectedIndex + yearCEToday;
                  var monthSelectedNow;
                     if ( yearSelectedNow == yearCEToday ){
-                        monthSelectedNow = document.date.monthname.selectedIndex + monthToday ;
+                        monthSelectedNow = document.getElementById("monthid").selectedIndex + monthToday ;
                     }else{
-                        monthSelectedNow = document.date.monthname.selectedIndex + 1;
+                        monthSelectedNow = document.getElementById("monthid").selectedIndex + 1;
                 }
                 //月毎の日数を計算
                 if (monthSelectedNow == 4 || monthSelectedNow == 6 || monthSelectedNow == 9 || monthSelectedNow == 11){
@@ -173,7 +182,8 @@
                         dayHtml.push('<option value="' + i + '">' + i + '</option>');
                     }
                 }
-                document.getElementById("dayid").innerHTML = dayHtml;
+                $("dayid").html("");
+                $("#dayid").html(""+dayHtml);
             }
 
             //2月の日数を求める関数
@@ -189,7 +199,7 @@
                 }
             }
 
-            //入力されたデータを保存する関数（飲みイコ）
+            //入力されたデータを保存する関数
             function eventSubmit() {
                 //フォームからの値の取得
                 var yearSubmitted = $("#yearid").val() ;
@@ -228,6 +238,7 @@
                         msg.createTimerMessage("担当者は100文字までで入力してください。", 5);
                         gadgets.window.adjustHeight();
                     }
+                    gadgets.window.adjustHeight();
                     return false;
                 }
 
@@ -270,33 +281,32 @@
                             return true;
                         });
                         // データの再表示
-                       repaint();
+                       repaint(currentPage);
                     });
                 });
             }
-            
+
+            //データの削除
             function deleteItem(key){
                     if (confirm("このスケジュールを削除してよろしいでしょうか？")) {
                     osapi.appdata['delete']({ userId: '@viewer' , fields: [key] }).execute(function(response) {
-                        repaint();
+                        repaint(currentPage);
                         msg.createTimerMessage("削除しました。", 3);
                         gadgets.window.adjustHeight();
                     });
                 }
             }
 
-            function deleteOldData(){
-
-            }
-
             //テーブルの再描画関数
-            function repaint() {
+            function repaint(pageIndex) {
+                currentPage = pageIndex;
                 osapi.people.get({ userId: '@viewer' }).execute(function(response) {
                     var users = [];
                     var userIds = [];
                     var row_datas = [];
                     var keys = [];
-                    var counter = 0;
+                    var counter = 0; //表示するデータ数を数える変数
+                    var dataNum = 0; //表示するデータ数
 
                     // ユーザーID
                     var currentUserid = response.id;
@@ -331,17 +341,60 @@
                                             }
                                         }
 
+                                        //データベースと配列row_datasから古いデータを削除
+                                        for (var i in row_datas) {
+                                            if (row_datas[i]["intYearMonthDay"] < yearMonthDayToday){
+                                                delete row_datas[i];
+                                                osapi.appdata['delete']({ userId: '@viewer' , fields: [i] }).execute(function(response) {
+                                                });
+                                            }
+                                        }
+
+                                        // 投稿時間降順
+                                        row_datas.sort(function(a, b) {
+                                            return a["date"] < b["date"] ? -1 : 1;
+                                        });
+
                                         // 日付降順
                                         row_datas.sort(function(a, b) {
                                             return a["intYearMonthDay"] < b["intYearMonthDay"] ? -1 : 1;
                                         });
 
-                                        //本日以降のデータのみを表示（データベースからは過去のデータは消去しない）
-                                        $("#status").html("");
+                                        //データ数カウント
                                         for (var i in row_datas) {
-                                            if (row_datas[i]["intYearMonthDay"] >= yearMonthDayToday){
+                                                dataNum++;
+                                        }
+
+                                        var tableHtml = new Array();
+                                        // テーブルヘッダー
+                                        if (dataNum > 0) {
+                                            tableHtml.push('\
+                                                 <table class="list wide" class ="aipostyle">\
+                                                 <tr>\
+                                                 <th>リリース日</th>\
+                                                 <th>内容</th>\
+                                                 <th>担当者</th>\
+                                                 <th class="thin">削除</th>\
+                                                 </tr>\
+                                                  ');
+                                        }else{
+                                            tableHtml.push('\
+                                                 <tr>\
+                                                 <th>リリーススケジュールはありません。</th>\
+                                                 </tr>\
+                                                  ');
+                                        }
+
+                                        var pageNum = Math.ceil(dataNum / max_per_page); //全ページ数
+                                        //currentPageが存在しない番号を指していた場合、pageの最大値に置き換える(データを消してそのページにデータがなくなった場合)
+                                        if (currentPage > pageNum-1 ){
+                                            currentPage = pageNum-1;
+                                        }
+
+                                        //本日以降のデータのみを表示
+                                        for (var i in row_datas) {
                                                 var css_class = '';
-                                                if (counter >= max_per_page) {
+                                                if (counter < currentPage * max_per_page || counter >= (currentPage+1) * max_per_page) {
                                                     css_class += ' style="display:none;"';
                                                 }
                                                 counter++;
@@ -355,38 +408,27 @@
                                                        </tr>\
                                                        ';
                                                 // データの表示
-                                                $("#status").html($("#status").html() + key_data);
+                                                tableHtml.push(key_data); //全データを挿入
+                                        }
+                                        tableHtml.push('</table>');
+                                        
+                                        //ページャ機能
+                                        if (pageNum > 1) {
+                                            tableHtml.push('<div class="clearfix"><ul class="pagination">');
+                                            for (var i = 0; i < pageNum; i++) {
+                                                if (i == currentPage) {
+                                                    tableHtml.push('<li class="selected">');
+                                                } else {
+                                                    tableHtml.push('<li>');
+                                                }
+                                                tableHtml.push('<a href="javascript:void(0);" onclick="repaint(' + i + ');">');
+                                                tableHtml.push(i + 1);
+                                                tableHtml.push('</a></li>');
                                             }
+                                            tableHtml.push('</ul></div>');
                                         }
-
-                                        //表示件数切り替え
-                                        if (counter > max_per_page) {
-                                            var pager = '<a href="javascript:void(0);" onclick="showMore();">全件表示</a>';
-                                            $("#pager").html(pager);
-                                            $("#pager").show();
-                                        }
-
-                                        // テーブルヘッダー
-                                        $("#header").html("");
-                                        if (counter > 0) {
-                                            var header = '\
-                                                 <tr>\
-                                                 <th>リリース日</th>\
-                                                 <th>内容</th>\
-                                                 <th>担当者</th>\
-                                                 <th class="thin">削除</th>\
-                                                 </tr>\
-                                                  ';
-                                            $("#header").html($("#header").html() + header);
-                                        }else{
-                                            var header =  '\
-                                                 <tr>\
-                                                 <th>リリーススケジュールはありません。</th>\
-                                                 </tr>\
-                                                  ';
-                                            $("#header").html($("#header").html() + header);
-                                        }
-
+                                        $("#dataAndPager").html("");
+                                        document.getElementById('dataAndPager').innerHTML = tableHtml.join('');
                                         // ウインドウの幅再調整
                                         gadgets.window.adjustHeight();
                                     });
@@ -420,7 +462,7 @@
             //初期化
             function init() {
                 initSelectbox();
-                repaint();
+                repaint(currentPage);
                 gadgets.window.adjustHeight();
             }
 
