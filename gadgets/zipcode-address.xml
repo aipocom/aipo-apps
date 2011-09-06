@@ -8,21 +8,21 @@
     </ModulePrefs>
     <Content type="html"><![CDATA[
         <div class="aipostyle">
-            <table class="form">
+            <table class="list">
                 <tr>
-                    <th width="40">郵便番号</th>
+                    <th nowrap>郵便番号</th>
                     <td>
                         <form action="#" onsubmit="zipsearch();return false;">
-                            <input type="text" id="zipcode" style="width: 20em;" placeholder="郵便番号から住所を検索します"/>
+                            <input type="text" id="zipcode" style="width: 20em;" placeholder="郵便番号から住所を検索"/>
                             <input type="submit" value="検索"/>
                         </form>
                     </td>
                 </tr>
                 <tr>
-                    <th width="40">住所</th>
+                    <th nowrap>住所</th>
                     <td>
                         <form action="#" onsubmit="addresssearch();return false;">
-                            <input type="text" id="address" style="width: 20em;" maxlength="100"
+                            <input type="text" id="address" style="width: 12em;" maxlength="100"
                                    placeholder="住所から郵便番号を検索します"/>
                             <input type="button" value="検索"/>
                         </form>
@@ -84,37 +84,34 @@
 
             function callback1(data) {
                 var count = 0;
-                var html = '<table id="resultTable" style="width:100%" class="form">\n';
-                html += '<tr>\
-<th>郵便番号<\/th>\
-<th>都道府県<\/th>\
-<th>市区町村<\/th>\
-<th>町名番地<\/th>\
-                <\/tr>';
+                var html = '<table id="resultTable" style="width:100%" class="list">\n';
+                html += '<tr>\n';
+                html += ' <th>郵便番号<\/th>\n';
+                html += ' <th>住所<\/th>\n';
+                html += '<\/tr>';
                 for (var i in data.zipcode) {
                     html += '<tr>\n';
                     html += ' <td style="white-space: nowrap">';
                     html += data.zipcode[i].zipcode.substr(0, 3) + '-' + data.zipcode[i].zipcode.substr(3);
-                    html += ' </td>\n';
-                    html += ' <td style="white-space: nowrap">' + data.zipcode[i].prefecture + '</td>\n';
-                    html += ' <td style="white-space: nowrap">' + data.zipcode[i].city + '</td>\n';
-                    html += ' <td style="white-space: nowrap; text-align: left;">' + data.zipcode[i].town + '</td>\n';
-                    html += '</tr>\n';
+                    html += ' <\/td>\n';
+                    html += ' <td style="white-space: nowrap">';
+                    html += data.zipcode[i].prefecture + data.zipcode[i].city + data.zipcode[i].town;
+                    html += ' <\/td>\n';
+                    html += '<\/tr>\n';
                     count++;
                 }
                 for (var i in data.office) {
                     html += '<tr>\n';
                     html += ' <td style="white-space: nowrap">';
                     html += data.office[i].zipcode.substr(0, 3) + '-' + data.office[i].zipcode.substr(3);
-                    html += ' </td>\n';
-                    html += ' <td style="white-space: nowrap" colspan="3">' + data.office[i].office_name + '</td>\n';
-                    html += ' <td style="white-space: nowrap">';
-                    html += data.office[i].prefecture + data.office[i].city + data.office[i].town + data.office[i].street;
-                    html += ' </td>\n';
-                    html += '</tr>\n';
+                    html += ' <\/td>\n';
+                    html += ' <td style="white-space: nowrap" colspan="3">';
+                    html += data.office[i].office_name + data.office[i].prefecture + data.office[i].city + data.office[i].town + data.office[i].street;
+                    html += ' <\/td>\n';
+                    html += '<\/tr>\n';
                     count++;
                 }
-                html += '</table>\n';
+                html += '<\/table>\n';
                 if (count) {
                     document.getElementById('codes').innerHTML = html;
                 } else {
