@@ -4,7 +4,7 @@
                  description="郵便番号から住所、住所から郵便番号を調べられます。">
         <Require feature="dynamic-height"/>
         <Optional feature="aipostyle"/>
-        <!--<Icon>http://~~.com</Icon>-->
+        <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/zipcode-address/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <Content type="html"><![CDATA[
         <div class="aipostyle">
