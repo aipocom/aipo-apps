@@ -7,7 +7,7 @@
         <!--<Icon>http://~~.com</Icon>-->
     </ModulePrefs>
     <Content type="html"><![CDATA[
-        <div class="aipostyle">
+        <div class="aipostyle" onload="gadgets.window.adjustHeight();">
             <table class="list">
                 <tr>
                     <th nowrap>郵便番号</th>
@@ -31,8 +31,7 @@
             </table>
             <div id="codes" style="overflow: auto;"></div>
             <!-- クレジット表示 -->
-            <div>Powered by <a target="_blank" href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a>
-            </div>
+            <div>Powered by <a target="_blank" href="http://groovetechnology.co.jp/webservice/">グルーブテクノロジー Web サービス</a></div>
         </div>
 
         <script language="javascript" type="text/javascript">
