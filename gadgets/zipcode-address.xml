@@ -13,7 +13,7 @@
                     <th nowrap>郵便番号</th>
                     <td>
                         <form action="#" onsubmit="zipsearch();return false;">
-                            <input type="text" id="zipcode" style="width: 20em;" placeholder="郵便番号から住所を検索"/>
+                            <input type="text" id="zipcode" style="width: 12em;" placeholder="郵便番号から住所を検索"/>
                             <input type="submit" value="検索"/>
                         </form>
                     </td>
