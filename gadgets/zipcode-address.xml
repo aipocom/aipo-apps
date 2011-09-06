@@ -24,7 +24,7 @@
                         <form action="#" onsubmit="addresssearch();return false;">
                             <input type="text" id="address" style="width: 12em;" maxlength="100"
                                    placeholder="住所から郵便番号を検索します"/>
-                            <input type="button" value="検索"/>
+                            <input type="submit" value="検索"/>
                         </form>
                     </td>
                 </tr>
@@ -88,7 +88,7 @@
                 html += '<tr>\n';
                 html += ' <th>郵便番号<\/th>\n';
                 html += ' <th>住所<\/th>\n';
-                html += '<\/tr>';
+                html += '<\/tr>\n';
                 for (var i in data.zipcode) {
                     html += '<tr>\n';
                     html += ' <td style="white-space: nowrap">';
