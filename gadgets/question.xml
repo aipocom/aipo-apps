@@ -13,114 +13,32 @@
 </ModulePrefs>
 <Content type="html"><![CDATA[
 <div class="aipostyle">
-    <table class="wide borderNone">
+    <table class="wide borderNone" id="displaybutton">
+        <tbody>
+            <td><a href = "javascript:displayQuestionForm()">質問する</a></td>
+        </tbody>
+    </table>
+    <table class="wide borderNone" id="form" style="display:none;">
         <tbody>
         <tr>
             <td class="borderNone pb5"><input type="text" style="color:gray;"
                                               onfocus="eventCommentFocus()"
-                                              onblur="eventCommentBlur()" maxlength=100
-                                              id="comment"/><input type="button" value="投稿する"
-                                                                   onclick="eventSubmit()" style="margin:0 0 0 10px;"/>
+                                              onblur="eventCommentBlur()" maxlength=30
+                                              id="comment"/>
             </td>
         </tbody>
-    </table>
-
-    <table class="wide borderNone">
         <tbody id = "choiceslist">
-        <tr>
-            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
-                                              maxlength=100
-                                              id="choice0"
-                                              onfocus="eventChoicesFocus(0)"
-                                              onblur="eventChoicesBlur(0)"/>
-            </td>
-        <tr>
-            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
-                                              maxlength=100
-                                              id="choice1"
-                                              onfocus="eventChoicesFocus(1)"
-                                              onblur="eventChoicesBlur(1)"/>
-            </td>
-        <tr>
-            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
-                                              maxlength=100
-                                              id="choice2"
-                                              onfocus="eventChoicesFocus(2)"
-                                              onblur="eventChoicesBlur(2)"/>
-            </td>
-        <tr>
-            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
-                                              maxlength=100
-                                              id="choice3"
-                                              onfocus="eventChoicesFocus(3)"
-                                              onblur="eventChoicesBlur(3)"/>
-            </td>
-        <tr>
-            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
-                                              maxlength=100
-                                              id="choice4"
-                                              onfocus="eventChoicesFocus(4)"
-                                              onblur="eventChoicesBlur(4)"/>
-            </td>
-        <tr>
-            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
-                                              maxlength=100
-                                              id="choice5"
-                                              onfocus="eventChoicesFocus(5)"
-                                              onblur="eventChoicesBlur(5)"/>
-            </td>
-        <tr>
-            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
-                                              maxlength=100
-                                              id="choice6"
-                                              onfocus="eventChoicesFocus(6)"
-                                              onblur="eventChoicesBlur(6)"/>
-            </td>
-        <tr>
-            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
-                                              maxlength=100
-                                              id="choice7"
-                                              onfocus="eventChoicesFocus(7)"
-                                              onblur="eventChoicesBlur(7)"/>
-            </td>
-        <tr>
-            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
-                                              maxlength=100
-                                              id="choice8"
-                                              onfocus="eventChoicesFocus(8)"
-                                              onblur="eventChoicesBlur(8)"/>
-            </td>
-        <tr>
-            <td class="borderNone pb5"><input type="text" style="color:gray;display:none;"
-                                              maxlength=100
-                                              id="choice9"
-                                              onfocus="eventChoicesFocus(9)"
-                                              onblur="eventChoicesBlur(9)"/>
-            </td>
         </tbody>
-    </table>
-
-    <table class="wide borderNone">
         <tbody>
-        <td><a href = "javascript:addQuestion()">選択肢を追加する</a></td>
+        <td><a href = "javascript:addQuestionFirst()" id="add">選択肢を追加する</a>
+        <input type="button" value="投稿する" id="eventSubmitButton"
+            onclick="eventSubmit()"/></td>
         </tbody>
     </table>
 
-    <table class="wide borderNone">
-        <tbody>
-        <td><a href = "javascript:deleteQuestion()">選択肢を排除する</a></td>
-        </tbody>
+    <table class="wide borderNone" id="result">
     </table>
 
-    <table class="wide borderNone">
-        <tbody id="result">
-        </tbody>
-    </table>
-
-    <table class="listTable">
-        <tbody id="status">
-        </tbody>
-    </table>
     <div id="pager"></div>
 </div>
 
@@ -129,28 +47,20 @@
 <script>
 gadgets.util.registerOnLoadHandler(init);
 
-var choices = new Array(10);
-choices[0] = choice0;
-choices[1] = choice1;
-choices[2] = choice2;
-choices[3] = choice3;
-choices[4] = choice4;
-choices[5] = choice5;
-choices[6] = choice6;
-choices[7] = choice7;
-choices[8] = choice8;
-choices[9] = choice9;
-
-var choicesCheck = new Array(10);
-
+var choices = [];
+var choicesRoot = [];
+var choicesCheck = [];
 var choicesCount = 0;
+
+var addCheck = [];
+var addForm = [];
 
 var groups = null;
 
-var commentCheck = false;
-var commentNotice = "質問する";
+var addNotice = "回答を追加";
 
-var choicesNotice = "選択肢を追加";
+var commentCheck = false;
+var commentNotice = "質問名";
 
 var table = null;
 var page_pre = null;
@@ -165,54 +75,52 @@ var pageCount = 0;
  */
 function init() {
     // コメント
-    for (var i = 0; i < 10; i++) {
-        eventChoicesBlur(i);
-    }
     eventCommentBlur();
     repaint();
 }
 
 /*
-* submit
-*/
+ * submit
+ */
 function eventSubmit() {
+    var button = document.getElementById("eventSubmitButton");
+    button.disabled = true;
     osapi.people.get({ userId: '@viewer' }).execute(function(response) {
         var msg = new gadgets.MiniMessage();
         // フォームから値の取得
         var comment = $("#comment").val();
-        var choicesVal = new Array(10);
-        for (var i = 0; i < choicesCount; i++){
-            choicesVal[i] = $(choices[i]).val();
-        }
+        var count = 0;
+        var choicesVal = [];
         if (!commentCheck && comment == commentNotice) {
             comment = "";
         }
-        for (var i = 0; i < choicesCount; i++){
-            if(!choicesCheck[i] && choicesVal[i] == choicesNotice) {
-                choicesVal[i] = "";
-            }
-        }
-        // 時間の取得
-        var date = (new Date()).getTime() + "";
         // バリデート
         if (!comment) {
             msg.createTimerMessage("質問を入力してください。", 5);
             gadgets.window.adjustHeight();
+            button.disabled = false;
             return false;
         }
+
         for (var i = 0; i < choicesCount; i++){
-            if (!choicesVal[i]) {
-                msg.createTimerMessage("追加した選択肢は全て入力してください。", 5);
-                gadgets.window.adjustHeight();
-                return false;
+            if(!choicesCheck[i] && $(choices[i]).val() == addNotice) {
+                $(choices[i]).val("");
             }
         }
+        for (var i = 0; i < choicesCount; i++){
+            if ($(choices[i]).val()) {
+                choicesVal[count] = $(choices[i]).val();
+                count++;
+            }
+        }
+        // 時間の取得
+        var timestamp = new Date().getTime();
+        var shareKey = '__MODULE_ID__.' + timestamp;
+        var date = timestamp + "";
 
         comment = gadgets.util.escapeString(comment);
         date = gadgets.util.escapeString(date);
-        var count = gadgets.util.escapeString(choicesCount.toString());
-        var userId = gadgets.util.escapeString(response.id);
-        for (var i = 0; i < choicesCount; i++){
+        for (var i = 0; i < count; i++){
             choicesVal[i] = gadgets.util.escapeString(choicesVal[i]);
         }
 
@@ -220,22 +128,28 @@ function eventSubmit() {
         var data1;
         data['comment'] = comment;
         data['date'] = date;
-        data['count'] = count;
-        data['user'] = userId;
-        for (var i = 0; i < choicesCount; i++){
-            data['choice' + i] = choicesVal[i];
+
+        for (var i = 0; i < count; i++){
+            var cdata = {};
+            var cdata1;
+            cdata['name'] = gadgets.util.escapeString(choicesVal[i]);
+            cdata1 = gadgets.json.stringify(cdata);
+            $.post("https://aipoquestion.appspot.com/_je/choice", {messageBody: cdata1 ,shareKey: shareKey, supNum: 0}, function (result){}, "text");
         }
+
         data1 = gadgets.json.stringify(data);
         // post a message
-        $.post("https://aipoquestion.appspot.com/_je/question", { createdby: response.id, messageBody: data1 }, function (result){
+        $.post("https://aipoquestion.appspot.com/_je/question", { createdby: response.id, messageBody: data1, shareKey: shareKey }, function (result){
             // minimessage
             msg.createTimerMessage("送信しました。", 3, function() {
                 $("#comment").val("");
-                for(var i = 0 ; i < choicesCount; i++){
-                    $(choices[i]).val("");
-                    $(choices[i]).hide();
+                while(choicesCount > 0){
+                    deleteQuestion();
                 }
-                choicesCount = 0;
+                $("#add").show();
+                $("#form").hide();
+                $("#displaybutton").show();
+                button.disabled = false;
                 gadgets.window.adjustHeight();
                 return true;
             });
@@ -245,20 +159,24 @@ function eventSubmit() {
     });
 }
 
-function vote(key, i, isChecked){
-    var msg = new gadgets.MiniMessage();
-    $("#result").html("<h1>please wait...</h1>");
-    $.getJSON("https://aipoquestion.appspot.com/_je/question", { _docId: key }, function (result) {
+function vote(key, isChecked, i) {
+    var ch = document.getElementsByName("ch" + i);
+    for(var j = 0; j < ch.length; j++ )
+        ch[j].disabled = true;
+    $.getJSON("https://aipoquestion.appspot.com/_je/choice", { _docId: key }, function (result) {
         var data = gadgets.json.parse(result.messageBody);
+        var shareKey = result.shareKey;
+        var numberOfSupporters = result.supNum;
         var supporters = new Array();
-        if (data && data['supporters' + i]) {
-            supporters = gadgets.json.parse(data['supporters' + i]);
+        if (data && data['supList']) {
+            supporters = gadgets.json.parse(data['supList']);
         }
         osapi.people.get({ userId: '@viewer' }).execute(function(response) {
             var userId = response.id;
             if(isChecked){
                 supporters.push(gadgets.util.escapeString(userId));
-                data['supporters' + i] = gadgets.json.stringify(supporters);
+                data['supList'] = gadgets.json.stringify(supporters);
+                numberOfSupporters++;
             }
             else{
                 var new_supporters = new Array();
@@ -267,31 +185,196 @@ function vote(key, i, isChecked){
                         new_supporters.push(gadgets.util.escapeString(supporters[j]));
                     }
                 }
-                data['supporters' + i] = gadgets.json.stringify(new_supporters);
+                data['supList'] = gadgets.json.stringify(new_supporters);
+                numberOfSupporters--;
             }
             data1 = gadgets.json.stringify(data);
-            $.post("https://aipoquestion.appspot.com/_je/question", { messageBody: data1,_docId: key }, function (result) {
-                repaint();
+            $.post("https://aipoquestion.appspot.com/_je/choice", { messageBody: data1, supNum: numberOfSupporters, _docId: key }, function (result) {
+                displayChoices(shareKey, i);
             });
         });
 
     });
 }
 
+function addChoices(shareKey, i) {
+    var addVal = $(addForm[i]).val();
+    if(!addCheck[i] && addVal == addNotice){
+        addVal = "";
+    }
+    if(addVal){
+        var button = document.getElementById("addButton" + i);
+        button.disabled = true;
+        var cdata = {};
+        var cdata1;
+        cdata['name'] = gadgets.util.escapeString($(addForm[i]).val());
+        cdata1 = gadgets.json.stringify(cdata);
+        $.post("https://aipoquestion.appspot.com/_je/choice", {messageBody: cdata1, shareKey: shareKey, supNum: 0}, function (result){
+            displayChoices(shareKey, i);
+        }, "text");
+    }
+}
 
 function deleteItem(key) {
     if (confirm("この質問を削除してよろしいでしょうか？")) {
-    $.post("https://aipoquestion.appspot.com/_je/question", { _method: "delete", _docId:  key }, function (result){
-            var msg = new gadgets.MiniMessage();
-            msg.createTimerMessage("質問を排除しました。", 5);
-            repaint();
-        },"text");
+        var button = document.getElementById("delete" + key);
+        button.disabled = true;
+        $.getJSON("https://aipoquestion.appspot.com/_je/choice", { cond: "shareKey.eq." + key}, function (result) {
+            for(var i = 0; i < result.length; i++){
+                $.post("https://aipoquestion.appspot.com/_je/choice", { _method: "delete", _docId: result[i]._docId}, function (result2){},"text");
+            }
+        });
+        $.getJSON("https://aipoquestion.appspot.com/_je/question", { cond: "shareKey.eq." + key}, function (result) {
+            for(var i = 0; i < result.length; i++){
+                $.post("https://aipoquestion.appspot.com/_je/question", { _method: "delete", _docId: result[i]._docId}, function (result2){
+                    var msg = new gadgets.MiniMessage();
+                    msg.createTimerMessage("質問を排除しました。", 5);
+                    repaint();
+                },"text");
+            }
+        });
+    }
+}
+
+function displayQuestionForm() {
+    $("#form").show();
+    $("#displaybutton").hide();
+    gadgets.window.adjustHeight();
+}
+
+/*
+ * 選択肢の表示
+ */
+function displayChoices(shareKey, i) {
+    osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
+        var users = [];
+        var list = response.list;
+        for (var j in list) {
+            users[list[j].id] = list[j];
+        }
+        osapi.people.get({ userId: '@viewer' }).execute(function(response2) {
+            var userId = response2.id;
+            $.getJSON("https://aipoquestion.appspot.com/_je/choice", { cond: "shareKey.eq." + shareKey}, function (result) {
+                var this_choices = '';
+                var data = [];
+                var sortArray = [];
+                var supportersLength = [];
+                var supportersLengthSum = 0;
+                for(var j = 0; j < result.length; j++){
+                    var sdata = {};
+                    sdata['val'] = j;
+                    sdata['num'] = result[j].supNum;
+                    sortArray[j] = sdata;
+                }
+
+                sortArray.sort( function (a, b) { return (b['num'] - a['num']); } );
+
+                for(var j2 = 0; j2 < result.length; j2++){
+                    j = sortArray[j2]['val'];
+                    data[j] = gadgets.json.parse(result[j].messageBody);
+                    var choiceKey = result[j]._docId;
+                    var add_users = '';
+                    var isSupported = false;
+                    var supporters = new Array();
+                    if (data[j] && data[j]['supList']) {
+                        supporters = gadgets.json.parse(data[j]['supList']);
+                    }
+                    supportersLength[j] = result[j].supNum;
+                    supportersLengthSum += supportersLength[j];
+                    for(var k in supporters){
+                        if(supporters[k] == userId){
+                            isSupported = true;
+                        }
+                        if(add_users != ''){
+                            add_users += ', ';
+                        }
+                        add_users += users[supporters[k]].displayName;
+                    }
+                    if(isSupported){
+                        this_choices = this_choices
+                                + '<input type="checkbox" name="ch' + i + '"checked=true onclick="vote('
+                                + "'" + gadgets.util.escapeString(choiceKey) + "'," + false + ',' + i +')">';
+                    }else{
+                        this_choices = this_choices
+                                + '<input type="checkbox" name="ch' + i + '"onclick="vote('
+                                + "'" + gadgets.util.escapeString(choiceKey) + "'," + true + ',' + i + ')">';
+                    }
+                    this_choices = this_choices
+                            + '<canvas id="' + i + 'canvas' + j + '" width="250" height="20"></canvas>'
+                            + ' ' + gadgets.util.escapeString(add_users)
+                            + '<br>';
+                }
+                this_choices = this_choices
+                        + '┗'
+                        + '<td class="borderNone pb5">'
+                        + '<input id="addForm' + i + '"'
+                        + 'type="text" style="color:gray;"'
+                        + 'onfocus="eventAddFocus(' + i + ')"'
+                        + 'onblur="eventAddBlur(' + i + ')"'
+                        + 'maxlength=30/>'
+                        + '<input type="button" style="margin:0 0 0 10px;"'
+                        + 'onclick="addChoices(' + shareKey + ',' + i + ')"'
+                        + 'value="追加" id="addButton' + i + '">'
+                        + '</td>';
+                var body = document.getElementById("choices" + i);
+                $(body).html(this_choices);
+                addForm[i] = document.getElementById("addForm" + i);
+                eventAddBlur(i);
+
+                // ウインドウの幅再調整
+                gadgets.window.adjustHeight();
+
+                for(var j = 0; j < result.length; j++){
+                    var canvas = document.getElementById(i + "canvas" + j);
+                    var ctx = canvas.getContext('2d');
+                    var h = 0;
+                    var str;
+                    if((gadgets.util.escapeString(data[j]['name'])).length > 16){
+                        str = (gadgets.util.escapeString(data[j]['name'])).substring(0,16)
+                                + "...";
+                    }else{
+                        str = (gadgets.util.escapeString(data[j]['name']));
+                    }
+                    if(supportersLengthSum != 0){
+                        h = (supportersLength[j] / supportersLengthSum) * 250;
+                    }
+                    ctx.fillStyle="rgba(0,30,150,0.2)";
+                    ctx.fillRect(0,0,h,20);
+                    ctx.fillStyle="rgba(0,30,150,1.0)";
+                    ctx.font = "italic bold 12px 'ＭＳＰゴシック'";
+                    ctx.fillText(str, 0, 15);
+                    ctx.fillStyle="rgba(30,30,30,1.0)";
+                    ctx.fillText(supportersLength[j] + "票", 225, 15);
+                }
+            });
+        });
+    });
+}
+
+function addQuestionFirst() {
+    $("#add").hide();
+
+    for(var i = 0; i < 3; i++){
+        addQuestion();
     }
 }
 
 function addQuestion() {
     if (choicesCount < 10) {
-        $(choices[choicesCount++]).show();
+        var i = choicesCount++;
+        var add = '<tr id="root' + i + '">'
+                + '<td class="borderNone pb5">'
+                + '┗'
+                + '<input id="choice' + i + '"'
+                + 'type="text" style="color:gray;"'
+                + 'onfocus="eventChoicesFocus(' + i + ')"'
+                + 'onblur="eventChoicesBlur(' + i + ')"'
+                + 'maxlength=30/>'
+                + '</td>'
+        $("#choiceslist").append(add);
+        choices[i] = document.getElementById("choice" + i);
+        choicesRoot[i] = document.getElementById("root" + i);
+        eventChoicesBlur(i);
         gadgets.window.adjustHeight();
     }
 }
@@ -299,10 +382,24 @@ function addQuestion() {
 function deleteQuestion() {
     if (choicesCount > 0) {
         var i = --choicesCount;
-        $(choices[i]).hide();
-        $(choices[i]).val("");
-        eventChoicesBlur(i);
+        $(choicesRoot[i]).remove();
         gadgets.window.adjustHeight();
+    }
+}
+
+function eventAddFocus(i) {
+    if (!addCheck[i] && $(addForm[i]).val() == addNotice) {
+        $(addForm[i]).val("");
+        addCheck[i] = true;
+    }
+    $(addForm[i]).css("color", "black");
+}
+
+function eventAddBlur(i) {
+    if ($(addForm[i]).val() == "") {
+        $(addForm[i]).val(addNotice);
+        addCheck[i] = false;
+        $(addForm[i]).css("color", "gray");
     }
 }
 
@@ -322,25 +419,27 @@ function eventCommentBlur() {
     }
 }
 
-function eventChoicesFocus(num) {
-    if (!choicesCheck[num] && $(choices[num]).val() == choicesNotice) {
-        $(choices[num]).val("");
-        choicesCheck[num] = true;
+function eventChoicesFocus(i) {
+    if(i == choicesCount - 1)
+        addQuestion();
+    if (!choicesCheck[i] && $(choices[i]).val() == addNotice) {
+        $(choices[i]).val("");
+        choicesCheck[i] = true;
     }
-    $(choices[num]).css("color", "black");
+    $(choices[i]).css("color", "black");
 }
 
-function eventChoicesBlur(num) {
-    if ($(choices[num]).val() == "") {
-        $(choices[num]).val(choicesNotice);
-        choicesCheck[num] = false;
-        $(choices[num]).css("color", "gray");
+function eventChoicesBlur(i) {
+    if ($(choices[i]).val() == "") {
+        $(choices[i]).val(addNotice);
+        choicesCheck[i] = false;
+        $(choices[i]).css("color", "gray");
     }
 }
 
 /*
-* テーブルの再描画
-*/
+ * テーブルの再描画
+ */
 function repaint() {
     osapi.people.get({ userId: '@viewer', groupId: '@all'}).execute(function(response) {
         var msg = new gadgets.MiniMessage();
@@ -354,60 +453,37 @@ function repaint() {
         $.getJSON("https://aipoquestion.appspot.com/_je/question", { sort: "_createdAt.desc", limit: 100}, function (result) {
             osapi.people.get({ userId: '@viewer' }).execute(function(response2) {
                 var userId = response2.id;
+                var data = [];
                 for(var i = 0; i < result.length; i++){
-                    var data = [];
+                    var thisQuestion = '<tbody id="question' + i + '"></tbody>'
+                            + '<tbody id="choices' + i + '"></tbody>';
+                    $("#result").append(thisQuestion);
+                    var shareKey = result[i].shareKey;
                     var userName = users[result[i].createdby].displayName;
                     var key = result[i]._docId;
                     data = gadgets.json.parse(result[i].messageBody);
-                    var this_choices = '';
-                    for(var j = 0; j < data["count"]; j++){
-                        var add_users = '';
-                        var isSupported = false;
-                        var supporters = new Array();
-                        if (data && data['supporters' + j]) {
-                            supporters = gadgets.json.parse(data['supporters' + j]);
-                        }
-                        for(var k in supporters){
-                            if(supporters[k] == userId){
-                                isSupported = true;
-                            }
-                            if(add_users != ''){
-                                add_users += ', ';
-                            }
-                        add_users += users[supporters[k]].displayName;
-                        }
-                        if(isSupported){
-                            this_choices = this_choices
-                                    + '<input type="checkbox" checked=true onclick="vote('
-                                    + "'" + gadgets.util.escapeString(key) + "'" + ',' + j + ',' + false + ')">';
-                        }else{
-                            this_choices = this_choices
-                                    + '<input type="checkbox" onclick="vote('
-                                    + "'" + gadgets.util.escapeString(key) + "'" + ',' + j + ',' + true + ')">';
-                        }
-                        this_choices = this_choices
-                                + ' ' + gadgets.util.escapeString(data["choice" + j])
-                                + ' ' + supporters.length
-                                + ' ' + gadgets.util.escapeString(add_users)
-                                + '<br>';
-                    }
                     var key_data = '';
                     key_data = key_data
-                            +'<br>'
+                            + '<br><tr><td>'
                             + '<h1>投稿日時 : ' + gadgets.util.escapeString(getDate(data["date"])) + '</h1>'
                             + '<h1>投稿者 : ' + userName + '</h1>'
                             + '<h1>質問 : ' + gadgets.util.escapeString(data["comment"]);
                     if(userId == result[i].createdby){
                         key_data = key_data
-                                + '<input type="button" style="margin:0 0 0 10px" onclick="deleteItem('
-                                +  "'" + gadgets.util.escapeString(key) + "'" + ')" value='
-                                + '質問を排除' + '>';
+                               + '<input type="button" style="margin:0 0 0 10px;" onclick="deleteItem('
+                               + shareKey
+                               + ')" id="delete' + shareKey + '"value="質問を排除する">';
                     }
                     key_data = key_data
-                            + '</h1>'
-                            + this_choices;
+                            + '</h1>';
+
+                    displayChoices(shareKey,i);
+
+                    key_data = key_data
+                            + '</td></tr>';
                     // データの表示
-                    $("#result").html($("#result").html() + key_data);
+                    var body = document.getElementById("question" + i);
+                    $(body).append(key_data);
                     // ウインドウの幅再調整
                     gadgets.window.adjustHeight();
                 }
@@ -468,7 +544,37 @@ function getDateArray(time) {
     return r;
 }
 
+/*
+質問
+https://aipoquestion.appspot.com/_je/question
 
+_docId := キー
+_updatedAt := 更新日時
+_createdAt := 作成日時
+createdby := 作成者
+shareKey := 共有キー
+
+messageBody :=
+{
+comment := 質問
+date := 作成日時(成形済)
+}.toString
+
+選択肢
+https://aipoquestion.appspot.com/_je/choice
+
+_docId := キー
+_updatedAt := 更新日時
+_createdAt := 作成日時
+shareKey := 共有キー
+supNum := 投票数
+
+messageBody :=
+{
+name := 選択肢名
+supList := 投票者リスト
+}.toString
+ */
 </script>
 ]]>
 </Content>
