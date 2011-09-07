@@ -77,7 +77,7 @@
                 <tbody>
                 <tr>
                     <td><textarea onKeyUp="updateCount(value, 'count', max_length)" cols="40" rows="2"
-                                  name="comment" class="text" style="width:97%;" id="comment"></textarea>
+                                  name="comment" class="text" id="comment"></textarea>
 
                         <div class="right"><span id="count">140</span>文字<input type="button" value="発言する"
                                                                                onclick="eventSubmit()"/></div>
