@@ -77,7 +77,7 @@
                 <tbody>
                 <tr>
                     <td><textarea onKeyUp="updateCount(value, 'count', max_length)" cols="40" rows="2"
-                                  name="comment" class="text" id="comment"></textarea>
+                                  name="comment" class="text" style="width:97%;" id="comment"></textarea>
 
                         <div class="right"><span id="count">140</span>文字<input type="button" value="発言する"
                                                                                onclick="eventSubmit()"/></div>
@@ -109,7 +109,7 @@
         var prefs = new gadgets.Prefs();
         var max_per_page = getPrefRows();
 
-        var colors = ["0099CC", "FF99CC", "FF0033", "005533", "008899", "009900", "FF00FF", "000080", "0000FF", "800080", "808000", "800000", "808080", "008080", "008000", "B8860B", "8B4513", "2F4F4F", "483D8B"];
+        var colors = ["0099CC", "FF99CC", "FF0033", "005533", "008899", "009900", "FF00FF", "000080", "0000FF", "800080", "808000", "800000", "808080", "008080", "008000", "B8860B", "8B4513", "2F4F4F", "483D8B", "999999"];
 
 
         // ページ読込完了後実行コード
