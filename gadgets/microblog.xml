@@ -425,11 +425,12 @@
         }
 
         function link(src) {
-            return src.replace(/(https?:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
+            var re = /((http|https|ftp):\/\/[\w?=&.\/-;#~%-]+(?![\w\s?&.\/;#~%"=-]*>))/g;
+            return src.replace(re, "<a href='$1' target='_blank'>$1</a>");
         }
 
         function space(src) {
-            return src.replace(/ /g, "&nbsp;");
+            return src.replace(/  /g, "&nbsp;&nbsp;");
         }
 
         function br(src) {
@@ -464,7 +465,7 @@
             }
             template += "</div>";
             template = template.replace("___USER_NAME___", gadgets.util.escapeString(peopleMap[data.user.id]) || "_");
-            template = template.replace("___TEXT___", br(link(space(gadgets.util.escapeString(data.text)))));
+            template = template.replace("___TEXT___", space(link(br(gadgets.util.escapeString(data.text)))));
             template = template.replace("___POST_TIME___", formatDate(new Date(data.created_at)));
             template = template.replace(/___ID___/g, data.id);
 
@@ -514,7 +515,7 @@
             }
             template += "</div></div>";
             template = template.replace("___USER_NAME___", gadgets.util.escapeString(peopleMap[data.user.id]) || "_");
-            template = template.replace("___TEXT___", br(link(space(gadgets.util.escapeString(data.text)))));
+            template = template.replace("___TEXT___", space(link(br(gadgets.util.escapeString(data.text)))));
             template = template.replace("___POST_TIME___", formatDate(new Date(data.created_at)));
             template = template.replace(/___ID___/g, data.id);
             template = template.replace(/___PARENT_ID___/g, parentId);
@@ -886,7 +887,12 @@
             });
         }
 
+        var isLoaded = false;
         function init() {
+            if(isLoaded) {
+                return;
+            }
+            isLoaded = true;
             var oldVersion = prefs.getString("version");
             if (version != oldVersion) {
                 if (oldVersion) {
@@ -990,6 +996,13 @@
                 init();
             });
         });
+
+        setTimeout(function(){
+            if(!isLoaded) {
+                console.log("WARNING: retry init.");
+                init();
+            }
+        }, 5000);
 
         </script>
         ]]></Content>
