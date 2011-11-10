@@ -6,7 +6,7 @@
 <Require feature="minimessage"/>
 <Require feature="osapi"/>
 <Require feature="setprefs"/>
-<Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/topics/img/icon/icon16-trans.png</Icon>
+<Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/topics/img/icon/icon_16.png</Icon>
 </ModulePrefs>
 <UserPref name="default_category" display_name="初期カテゴリー" datatype="enum" default_value="top">
     <EnumValue display_value="トップ" value="top"/>
