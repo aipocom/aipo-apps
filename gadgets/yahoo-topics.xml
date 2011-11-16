@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<ModulePrefs title="Yahoo!トピックス" description="Yahoo!ニュースへ掲載されているトピックスをお知らせするアプリです。" height="35">
+<Require feature="views"/>
+<Require feature="dynamic-height"/>
+<Require feature="minimessage"/>
+<Require feature="osapi"/>
+<Require feature="setprefs"/>
+<Optional feature="aipostyle"/>
+<Icon>
+https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/hosting/synergy-marketing/btobmarketing/img/icon/icon16_btob-trans.png
+</Icon>
+</ModulePrefs>
+<UserPref name="default_category" display_name="初期カテゴリー" datatype="enum" default_value="top">
+    <EnumValue display_value="トップ" value="top"/>
+    <EnumValue display_value="経済" value="economy"/>
+    <EnumValue display_value="エンタメ" value="entertainment"/>
+    <EnumValue display_value="スポーツ" value="sports"/>
+    <EnumValue display_value="全て" value="all"/>
+</UserPref>
+<UserPref name="sort" display_name="ソート指定" datatype="enum" default_value="datetime">
+    <EnumValue display_value="PV指標順" value="pvindex"/>
+    <EnumValue display_value="表示位置順" value="pickup"/>
+    <EnumValue display_value="更新時間順" value="datetime"/>
+    <EnumValue display_value="関連情報更新順" value="relatedinfotime"/>
+    <EnumValue display_value="ヘッドライン更新順" value="headlinetime"/>
+    <EnumValue display_value="関連ニュース件数順" value="newsnum"/>
+</UserPref>
+<UserPref name="version" datatype="hidden"/>
+<Content type="html">
+<![CDATA[
+    <style type="text/css">
+
+        div.picuplist {
+            width:100%;
+            height:25px;
+            overflow: hidden;
+            white-space: nowrap;
+            background:#ccc;
+        }
+        div.logo {
+            float:right;
+            height:100%;
+            padding-left:10px;
+            background:#fff;
+        }
+        div.logo img {
+            height:25px;
+        }
+        div.picuplist span{
+            display:block;
+            float:left;
+            height:100%;
+            padding:5px 0.8em;
+            font-size:smaller;
+            color:#fff;
+            cursor:pointer;
+        }
+        div.picuplist span:hover {
+            background:#f0f0f0;
+        }
+        div.picuplist span.active {
+            color:#000;
+            background:#fff;
+        }
+        div.picuplist span.active:hover {
+            background:#fff;
+        }
+
+        table.feedTable {
+            border: none;
+            padding: 0;
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        table.feedTable tr:hover {
+            background: #F5F5F5;
+        }
+
+        table.feedTable td {
+            padding: 3px;
+            margin: 0px;
+            border-bottom: #EEE solid 1px;
+            vertical-align: top;
+        }
+
+        table.feedTable td.icon {
+            width: 22px;
+            padding: 0;
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        table.feedTable td.name {
+            width: 100px;
+            font-size: 85%;
+            vertical-align: middle;
+        }
+
+        table.feedTable td.name {
+            width: 70px;
+        }
+
+        table.feedTable td span.date {
+            font-size: 85%;
+            padding: 0px 0 3px;
+            display: block;
+        }
+
+        table.feedTable tr.unread {
+            background: #FFEFE5;
+        }
+
+        table.feedTable tr.unread td {
+            font-weight: bold;
+        }
+
+    </style>
+    <div class="aipostyle">
+        <div id="content"></div>
+    </div>
+    <script type="text/javascript"
+            src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js"></script>
+
+    <script type="text/javascript">
+
+        var msg = new gadgets.MiniMessage();
+        var staticMsg;
+        var version = "1.0";
+        var prefs = new gadgets.Prefs();//設定リスト
+        var reloadspan = 3600 * 1000;//ミリ秒 一時間毎に更新を行います。
+        //var NewestId = 0;//最新id
+        var count = 0;
+        var url = "http://news.yahooapis.jp/NewsWebService/V2/topics";
+
+        var data = {
+            "appid":"WYIOphWxg66DP_HqkQSekIZLzLCGM0gZmIDwXAaAAhrTkgU.Z.ynKWLDCWxFP4QhFcXo",
+            "pickupcategory":prefs.getString("default_category") ? prefs.getString("default_category") : "top",
+            "sort":prefs.getString("sort")
+        };
+
+        function showMessage(text) {
+            if (staticMsg) {
+                msg.dismissMessage(staticMsg);
+            }
+            if(typeof text !="undefined"){
+                staticMsg = msg.createStaticMessage(text);
+            }
+        }
+        function stripTags(text) {
+            return text.replace(/<\/?[^>]+>/gi, '');
+        }
+
+        function splitBytes(src, len) {
+            var re = [/[\u0000-\u007F]/g, /[\u0080-\u07FF]/g, /[\u0800-\uFFFF]/g]
+            var enc = src;
+            for (var i = 0; i < re.length; i++) {
+                enc = enc.replace(re[i], Math.pow(10, i));
+            }
+            var startSrc = 0, startEnc = 0, tmp, splitLen, rslt = [];
+
+            while (startSrc != src.length) {
+                tmp = enc.substr(startEnc, len + 1);
+                if (tmp.length > len) tmp = tmp.replace(/10*$/, "");
+                startEnc += tmp.length;
+                splitLen = tmp.replace(/0+/g, "").length;
+                rslt.push(src.substr(startSrc, splitLen));
+                startSrc += splitLen;
+            }
+            return rslt;
+        }
+
+        function formatDate(date) {
+            var _s=date.split("T");
+            var _date=_s[0].split("-");
+            var _time=_s[1].split(":");
+            return _date[0]+"年"+_date[1]+"月"+_date[2]+"日"+" "+_time[0]+"時"+_time[1]+"分";
+        }
+        function fetchFeed() {
+            $("div#content table").html("");//フィードリセット
+            //showMessage("フィードを読み込んでいます。");
+            $.ajax({
+                data:data,
+                url:url,
+                dataType: "xml",
+                type: "GET",
+                success:function(xml) {
+                    //console.info($(xml));
+                    //console.info($(xml).find("Result"));
+                    //console.info($("table.feedTable"));
+                    showMessage();
+                    $(xml).find("Result").each(function() {
+                        var id = $(this).find("HeadlineId").text();
+                        var Title = $(this).find("Overview").text();
+                        var Url = $(this).find("Url").text();
+                        var date =formatDate($(this).find("DateTime").text());
+                        count++;
+                        $("table.feedTable").append('<tr><td>' +
+                                '<span class="date">' + date + '</span>' +
+                                '<a href="' + Url + '" target="_blank">' + stripTags(Title) + "</a>" +
+                                '</td></tr>');
+
+
+                        gadgets.window.adjustHeight();
+                    });
+                    //console.info($("table.feedTable"));
+                    isFirst = false;
+
+                },
+                error:function() {
+                    showMessage("フィードの読み込みに失敗しました。");
+                }
+            });
+            gadgets.window.adjustHeight();
+        }
+        //アプリの初期化
+        function YahooTopicsInit() {
+            $("#content").html("");
+            $("#content")
+                    .append('<div class="picuplist clearfix"></div>')
+                    .append('<table class="feedTable wide"></table>');
+            $("#content div.picuplist")
+                    .append('<div class="logo"><a href="#" target="_blank"><img height="25" src="http://i.yimg.jp/images/new21.gif" alt="Yahoo! JAPAN"></a></div>')
+                    .append('<span  data-pickupcategory="top">トップ</span>')
+                    .append('<span  data-pickupcategory="economy">経済</span>')
+                    .append('<span  data-pickupcategory="entertainment">エンタメ</span>')
+                    .append('<span  data-pickupcategory="sports">スポーツ</span>')
+                    .append('<span  data-pickupcategory="all">全て</span>');
+            var selectedreflesh = function() {
+                $("div.picuplist span").each(function() {
+                    if ($(this).attr("data-pickupcategory") == data["pickupcategory"]) {
+                        $(this).addClass("active");
+                    } else {
+                        $(this).removeClass("active");
+                     }
+                });
+            };
+            selectedreflesh();
+            $("div.picuplist span").click(function() {
+                data["pickupcategory"] = $(this).attr("data-pickupcategory");
+                selectedreflesh();
+                fetchFeed();
+            });
+            $("#content table.feedTable").html("");
+            fetchFeed();
+            if (typeof settedtimer != "undefined") {
+                clearInterval(settedtimer);
+            }
+            settedtimer = setInterval(function() {
+                fetchFeed();
+            }, reloadspan);
+            gadgets.window.adjustHeight();
+        }
+        //読み込み時一回のみ表示
+        function init() {
+            YahooTopicsInit();
+        }
+        gadgets.util.registerOnLoadHandler(init);
+    </script>
+    ]]>
+</Content>
+</Module>
