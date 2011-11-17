@@ -8,7 +8,7 @@
 <Require feature="setprefs"/>
 <Optional feature="aipostyle"/>
 <Icon>
-https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/icon16.png
+https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/icon16-trans.png
 </Icon>
 </ModulePrefs>
 <UserPref name="default_category" display_name="初期カテゴリー" datatype="enum" default_value="top">
@@ -33,7 +33,8 @@ https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/i
 
         div.picuplist {
             width:100%;
-            height:25px;
+            height:20x;
+            margin:10px 0;
             overflow: hidden;
             white-space: nowrap;
             background:#ccc;
@@ -41,22 +42,21 @@ https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/i
         div.logo {
             float:right;
             height:100%;
-            padding-left:10px;
+            padding:0 10px 0 20px;
             background:#fff;
-        }
-        div.logo img {
-            height:25px;
         }
         div.picuplist span{
             display:block;
             float:left;
             height:100%;
-            padding:5px 0.8em;
+            line-height:20px;
+            padding:0 1em;
             font-size:smaller;
             color:#fff;
             cursor:pointer;
         }
         div.picuplist span:hover {
+            color:#000;
             background:#f0f0f0;
         }
         div.picuplist span.active {
@@ -222,7 +222,7 @@ https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/i
                     .append('<div class="picuplist clearfix"></div>')
                     .append('<table class="feedTable wide"></table>');
             $("#content div.picuplist")
-                    .append('<div class="logo"><a href="#" target="_blank"><img height="25" src="http://i.yimg.jp/images/new21.gif" alt="Yahoo! JAPAN"></a></div>')
+                    .append('<div class="logo"><a href="http://developer.yahoo.co.jp/about" target="_blank"><img src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/yjdn_attbtn2_105_17.gif" width="105" height="17" title="Webサービス by Yahoo! JAPAN" alt="Webサービス by Yahoo! JAPAN" border="0" ></a></div>')
                     .append('<span  data-pickupcategory="top">トップ</span>')
                     .append('<span  data-pickupcategory="economy">経済</span>')
                     .append('<span  data-pickupcategory="entertainment">エンタメ</span>')
