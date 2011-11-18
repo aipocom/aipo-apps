@@ -193,7 +193,7 @@ https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/i
                     showMessage();
                     $(xml).find("Result").each(function() {
                         var id = $(this).find("HeadlineId").text();
-                        var Title = $(this).find("Overview").text();
+                        var Title = $(this).find("Title").text();
                         var Url = $(this).find("Url").text();
                         var date =formatDate($(this).find("DateTime").text());
                         count++;
