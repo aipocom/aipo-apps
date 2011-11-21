@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-<ModulePrefs title="Yahoo!トピックス" description="Yahoo!ニュースへ掲載されているトピックスをお知らせするアプリです。" height="35">
+<ModulePrefs title="Yahoo!ニュース" description="Yahoo!ニュースへ掲載されているトピックスをお知らせするアプリです。" height="35">
 <Require feature="views"/>
 <Require feature="dynamic-height"/>
 <Require feature="minimessage"/>
