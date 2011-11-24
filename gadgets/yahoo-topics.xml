@@ -40,9 +40,7 @@ https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/i
             background:#ccc;
         }
         div.logo {
-            float:right;
-            height:20px;
-            padding:0 10px 0 20px;
+            padding:10px 5px;
             background:#fff;
         }
         div.picuplist span{
@@ -131,8 +129,6 @@ https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/i
         var version = "1.0";
         var prefs = new gadgets.Prefs();//設定リスト
         var reloadspan = 3600 * 1000;//ミリ秒 一時間毎に更新を行います。
-        //var NewestId = 0;//最新id
-        var count = 0;
         var url = "http://news.yahooapis.jp/NewsWebService/V2/topics";
 
         var data = {
@@ -151,25 +147,6 @@ https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/i
         }
         function stripTags(text) {
             return text.replace(/<\/?[^>]+>/gi, '');
-        }
-
-        function splitBytes(src, len) {
-            var re = [/[\u0000-\u007F]/g, /[\u0080-\u07FF]/g, /[\u0800-\uFFFF]/g]
-            var enc = src;
-            for (var i = 0; i < re.length; i++) {
-                enc = enc.replace(re[i], Math.pow(10, i));
-            }
-            var startSrc = 0, startEnc = 0, tmp, splitLen, rslt = [];
-
-            while (startSrc != src.length) {
-                tmp = enc.substr(startEnc, len + 1);
-                if (tmp.length > len) tmp = tmp.replace(/10*$/, "");
-                startEnc += tmp.length;
-                splitLen = tmp.replace(/0+/g, "").length;
-                rslt.push(src.substr(startSrc, splitLen));
-                startSrc += splitLen;
-            }
-            return rslt;
         }
 
         function formatDate(date) {
@@ -196,7 +173,6 @@ https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/i
                         var Title = $(this).find("Title").text();
                         var Url = $(this).find("Url").text();
                         var date =formatDate($(this).find("DateTime").text());
-                        count++;
                         $("table.feedTable").append('<tr><td>' +
                                 '<span class="date">' + date + '</span>' +
                                 '<a href="' + Url + '" target="_blank">' + stripTags(Title) + "</a>" +
@@ -205,29 +181,27 @@ https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/i
 
                         gadgets.window.adjustHeight();
                     });
-                    //console.info($("table.feedTable"));
-                    isFirst = false;
 
                 },
                 error:function() {
                     showMessage("フィードの読み込みに失敗しました。");
                 }
             });
-            gadgets.window.adjustHeight();
+            //gadgets.window.adjustHeight();
         }
         //アプリの初期化
         function YahooTopicsInit() {
             $("#content").html("");
             $("#content")
-                    .append('<div class="picuplist clearfix"></div>')
-                    .append('<table class="feedTable wide"></table>');
+                .append('<div class="picuplist clearfix"></div>')
+                .append('<table class="feedTable wide"></table>')
+                .append('<div class="logo"><a href="http://developer.yahoo.co.jp/about" target="_blank"><img src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/yjdn_attbtn2_105_17.gif" width="105" height="17" title="Webサービス by Yahoo! JAPAN" alt="Webサービス by Yahoo! JAPAN" border="0" ></a></div>')
             $("#content div.picuplist")
-                    .append('<div class="logo"><a href="http://developer.yahoo.co.jp/about" target="_blank"><img src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/yahoo-topics/img/icon/yjdn_attbtn2_105_17.gif" width="105" height="17" title="Webサービス by Yahoo! JAPAN" alt="Webサービス by Yahoo! JAPAN" border="0" ></a></div>')
-                    .append('<span  data-pickupcategory="top">トップ</span>')
-                    .append('<span  data-pickupcategory="economy">経済</span>')
-                    .append('<span  data-pickupcategory="entertainment">エンタメ</span>')
-                    .append('<span  data-pickupcategory="sports">スポーツ</span>')
-                    .append('<span  data-pickupcategory="all">全て</span>');
+                .append('<span  data-pickupcategory="top">トップ</span>')
+                .append('<span  data-pickupcategory="economy">経済</span>')
+                .append('<span  data-pickupcategory="entertainment">エンタメ</span>')
+                .append('<span  data-pickupcategory="sports">スポーツ</span>')
+                .append('<span  data-pickupcategory="all">全て</span>');
             var selectedreflesh = function() {
                 $("div.picuplist span").each(function() {
                     if ($(this).attr("data-pickupcategory") == data["pickupcategory"]) {
