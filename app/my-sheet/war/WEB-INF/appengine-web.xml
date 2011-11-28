@@ -9,6 +9,7 @@
         <property name="java.util.logging.config.file" value="WEB-INF/classes/logging.properties"/>
     </system-properties>
     <ssl-enabled>true</ssl-enabled>
+    <threadsafe>true</threadsafe>
     <!--
     <sessions-enabled>true</sessions-enabled>
     <system-properties> 

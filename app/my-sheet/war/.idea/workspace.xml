@@ -22,89 +22,7 @@
     <favorites_list name="war" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="system.css" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/css/system.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="61" column="0" selection-start="1215" selection-end="1316" vertical-scroll-proportion="-4.269231">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="style.css" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/css/style.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="class.css" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/css/class.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="184" column="0" selection-start="1409" selection-end="3578" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="my-sheet.js" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/js/my-sheet.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="289" column="40" selection-start="9700" selection-end="9700" vertical-scroll-proportion="9.465066">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="liquidtpl.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/js/common/liquidtpl.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="158" column="24" selection-start="4684" selection-end="4684" vertical-scroll-proportion="67.2">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="index.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/my/sheet/index.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="40" column="213" selection-start="1395" selection-end="1542" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="form.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/my/sheet/form.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="68" column="18" selection-start="2603" selection-end="2603" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="dataform.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/my/sheet/dataform.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="71" column="65" selection-start="2957" selection-end="2957" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="data.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/my/sheet/data.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="18" selection-start="817" selection-end="817" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -130,6 +48,7 @@
         <option value="$PROJECT_DIR$/js/common/liquidtpl.js" />
         <option value="$PROJECT_DIR$/js/my-sheet.js" />
         <option value="$PROJECT_DIR$/gadgets/my-sheet.xml" />
+        <option value="$PROJECT_DIR$/../../aipo-gadgets/my-sheet.xml" />
       </list>
     </option>
   </component>
@@ -168,124 +87,6 @@
               <option name="myItemId" value="war" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="templates" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="templates" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="my" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="sheet" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="js" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="js" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="img" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="img" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="common" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="war" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="css" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
@@ -295,6 +96,7 @@
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="options.lastSelected" value="preferences.editor" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../aipo-gadgets" />
     <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
   </component>
@@ -353,7 +155,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28497854" sideWeight="0.99817187" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.33476394" sideWeight="0.99817187" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -439,55 +241,54 @@
         <state line="8" column="23" selection-start="417" selection-end="417" vertical-scroll-proportion="0.24793388" />
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/css/system.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="61" column="0" selection-start="1215" selection-end="1316" vertical-scroll-proportion="0.030181086" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../aipo-gadgets/my-sheet.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="4" column="33" selection-start="0" selection-end="34226" vertical-scroll-proportion="0.030991735" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/css/class.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="184" column="0" selection-start="1409" selection-end="3578" vertical-scroll-proportion="0.0" />
+        <state line="184" column="0" selection-start="1409" selection-end="3578" vertical-scroll-proportion="0.030181086" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/my-sheet.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="289" column="40" selection-start="9700" selection-end="9700" vertical-scroll-proportion="0.029761905" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/common/liquidtpl.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="158" column="24" selection-start="4684" selection-end="4684" vertical-scroll-proportion="0.029761905" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/my/sheet/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="40" column="213" selection-start="1395" selection-end="1542" vertical-scroll-proportion="0.0" />
+        <state line="40" column="213" selection-start="1395" selection-end="1542" vertical-scroll-proportion="0.75" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/my/sheet/form.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="68" column="18" selection-start="2603" selection-end="2603" vertical-scroll-proportion="0.0" />
+        <state line="68" column="18" selection-start="2603" selection-end="2603" vertical-scroll-proportion="0.03125" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/my/sheet/dataform.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="71" column="65" selection-start="2957" selection-end="2957" vertical-scroll-proportion="0.0" />
+        <state line="71" column="65" selection-start="2957" selection-end="2957" vertical-scroll-proportion="0.5625" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/my/sheet/data.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="18" selection-start="817" selection-end="817" vertical-scroll-proportion="0.0" />
+        <state line="17" column="18" selection-start="817" selection-end="817" vertical-scroll-proportion="0.03125" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/css/style.css">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/css/system.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="61" column="0" selection-start="1215" selection-end="1316" vertical-scroll-proportion="-4.269231">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/common/liquidtpl.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="158" column="24" selection-start="4684" selection-end="4684" vertical-scroll-proportion="67.2">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/my-sheet.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="289" column="40" selection-start="9700" selection-end="9700" vertical-scroll-proportion="9.465066">
-          <folding />
-        </state>
       </provider>
     </entry>
   </component>
