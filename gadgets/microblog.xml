@@ -44,134 +44,272 @@
     <Content type="html" view="canvas,home,popup"><![CDATA[
         <style type="text/css">
 
-            #wrapper {
-                padding-top: 3px;
-                max-width: 840px;
-                margin: 0 auto;
-            }
+#wrapper {
+	padding-top: 3px;
+	max-width: 840px;
+	margin: 0 auto;
+}
 
-            .message {
-                margin-top: 3px;
-                padding-top: 5px;
-                border-top: 1px solid #dcdcdc;
-            }
+.message {
+	margin-bottom:10px;
+	padding-top: 5px;
+	border-top: 1px solid #dcdcdc;
+}
 
-            .comments .message {
-                padding: 2px;
-                border: none;
-                background: #efefef url(../images/common/bg_slash.gif) repeat left top;
-            }
+.comments .message {
+	margin-bottom:0;
+	padding: 3px 5px;
+	border: none;
+	border-bottom:solid 1px #e6e6e6;
+	border-top:solid 1px #fff;
+}
 
-            .on {
-                border-top: 1px solid #999999;
-            }
+.on {
+	border-top: 1px solid #999999;
+}
 
-            #content {
-                padding-right: 10px;
-            }
+#content {
+	/*padding-right: 10px;*/
+}
 
-            #inputField {
-                margin-bottom: 5px;
-            }
+#inputField {
+	margin-bottom: 10px;
+}
 
-            textarea.elastic {
-                width: 99%;
-                overflow: hidden;
-                border: 0px;
-                resize: none;
-                outline: 0;
-                line-height: normal;
-                height: 21px;
-                -webkit-appearance: caret;
-            }
+textarea.elastic {
+	width: 99%;
+	overflow: hidden;
+	border: 0px;
+	resize: none;
+	outline: 0;
+	line-height: normal;
+	height: 21px;
+	-webkit-appearance: caret;
+}
 
-            .commentField {
-                padding-left: 30px;
-                display: none;
-                /*margin-bottom: 5px;*/
-            }
+.commentField {
+	margin-left: 20px;
+	padding:4px;
+	display: none;
+	border-top:solid 1px #fff;
+	border-bottom:solid 1px #e6e6e6;
+	background:#f0f0f0;
+}
+.commentField hr {
+	display:none;
+}
 
-            .outer {
-                border: 1px #cdcdcd solid;
-                padding: 3px;
-                margin-bottom: 5px;
-            }
+.outer {
+	border: 1px #cdcdcd solid;
+	padding: 3px;
+	margin-bottom: 5px;
+	background:#fff;
+}
 
-            .commentInputDummy {
-                margin-top: 5px;
-                margin-bottom: 10px;
-                padding: 2px;
-                border: 1px #cdcdcd solid;
-                color: #aaaaaa;
-                cursor: text;
-            }
+.commentInputDummy {
+	padding:4px;
+	border-top:solid 1px #fff;
+	border-bottom:solid 1px #e6e6e6;
+}
+.commentInputDummy span {
+	display:block;
+	padding:2px;
+	border: 1px #cdcdcd solid;
+	color: #aaaaaa;
+	cursor: text;
+	background:#fff;
+}
 
-            .comments {
-                padding-left: 30px;
-            }
+.comments {
+	margin:5px 0 0 20px;
+	background:#f0f0f0;
+}
 
-            .count {
-                padding-right: 5px;
-                font-size: 80%;
-                *font-size: 75%;
-                color: #434343;
-            }
+.count {
+	padding-right: 5px;
+	font-size: 80%;
+	*font-size: 75%;
+	color: #434343;
+}
 
-            .alert {
-                color: #ff0000;
-            }
+.alert {
+	color: #ff0000;
+}
 
-            .commentCaption {
-                margin-top: 5px;
-                padding: 3px;
-                background: #efefef url(../images/common/bg_slash.gif) repeat left top;
-            }
+.commentCaption {
+	padding:3px 5px;
+	font-size:smaller;
+	border-top:solid 1px #fff;
+	border-bottom:solid 1px #e6e6e6;
+}
 
-            .readMore {
-                margin-top: 5px;
-                padding: 3px;
-                background: #efefef url(../images/common/bg_slash.gif) repeat left top;
-                border: 1px #cdcdcd solid;
-                text-align: center;
-            }
+.readMore {
+	margin-top: 5px;
+	padding: 3px;
+	background: #efefef url(https://app.aipo.com/themes/default/images/common/bg_slash.gif) repeat left top;
+	border: 1px #cdcdcd solid;
+	text-align: center;
+}
 
-            .readMore a {
-                display: block;
-            }
+.readMore a {
+	display: block;
+}
 
-            .timeline {
-                width: 100%;
-                word-break: break-all;
-                word-wrap: break-word;
-            }
+.timeline {
+	width: 100%;
+	word-break: break-all;
+	word-wrap: break-word;
+}
 
-            .timeline .name {
-                /*color: #369;*/
-                font-weight: bold;
-                padding-right: 5px;
-            }
+.timeline .name {
+	/*color: #369;*/
+	font-weight: bold;
+	padding-right: 5px;
+}
 
-            .timeline .name a {
-            }
+.timeline .name a {
+}
 
-            .timeline .name a:hover {
-            }
+.timeline .name a:hover {
+}
 
-            .timeline .body {
-                padding-top: 3px;
-                min-height: 25px;
-                padding-bottom: 5px;
-            }
+.timeline .body {
+	padding-top: 3px;
+	min-height: 25px;
+	padding-bottom: 5px;
+}
 
-            .timeline .time {
-                font-size: 80%;
-                *font-size: 75%;
-                color: #434343;
-            }
+.timeline .time {
+	margin-bottom:3px;
+	font-size: 80%;
+	*font-size: 75%;
+	color: #434343;
+}
 
-            br {
-                letter-spacing: 0;
-            }
+br {
+	letter-spacing: 0;
+}
+
+.iconLike,
+.iconComment {
+	display:inline-block;
+	width:14px;
+	height:14px;
+	vertical-align:middle;
+	background:url(https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/microblog/img/icon/social_icons.gif) no-repeat;
+}
+.iconLike {background-position:-2px -2px;}
+.iconComment {background-position:-2px -17px;}
+
+.dialog {
+	position:absolute;
+	z-index:9999;
+}
+.dialog_inner {
+	padding:5px;
+	background:#fff;
+	border-radius:3px;
+}
+.dialog_contents {
+	border:solid 5px #999;
+	border-radius:3px;
+	background:#fff;
+}
+.dialog_header {
+	padding:5px;
+	font-weight:bold;
+	overflow:hidden;
+	border-bottom:solid 1px #ccc;
+	background:#eee;
+}
+.dialog_header .left {
+	float:left;
+	width:100%;
+	margin-right:-25px;
+}
+.dialog_header .left div {
+	margin-right:25px;
+}
+.dialog_header .right {
+	float:right;
+	width:25px;
+	text-align:right;
+	vertical-align:middle;
+}
+.dialog_body {
+	padding:5px;
+	overflow-y:auto;
+	overflow-x:hidden;
+	box-shadow:inset 0 1px 2px rgba(0,0,0,0.1);
+}
+.dialog_footer {
+	padding:5px;
+	border-top:solid 1px #ccc;
+	background:#f0f0f0;
+}
+.userList {
+	margin:0;
+	padding:0;
+}
+.userList li {
+	padding:5px;
+	border-bottom:solid 1px #eee;
+}
+
+input[type=submit],
+input[type=button],
+input[type=reset],
+button {
+	display:inline-block;
+	color:#000;
+	text-decoration:none;
+	text-align:center;
+	text-shadow:0 1px 0 #f8f8f8;
+	vertical-align:middle;
+	cursor:pointer;
+	border:solid 1px #ccc;
+	border-radius:2px;
+	-ms-border-radius:2px;
+	background:#f0f0f0;
+	background:#f0f0f0 url(https://app.aipo.com/themes/default/images/common/auibutton_back.gif) left top repeat-x;/*IE*/
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#f0f0f0));/*Ch*/
+	background: -moz-linear-gradient(top, #fff, #f0f0f0);/*Fx*/
+}
+input[type=submit],
+input[type=button],
+input[type=reset],
+button {
+	height:2em;
+	>line-height:1.7em;/*IE*/
+	padding:0 0.5em;
+	>padding:0 0.1em;/*IE*/
+}
+input[type=submit]:hover,
+input[type=button]:hover,
+input[type=reset],
+button:hover {
+	color:#000;
+	border:solid 1px #999;
+	box-shadow:0 1px 1px rgba(0,0,0,0.2);
+	background:#e0e0e0;
+	background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#e1e1e1));/*Ch*/
+	background: -moz-linear-gradient(top, #eee, #e1e1e1);/*Fx*/
+}
+input[type=submit]:active,
+input[type=button]:active,
+input[type=reset],
+button:active {
+	border:solid 1px #999;
+	box-shadow:0 1px 1px rgba(0,0,0,0);
+	background:#ccc;
+	background: -webkit-gradient(linear, left top, left bottom, from(#e1e1e1), to(#eee));/*Ch*/
+	background: -moz-linear-gradient(top, #e1e1e1, #eee);/*Fx*/
+}
+input[type=submit],
+input[type=button],
+input[type=reset] {
+	padding:0 0.4em;
+}
 
 
         </style>
@@ -459,9 +597,9 @@
             var template = "<div id=\"message___ID___\" class=\"message\">\
                 <div class=\"name\">___USER_NAME___</div>\
                 <div class=\"body\">___TEXT___</div>\
-                <div class=\"time\">___POST_TIME___ <a href=\"javascript:void(0);\" onclick=\"commentOn('___ID___');\">コメント</a>";
+                <div class=\"time\">___POST_TIME___・<a href=\"javascript:void(0);\" onclick=\"commentOn('___ID___');\">コメントする</a>";
             if (data.user.id == viewer.id) {
-                template += " <a href=\"javascript:void(0);\" onclick=\"deleteStatus('___ID___');\">削除</a>";
+                template += "・<a href=\"javascript:void(0);\" onclick=\"deleteStatus('___ID___');\">削除</a>";
             }
             template += "</div>";
             template = template.replace("___USER_NAME___", gadgets.util.escapeString(peopleMap[data.user.id]) || "_");
@@ -484,12 +622,12 @@
             template += "<div class=\"comments\">";
             if (data.total_comments_count > 0) {
                 if (data.has_more_comments) {
-                    template += ("<div class=\"commentCaption\"><a href=\"javascript:void(0);\" onclick=\"fetchAllComment('___ID___');\">コメント" + data.total_comments_count + "件をすべて見る</a></div>").replace(/___ID___/g, data.id);
+                    template += ("<div class=\"commentCaption\"><span class=\"iconComment\"></span><a href=\"javascript:void(0);\" onclick=\"fetchAllComment('___ID___');\">コメント" + data.total_comments_count + "件をすべて見る</a></div>").replace(/___ID___/g, data.id);
                 }
                 $.each(data.comments, function(i) {
                     template += convertCommentHtml(data.comments[i], data.id);
                 });
-                template += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\">コメントする</div>".replace(/___ID___/g, data.id);
+                template += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\"><span>コメントする</span></div>".replace(/___ID___/g, data.id);
             }
             template += "</div>";
             template += comment;
@@ -500,7 +638,7 @@
 
         function appendCommentHtml(data, parentId) {
             var html = convertCommentHtml(data, parentId);
-            html += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\">コメントする</div>".replace(/___ID___/g, parentId);
+            html += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\"><span>コメントする</span></div>".replace(/___ID___/g, parentId);
             $(".commentInputDummy" + parentId).hide().remove();
             $(html).hide().appendTo("#message" + parentId + " .comments").fadeIn("fast");
         }
@@ -511,7 +649,7 @@
                 <div class=\"body\">___TEXT___</div>\
                 <div class=\"time\">___POST_TIME___";
             if (data.user.id == viewer.id) {
-                template += " <a href=\"javascript:void(0);\" onclick=\"deleteStatus('___ID___', '___PARENT_ID___');\">削除</a>";
+                template += "・<a href=\"javascript:void(0);\" onclick=\"deleteStatus('___ID___', '___PARENT_ID___');\">削除</a>";
             }
             template += "</div></div>";
             template = template.replace("___USER_NAME___", gadgets.util.escapeString(peopleMap[data.user.id]) || "_");
@@ -708,7 +846,7 @@
                     $.each(list, function(i) {
                         resultHtml += convertCommentHtml(list[i], parentId);
                     });
-                    resultHtml += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\">コメントする</div>".replace(/___ID___/g, gadgets.util.escapeString(parentId));
+                    resultHtml += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\"><span>コメントする</span></div>".replace(/___ID___/g, gadgets.util.escapeString(parentId));
                     $('#message' + parentId + " .comments").empty();
                     $(resultHtml).hide().appendTo('#message' + parentId + " .comments").fadeIn("fast");
 
