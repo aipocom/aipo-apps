@@ -739,9 +739,10 @@ input[type=reset] {
                     }
                     currentCursor = response.data.data.has_next ? response.data.data.cursor : null;
                     $("#content").empty();
-                    $(resultHtml).hide().appendTo("#content").fadeIn("fast");
+                    $(resultHtml).hide().appendTo("#content").fadeIn("fast", function() {
+                        gadgets.window.adjustHeight();
+                    });
 
-                    gadgets.window.adjustHeight();
                 }
             }, params);
         }
@@ -784,10 +785,10 @@ input[type=reset] {
                             currentCursor = response.data.data.has_next ? response.data.data.cursor : null;
                             isFirst = false;
                         }
-                        $(resultHtml).hide().prependTo("#content").fadeIn("fast");
+                        $(resultHtml).hide().prependTo("#content").fadeIn("fast", function() {
+                            gadgets.window.adjustHeight();
+                        });
                     }
-
-                    gadgets.window.adjustHeight();
 
                     retry();
                 }
@@ -848,9 +849,9 @@ input[type=reset] {
                     });
                     resultHtml += "<div onclick=\"commentOn('___ID___');\" class=\"commentInputDummy commentInputDummy___ID___\"><span>コメントする</span></div>".replace(/___ID___/g, gadgets.util.escapeString(parentId));
                     $('#message' + parentId + " .comments").empty();
-                    $(resultHtml).hide().appendTo('#message' + parentId + " .comments").fadeIn("fast");
-
-                    gadgets.window.adjustHeight();
+                    $(resultHtml).hide().appendTo('#message' + parentId + " .comments").fadeIn("fast", function() {
+                        gadgets.window.adjustHeight();
+                    });
                 }
             }, params);
         }
