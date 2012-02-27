@@ -199,7 +199,7 @@
         function setPageCount(callback) {
             var index = page * getPrefRows();
             var groupId = groups[$("#groups").val()].id.groupId;
-            osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index }).execute(function(response) {
+            osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index, count: 100 }).execute(function(response) {
                 var len = response.list.length;
                 pageCount = len / getPrefRows();
                 callback();
