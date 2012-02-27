@@ -96,8 +96,11 @@
         function check() {
             var data = {};
             osapi.appdata.get({ userId: ['@admin'] ,fields: ['format'] }).execute(function(response) {
-                if (response['@admin'] == null)
+                if (response.error) {
+                }
+                else if (response['@admin'] == null){
                     format();
+                }
             });
         }
 
