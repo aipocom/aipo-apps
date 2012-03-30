@@ -160,7 +160,7 @@
             }
 
             var timestamp = new Date().getTime();
-            var key = '__MODULE_ID__.' + timestamp;
+            var key = '__MODULE_ID__' + timestamp;
             var date = timestamp + "";
 
             osapi.appdata.get({ userId: ["@viewer"] ,fields: ['keys'] }).execute(function(response) {
