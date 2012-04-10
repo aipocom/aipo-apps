@@ -29,7 +29,7 @@
         <script type="text/javascript">
 
             // バージョン情報
-            var version = "1.1";
+            var version = "1.2";
             var changeLogUrl = "javascript:void(0);";
             var change_log = "イベントの削除・参加キャンセル機能がつきました。";
 
@@ -52,7 +52,7 @@
         <script type="text/javascript">
 
             // ページ読込完了後実行コード
-            jQuery(function($) {
+            jQuery(function ($) {
                 init();
             });
 
@@ -106,7 +106,7 @@
         <script type="text/javascript">
 
             // ページ読込完了後実行コード
-            jQuery(function($) {
+            jQuery(function ($) {
                 init();
             });
 
@@ -114,15 +114,74 @@
              * init
              */
             function init() {
-                var oldVersion = prefs.getString("version");
-                if (version != oldVersion) {
-                    showVersion();
-                    prefs.set("version", version);
-                }
-                if (version != oldVersion) {
-                    //version1.0からversion1.1へのマイグレーション
-                    migration();
-                }
+
+                osapi.appdata.get({ userId:["@viewer"], fields:["version"] }).execute(function (response) {
+                    var count = 0;
+                    for (var temp in response) {
+                        count++;
+                    }
+                    if(count == 0){
+                        var data = {};
+                        data['version'] = "1.0";
+                        var batch = osapi.newBatch()
+                                .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }));
+                        batch.execute(function (response) {
+                            if (response.error) {
+                                // minimessage
+                                msg.createTimerMessage("失敗。", 3, function () {
+                                    gadgets.window.adjustHeight();
+                                    return true;
+                                });}
+                            $("#comment").val("");
+                            // minimessage
+                        });
+                    }
+                    for (var userId2 in response) {
+                        var data2 = response[userId2];
+                        var data3 = {};
+                        for (var versiondata in data2) {
+                            if(data2[versiondata]<1.1){
+                                migration();
+                                var data = {};
+                                data['version'] = "1.1";
+                                var batch = osapi.newBatch()
+                                        .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }));
+                                batch.execute(function (response) {
+                                    if (response.error) {
+                                        // minimessage
+                                        msg.createTimerMessage("失敗。", 3, function () {
+                                            gadgets.window.adjustHeight();
+                                            return true;
+                                        });}
+                                    $("#comment").val("");
+                                    // minimessage
+                                });
+                                msg.createTimerMessage("バージョンが1.1になりました。イベントの削除・参加キャンセル機能がつきました。", 5);
+                            }
+                            else if(data2[versiondata]=="1.1"){
+                                //version1.0からversion1.2へのマイグレーション
+                                migration2();
+                                var data = {};
+                                data['version'] = "1.2";
+                                var batch = osapi.newBatch()
+                                        .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }));
+                                batch.execute(function (response) {
+                                    if (response.error) {
+                                        // minimessage
+                                        msg.createTimerMessage("失敗。", 3, function () {
+                                            gadgets.window.adjustHeight();
+                                            return true;
+                                        });}
+                                    $("#comment").val("");
+                                    // minimessage
+                                });
+                                msg.createTimerMessage("バージョンが1.2になりました。", 5);
+                            }
+                        }
+                    }
+                });
+
+
                 // コメント
                 eventCommentBlur();
                 repaint();
@@ -163,7 +222,7 @@
             var key = '__MODULE_ID__' + timestamp;
             var date = timestamp + "";
 
-            osapi.appdata.get({ userId: ["@viewer"] ,fields: ['keys'] }).execute(function(response) {
+            osapi.appdata.get({ userId:["@viewer"], fields:['keys'] }).execute(function (response) {
                 for (var userId in response) {
                     var tmp_data = response[userId];
                 }
@@ -183,13 +242,13 @@
                 data2['keys'] = gadgets.json.stringify(keys);
 
                 var batch = osapi.newBatch()
-                        .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
-                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }))
-                        .add('activities', osapi.activities.create({ userId: '@viewer', activity: { title: activity_event, externalId: key }}));
-                batch.execute(function(response) {
+                        .add('update1', osapi.appdata.update({ userId:'@viewer', data:data1, appId:'@app' }))
+                        .add('update2', osapi.appdata.update({ userId:'@viewer', data:data2, appId:'@app' }))
+                        .add('activities', osapi.activities.create({ userId:'@viewer', activity:{ title:activity_event, externalId:key }}));
+                batch.execute(function (response) {
                     $("#comment").val("");
                     // minimessage
-                    msg.createTimerMessage("送信しました。", 3, function() {
+                    msg.createTimerMessage("送信しました。", 3, function () {
                         gadgets.window.adjustHeight();
                         return true;
                     });
@@ -203,7 +262,7 @@
          * お誘いへの参加
          */
         function addSubmit(key, owner_id, view_type) {
-            osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
+            osapi.appdata.get({ userId:["@viewer"], fields:['add'] }).execute(function (response) {
                 for (var userId in response) {
                     var tmp_data = response[userId];
                 }
@@ -224,11 +283,11 @@
 
                 // データの保存
                 var batch = osapi.newBatch()
-                        .add('update1', osapi.appdata.update({ userId: '@viewer', data: data }))
-                        .add('activities', osapi.activities.create({ userId: '@viewer', activity: { title: activity_add , recipients: [owner_id], priority: 1, externalId: key}}));
-                batch.execute(function(response) {
+                        .add('update1', osapi.appdata.update({ userId:'@viewer', data:data }))
+                        .add('activities', osapi.activities.create({ userId:'@viewer', activity:{ title:activity_add, recipients:[owner_id], priority:1, externalId:key}}));
+                batch.execute(function (response) {
                     // minimessage
-                    msg.createTimerMessage("送信しました。", 3, function() {
+                    msg.createTimerMessage("送信しました。", 3, function () {
                         gadgets.window.adjustHeight();
                         return true;
                     });
@@ -248,16 +307,16 @@
         function deleteItem(key) {
             if (confirm("このお誘いを削除してよろしいでしょうか？")) {
 
-                osapi.appdata.get({ userId: ["@viewer"] ,fields: [key] }).execute(function(response) {
+                osapi.appdata.get({ userId:["@viewer"], fields:[key] }).execute(function (response) {
                     if (response.error) {
                         // minimessage
-                        msg.createTimerMessage("削除に失敗しました。", 3, function() {
+                        msg.createTimerMessage("削除に失敗しました。", 3, function () {
                             gadgets.window.adjustHeight();
                             return true;
                         });
                     }
                     // ユーザーの読み込み
-                    osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
+                    osapi.people.get({ userId:'@viewer', groupId:'@all', startIndex:0, count:200}).execute(function (response) {
                         var userIds = [];
                         var counter = 0;
 
@@ -267,7 +326,7 @@
                         }
 
                         // 参加者データの取得
-                        osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response) {
+                        osapi.appdata.get({ userId:userIds, fields:['add'] }).execute(function (response) {
                             // ユーザーID、アプリデータの連想配列
                             for (var userId3 in response) {
                                 var tmp_add = gadgets.json.parse(response[userId3]['add']);
@@ -279,12 +338,12 @@
                             }
                             if (counter > 0) {
                                 // minimessage
-                                msg.createTimerMessage("参加者がいるため削除できません。", 3, function() {
+                                msg.createTimerMessage("参加者がいるため削除できません。", 3, function () {
                                     gadgets.window.adjustHeight();
                                     return true;
                                 });
                             } else {
-                                osapi.appdata.get({ userId: ["@viewer"] ,fields: ["keys"] }).execute(function(response) {
+                                osapi.appdata.get({ userId:["@viewer"], fields:["keys"] }).execute(function (response) {
                                     for (var userId in response) {
                                         var links = response[userId];
                                     }
@@ -294,16 +353,16 @@
                                     }
 
                                     // 削除後の処理
-                                    var callback = function(response) {
+                                    var callback = function (response) {
                                         if (response.error) {
                                             // minimessage
-                                            msg.createTimerMessage("削除に失敗しました。", 3, function() {
+                                            msg.createTimerMessage("削除に失敗しました。", 3, function () {
                                                 gadgets.window.adjustHeight();
                                                 return true;
                                             });
                                         } else {
                                             // minimessage
-                                            msg.createTimerMessage("削除しました。", 3, function() {
+                                            msg.createTimerMessage("削除しました。", 3, function () {
                                                 gadgets.window.adjustHeight();
                                                 return true;
                                             });
@@ -323,8 +382,8 @@
                                     data["keys"] = gadgets.json.stringify(newKeys);
 
                                     var batch = osapi.newBatch()
-                                            .add('delete', osapi.appdata['delete']({ userId: '@viewer', fields: [key], appId: '@app' }))
-                                            .add('update', osapi.appdata.update({ userId: '@viewer', data: data,  appId: '@app' }));
+                                            .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' }))
+                                            .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }));
                                     batch.execute(callback);
                                 });
                             }
@@ -339,7 +398,7 @@
          */
         function deleteMap(key, view_type) {
             if (confirm("このお誘いへの参加をキャンセルしてよろしいでしょうか？")) {
-                osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
+                osapi.appdata.get({ userId:["@viewer"], fields:['add'] }).execute(function (response) {
                     for (var userId in response) {
                         var tmp_data = response[userId];
                     }
@@ -359,9 +418,9 @@
                     data['add'] = gadgets.json.stringify(newKeys);
 
                     // データの保存
-                    osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
+                    osapi.appdata.update({ userId:'@viewer', data:data }).execute(function (response) {
                         // minimessage
-                        msg.createTimerMessage("送信しました。", 3, function() {
+                        msg.createTimerMessage("送信しました。", 3, function () {
                             gadgets.window.adjustHeight();
                             return true;
                         });
@@ -404,7 +463,7 @@
         function showVersion() {
             var span = document.createElement("span");
             span.innerHTML = "<a href='" + changeLogUrl + "' target='_blank'>バージョン " + version + " にアップデートされました。" + change_log + "</a>";
-            var versionMsg = msg.createDismissibleMessage(span, function() {
+            var versionMsg = msg.createDismissibleMessage(span, function () {
                 msg.dismissMessage(versionMsg);
                 gadgets.window.adjustHeight();
             });
@@ -414,7 +473,7 @@
          * テーブルの再描画
          */
         function repaint() {
-            osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+            osapi.people.get({ userId:'@viewer' }).execute(function (response) {
                 var users = [];
                 var userIds = [];
                 var adds_users = [];
@@ -426,7 +485,7 @@
                 var currentUserid = response.id;
 
                 // ユーザーの読み込み
-                osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
+                osapi.people.get({ userId:'@viewer', groupId:'@all', startIndex:0, count:200}).execute(function (response) {
 
                     var list = response.list;
                     for (var i in list) {
@@ -434,7 +493,7 @@
                         userIds.push(list[i].id);
                     }
                     // データの取得
-                    osapi.appdata.get({ userId: userIds ,fields: ['keys'] }).execute(function(response) {
+                    osapi.appdata.get({ userId:userIds, fields:['keys'] }).execute(function (response) {
                         // ユーザーID、アプリデータの連想配列
                         for (var userId in response) {
                             var tmp_keys = gadgets.json.parse(response[userId]['keys']);
@@ -443,7 +502,7 @@
                             }
                         }
                         // 参加者データの取得
-                        osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response) {
+                        osapi.appdata.get({ userId:userIds, fields:['add'] }).execute(function (response) {
                             // ユーザーID、アプリデータの連想配列
                             for (var userId3 in response) {
                                 var tmp_add = gadgets.json.parse(response[userId3]['add']);
@@ -459,7 +518,7 @@
                             }
 
                             //自分の参加一覧取得
-                            osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
+                            osapi.appdata.get({ userId:["@viewer"], fields:['add'] }).execute(function (response) {
                                 for (var userId in response) {
                                     var data = response[userId];
                                 }
@@ -468,7 +527,7 @@
                                     my_add_keys = gadgets.json.parse(data['add']);
                                 }
                                 // データの取得
-                                osapi.appdata.get({ userId: userIds ,fields: keys }).execute(function(response) {
+                                osapi.appdata.get({ userId:userIds, fields:keys }).execute(function (response) {
                                     for (var userId2 in response) {
                                         var data = response[userId2];
 
@@ -489,7 +548,7 @@
                                     }
 
                                     // 日付降順
-                                    row_datas.sort(function(a, b) {
+                                    row_datas.sort(function (a, b) {
                                         return a["date"] < b["date"] ? 1 : -1;
                                     });
 
@@ -567,7 +626,7 @@
 
 
             // ユーザーの読み込み
-            osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
+            osapi.people.get({ userId:'@viewer', groupId:'@all', startIndex:0, count:200}).execute(function (response) {
                 var users = [];
                 var userIds = [];
                 var adds_users = [];
@@ -580,7 +639,7 @@
                     userIds.push(list[i].id);
                 }
                 // 参加者データの取得
-                osapi.appdata.get({ userId: userIds ,fields: ['add'] }).execute(function(response) {
+                osapi.appdata.get({ userId:userIds, fields:['add'] }).execute(function (response) {
                     // ユーザーID、アプリデータの連想配列
                     for (var userId3 in response) {
                         var tmp_add = gadgets.json.parse(response[userId3]['add']);
@@ -596,7 +655,7 @@
                     }
 
                     //自分の参加一覧取得
-                    osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
+                    osapi.appdata.get({ userId:["@viewer"], fields:['add'] }).execute(function (response) {
                         for (var userId in response) {
                             var data = response[userId];
                         }
@@ -605,7 +664,7 @@
                             my_add_keys = gadgets.json.parse(data['add']);
                         }
                         // データの取得
-                        osapi.appdata.get({ userId: userIds ,fields: [externalId] }).execute(function(response) {
+                        osapi.appdata.get({ userId:userIds, fields:[externalId] }).execute(function (response) {
                             for (var userId2 in response) {
                                 var data = response[userId2];
 
@@ -660,7 +719,7 @@
          * データの紐付け調整
          */
         function migration() {
-            osapi.appdata.get({ userId: ["@viewer"] ,fields: ['add'] }).execute(function(response) {
+            osapi.appdata.get({ userId:["@viewer"], fields:['add'] }).execute(function (response) {
 
                 var userIds = [];
                 var row_datas = [];
@@ -678,7 +737,7 @@
                 }
 
                 // ユーザーの読み込み
-                osapi.people.get({ userId: '@viewer', groupId: '@all', startIndex: 0, count: 200}).execute(function(response) {
+                osapi.people.get({ userId:'@viewer', groupId:'@all', startIndex:0, count:200}).execute(function (response) {
 
                     var list = response.list;
                     for (var i in list) {
@@ -686,7 +745,7 @@
                     }
 
                     // データの取得
-                    osapi.appdata.get({ userId: userIds ,fields: ['keys'] }).execute(function(response) {
+                    osapi.appdata.get({ userId:userIds, fields:['keys'] }).execute(function (response) {
                         // ユーザーID、アプリデータの連想配列
                         for (var userId in response) {
                             var tmp_keys = gadgets.json.parse(response[userId]['keys']);
@@ -695,7 +754,7 @@
                             }
                         }
                         // データの取得
-                        osapi.appdata.get({ userId: userIds ,fields: data_keys }).execute(function(response) {
+                        osapi.appdata.get({ userId:userIds, fields:data_keys }).execute(function (response) {
                             for (var userId2 in response) {
                                 var data = response[userId2];
 
@@ -736,8 +795,8 @@
 
                             // データの保存
                             var batch = osapi.newBatch()
-                                    .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1 }));
-                            batch.execute(function(response) {
+                                    .add('update1', osapi.appdata.update({ userId:'@viewer', data:data1 }));
+                            batch.execute(function (response) {
                                 return true;
                             });
                         });
@@ -745,7 +804,134 @@
                 });
             });
         }
+        /*
+         * データの調節
+         */
+        function migration2() {
 
+            var userIds = [];
+            osapi.people.get({ userId:'@viewer', groupId:'@all', startIndex:0, count:200}).execute(function (response) {
+
+                var list = response.list;
+                for (var i in list) {
+                    userIds.push(list[i].id);
+                }
+                //keysの変更
+                osapi.appdata.get({ userId:userIds, fields:['keys'] }).execute(function (response) {
+                    for (var userId in response) (function(userId,response){
+                        var tmp_data = response[userId];
+                        var keys = new Array();
+                        var mainkeys = new Array();
+                        if (tmp_data && tmp_data['keys']) {
+                            keys = gadgets.json.parse(tmp_data['keys']);
+                            mainkeys = gadgets.json.parse(tmp_data['keys']);
+                        }
+                        for (var i = 0; i < keys.length; i++) {
+                            var key = keys.shift();
+                            if (key < 10000) {
+                                var sub = "" + key;
+                                sub = sub.replace(".", "");
+                                if (sub.length != 16) {
+                                    sub = sub + "0";
+                                }
+                                key = eval(sub);
+                            }
+                            keys.push(key);
+                        }
+                        var data2 = {};
+                        data2['keys'] = gadgets.json.stringify(keys);
+                        var batch = osapi.newBatch()
+                                .add('update2', osapi.appdata.update({ userId:userId, data:data2, appId:'@app' }));
+                        batch.execute(function (response) {
+                            if (response.error) {
+                                // minimessage
+                                msg.createTimerMessage("失敗。", 3, function () {
+                                    gadgets.window.adjustHeight();
+                                    return true;
+                                });}
+                            $("#comment").val("");
+                            // minimessage
+                        });
+
+                        var row_datas = [];
+                        //データの変更
+
+                        osapi.appdata.get({ userId:userId, fields:mainkeys }).execute(function (response) {
+                            for (var userId2 in response) {
+                                var data = response[userId2];
+                                var data3 = {};
+                                for (var key in data) {
+                                    // データの作成
+                                    var rowdata = gadgets.json.parse(data[key]);
+                                    if (key < 10000) {
+                                        var date = {};
+                                        var comment = "";
+                                        var data4 = {};
+                                        var sub = "" + key;
+
+                                        date = sub.split(".");
+                                        sub = sub.replace(".", "");
+                                        if (sub.length != 16) {
+                                            sub = sub + "0";
+                                        }
+                                        key = eval(sub);
+                                        data4['date'] = date[1];
+                                        data4['comment'] = rowdata["comment"];
+                                        data3[key] = gadgets.json.stringify(data4);
+                                    }
+
+                                }
+
+                                // データの保存
+                                //window.alert(userId2+key);
+                                var batch = osapi.newBatch()
+                                        .add('update3', osapi.appdata.update({ userId:userId2, data:data3 }));
+                                batch.execute(function (response) {
+                                    return true;
+                                });
+                                osapi.appdata['delete']({ userId: userId2 , fields: mainkeys }).execute(function(response) {
+                                });
+                            }
+
+                        });
+                    })(userId,response);
+
+                    //addの変更
+                    osapi.appdata.get({ userId:userIds, fields:['add'] }).execute(function (response2) {
+                        for (var userId in response2) {
+                            var tmp_data = response2[userId];
+                            var adds = new Array();
+                            if (tmp_data && tmp_data['add']) {
+                                adds = gadgets.json.parse(tmp_data['add']);
+                            }
+                            for (var i = 0; i < adds.length; i++) {
+                                var add = adds.shift();
+                                if (add < 10000) {
+                                    var sub = "" + add;
+                                    sub = sub.replace(".", "");
+                                    if (sub.length != 16) {
+                                        sub = sub + "0";
+                                    }
+                                    add = eval(sub);
+                                }
+                                adds.push(add);
+                            }
+                            var data2 = {};
+                            data2['add'] = gadgets.json.stringify(adds);
+
+                            var batch2 = osapi.newBatch()
+                                    .add('update3', osapi.appdata.update({ userId:userId, data:data2, appId:'@app' }));
+                            batch2.execute(function (response) {
+                                $("#comment").val("");
+                                // minimessage
+                            });
+
+                        }
+                    });
+                });
+
+            });
+        }
         /*
          * 全件表示切り替え
          */
