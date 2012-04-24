@@ -22,6 +22,8 @@
     <UserPref name="5_url" display_name="検索5 url" datatype="string"
               default_value=""/>
     <Content type="html"><![CDATA[
+          <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
+        </script>
         <div class="aipostyle">
             <div id="content"></div>
             <div id="formContent">
@@ -54,18 +56,18 @@
             var msg = new gadgets.MiniMessage();
 
             function SetEngine() {
-                var resultHtml = "\<option value='all'>（全て）<\/option>";
+            $("#engines").html("");
+                $("#engines").html($("#engines").html() + "\<option value='all'>（全て）<\/option>");
                 for (var i = 1; i <= 10; i++) {
 
                     var url = prefs.getString(i + "_url");
                     var title = prefs.getString(i + "_title");
 
                     if (url) {
-                        resultHtml += "\<option value=" + url + ">" + title + "<\/option>";
+                        $("#engines").html($("#engines").html() + "\<option value=" + url + ">" + title + "<\/option>");
                     }
 
                 }
-                document.form.engines.innerHTML = resultHtml;
             }
 
             function showValidateErrorMessage(text) {
