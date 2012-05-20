@@ -584,7 +584,7 @@
                                             css_class += ' style="display:none;"';
                                         }
                                         counter++;
-                                        var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(row_datas[i]["key"]) + ', \'' + gadgets.util.escapeString(row_datas[i]["owner_id"]) + '\', \'\')"/>';
+                                        var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(\'' + gadgets.util.escapeString(row_datas[i]["key"]) + '\', \'' + gadgets.util.escapeString(row_datas[i]["owner_id"]) + '\', \'\')"/>';
                                         for (var j in my_add_keys) {
                                             if (my_add_keys[j] == row_datas[i]["key"]) {
                                                 add_html = '<input type="button" value="キャンセル" onclick="deleteMap(' + gadgets.util.escapeString(row_datas[i]["key"]) + ', \'\')"/>';
@@ -794,11 +794,6 @@
                             data1['add'] = gadgets.json.stringify(keys);
 
                             // データの保存
-                            var batch = osapi.newBatch()
-                                    .add('update1', osapi.appdata.update({ userId:'@viewer', data:data1 }));
-                            batch.execute(function (response) {
-                                return true;
-                            });
                         });
                     });
                 });
@@ -860,6 +855,8 @@
                             for (var userId2 in response) {
                                 var data = response[userId2];
                                 var data3 = {};
+                                var olddata3 = {};
+                                var oldkeys = new Array();
                                 for (var key in data) {
                                     // データの作成
                                     var rowdata = gadgets.json.parse(data[key]);
@@ -867,7 +864,9 @@
                                         var date = {};
                                         var comment = "";
                                         var data4 = {};
+                                        var olddata4 = {};
                                         var sub = "" + key;
+                                        var oldkey = "" + key;
 
                                         date = sub.split(".");
                                         sub = sub.replace(".", "");
@@ -878,6 +877,9 @@
                                         data4['date'] = date[1];
                                         data4['comment'] = rowdata["comment"];
                                         data3[key] = gadgets.json.stringify(data4);
+
+                                        oldkeys.push(gadgets.json.parse(oldkey));
+
                                     }
 
                                 }
@@ -889,7 +891,8 @@
                                 batch.execute(function (response) {
                                     return true;
                                 });
-                                osapi.appdata['delete']({ userId: userId2 , fields: mainkeys }).execute(function(response) {
+
+                                osapi.appdata['delete']({ userId: userId2 , fields: oldkeys }).execute(function(response) {
                                 });
                             }
 
