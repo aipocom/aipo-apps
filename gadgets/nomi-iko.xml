@@ -690,7 +690,7 @@
 
 
                                 for (var i in row_datas) {
-                                    var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(' + gadgets.util.escapeString(row_datas[i]["key"]) + ', \'' + gadgets.util.escapeString(row_datas[i]["owner_id"]) + '\', \'' + popup_view_type + '\')"/>';
+                                    var add_html = '<input type="button" value="参加したい！" onclick="addSubmit(\'' + gadgets.util.escapeString(row_datas[i]["key"]) + '\', \'' + gadgets.util.escapeString(row_datas[i]["owner_id"]) + '\', \'' + popup_view_type + '\')"/>';
                                     for (var j in my_add_keys) {
                                         if (my_add_keys[j] == row_datas[i]["key"]) {
                                             add_html = '<input type="button" value="キャンセル" onclick="deleteMap(' + gadgets.util.escapeString(row_datas[i]["key"]) + ', \'' + popup_view_type + '\')"/>';
