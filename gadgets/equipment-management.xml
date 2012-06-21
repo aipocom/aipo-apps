@@ -86,54 +86,7 @@
          * init
          */
         function init() {
-            check();
             eventItemBlur();
-            repaint();
-        }
-        /*
-         * format
-         */
-        function check() {
-            var data = {};
-            osapi.appdata.get({ userId: ['@admin'] ,fields: ['format'] }).execute(function(response) {
-                if (response.error) {
-                }
-                else if (response['@admin'] == null){
-                    format();
-                }
-            });
-        }
-
-        function format() {
-            var type = gadgets.util.escapeString("none");
-            var date = gadgets.util.escapeString("");
-            var name = gadgets.util.escapeString("");
-            var reporter = gadgets.util.escapeString("");
-            // データの作成
-            var data = {};
-            var send_data = [];
-            for (var i = 1; i <= 50; i++) {
-                data['type_' + i] = type;
-                data['date_' + i] = date;
-                data['name_' + i] = name;
-                data['reporter_' + i] = reporter;
-                send_data.push(data);
-
-                osapi.appdata.update({ userId: '@admin', data: send_data.pop() }).execute(function(response) {
-                });
-                delete data['type_' + i];
-                delete data['date_' + i];
-                delete data['name_' + i];
-                delete data['reporter_' + i];
-            }
-            data['format'] = 'on';
-            osapi.appdata.update({ userId: '@admin', data: data }).execute(function(response) {
-            });
-            var msg = new gadgets.MiniMessage();
-            msg.createTimerMessage("初期化しました。", 3, function() {
-                gadgets.window.adjustHeight();
-                return true;
-            });
             repaint();
         }
 
@@ -210,38 +163,55 @@
                     });
                 } else {
                     // ユーザーID、アプリデータの連想配列
-                    for (var userId in response) {
-                        var data = response[userId];
-                        for (var i = 1; i <= 50 && flag == 0; i++) {
+                    var data = response['@admin'];
+                    if(!data){data=[];}
+                    for (var i = 1; i <= 50 && flag == 0; i++) {
 
-                            if (data["type_" + i] == 'none') {
-                                keep2.push(i);
-                                flag = 1;
-                                osapi.people.get({ userId: '@viewer' }).execute(function(response) {
-                                    // データの作成
-                                    semi = keep2.pop();
-                                    var reporter = response.displayName;
-                                    var send_data = {};
-                                    send_data["type_" + semi] = type;
-                                    send_data['date_' + semi] = date;
-                                    send_data['name_' + semi] = name;
-                                    send_data['reporter_' + semi] = reporter;
-                                    osapi.appdata.update({ userId: '@admin', data: send_data }).execute(function(response) {
-                                        // データの再表示
-                                        repaint();
-                                    });
+                        if (data["type_" + i] == null) {
+                            keep2.push(i);
+                            flag = 2;
+                            osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+                                // データの作成
+                                semi = keep2.pop();
+                                var reporter = response.displayName;
+                                var send_data = {};
+                                send_data["type_" + semi] = type;
+                                send_data['date_' + semi] = date;
+                                send_data['name_' + semi] = name;
+                                send_data['reporter_' + semi] = reporter;
+                                osapi.appdata.update({ userId: '@admin', data: send_data }).execute(function(response) {
+                                    // データの再表示
+                                    repaint();
                                 });
-                            }
-                            else if (i == 50) {
-                                var msg = new gadgets.MiniMessage();
-                                msg.createTimerMessage("51個以上はデータ登録ができません。", 5, function() {
-                                    gadgets.window.adjustHeight();
-                                });
-
-                            }
+                            });
                         }
+                        else if (data["type_" + i] == 'none') {
+                            keep2.push(i);
+                            flag = 1;
+                            osapi.people.get({ userId: '@viewer' }).execute(function(response) {
+                                // データの作成
+                                semi = keep2.pop();
+                                var reporter = response.displayName;
+                                var send_data = {};
+                                send_data["type_" + semi] = type;
+                                send_data['date_' + semi] = date;
+                                send_data['name_' + semi] = name;
+                                send_data['reporter_' + semi] = reporter;
+                                osapi.appdata.update({ userId: '@admin', data: send_data }).execute(function(response) {
+                                    // データの再表示
+                                    repaint();
+                                });
+                            });
+                        }
+                        else if (i == 50) {
+                            var msg = new gadgets.MiniMessage();
+                            msg.createTimerMessage("51個以上はデータ登録ができません。", 5, function() {
+                                gadgets.window.adjustHeight();
+                            });
 
+                        }
                     }
+
                 }
             });
         }
