@@ -147,6 +147,14 @@
             var date = timestamp + "";
 
             osapi.appdata.get({ userId: ["@viewer"] ,fields: ['keys'] }).execute(function(response) {
+                if (response.error) {
+                    // minimessage
+                    msg.createTimerMessage("コメントに失敗しました。", 3, function() {
+                        gadgets.window.adjustHeight();
+                        return true;
+                    });
+                    return;
+                }
                 for (var userId in response) {
                     var tmp_data = response[userId];
                 }
