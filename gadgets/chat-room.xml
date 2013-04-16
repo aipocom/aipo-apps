@@ -23,10 +23,8 @@
         <EnumValue value="30"/>
         <EnumValue value="50"/>
     </UserPref>
-    <UserPref name="p3-autoReload" display_name="自動更新" datatype="enum" default_value="1">
+    <UserPref name="p3-autoReload" display_name="自動更新" datatype="enum" default_value="10">
         <EnumValue value="0" display_value="自動更新しない"/>
-        <EnumValue value="1" display_value="1分毎"/>
-        <EnumValue value="5" display_value="5分毎"/>
         <EnumValue value="10" display_value="10分毎"/>
         <EnumValue value="30" display_value="30分毎"/>
         <EnumValue value="60" display_value="1時間毎"/>
@@ -123,6 +121,12 @@
             }
         });
 
+		//10分以上に再設定
+		(function(){
+	        var m=prefs.getInt("p3-autoReload");
+	        if(0<m && m <10)
+	        	pref.set("p3-autoReload",10);
+		})();
 
         /*
          * 発言
