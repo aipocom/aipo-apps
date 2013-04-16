@@ -120,7 +120,9 @@
             // グループの読み込み
             osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
                 groups = response.list;
-                groups.unshift({id:{groupId:'@all'},title:'全体'});
+                if(typeof(groups) != "undefined") {
+                	groups.unshift({id:{groupId:'@all'},title:'全体'});
+                }
                 changeGroupList();
                 eventGroupSelect();
             });
