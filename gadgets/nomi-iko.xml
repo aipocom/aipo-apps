@@ -536,14 +536,21 @@
                                             var rowdata = gadgets.json.parse(data[key]);
                                             rowdata["key"] = key;
                                             rowdata["add_user"] = '';
-                                            rowdata["owner"] = users[userId2].displayName;
+                                            var userflag = true;
+                                            if(users[userId2] != null) {
+                                                  rowdata["owner"] = users[userId2].displayName;
+                                            } else {
+                                                  userflag = false;
+                                            }
                                             rowdata["owner_id"] = userId2;
                                             for (var key2 in adds_users) {
                                                 if (key == key2) {
                                                     rowdata["add_user"] = adds_users[key2];
                                                 }
                                             }
-                                            row_datas.push(rowdata);
+                                            if(userflag) {
+                                                row_datas.push(rowdata);
+                                            }
                                         }
                                     }
 
@@ -606,7 +613,13 @@
 </tr>\
 ';
                                         // データの表示
-                                        $("#status").html($("#status").html() + key_data);
+                                        if(userflag) {
+                                              $("#status").html($("#status").html() + key_data);
+                                        } else {
+                                              $("#status").html($("#status").html() + key_data);
+                                               var msg = new gadgets.MiniMessage();
+                                               msg.createTimerMessage("ユーザー情報が不正です。", 5);
+                                        }
                                     }
                                     // ウインドウの幅再調整
                                     gadgets.window.adjustHeight();
@@ -673,14 +686,21 @@
                                     var rowdata = gadgets.json.parse(data[key]);
                                     rowdata["key"] = key;
                                     rowdata["add_user"] = '';
-                                    rowdata["owner"] = users[userId2].displayName;
+                                    var userflag = true;
+                                    if(users[userId2] != null) {
+                                        rowdata["owner"] = users[userId2].displayName;
+                                    } else {
+                                       userflag = false;
+                                    }
                                     rowdata["owner_id"] = userId2;
                                     for (var key2 in adds_users) {
                                         if (key == key2) {
                                             rowdata["add_user"] = adds_users[key2];
                                         }
                                     }
-                                    row_datas.push(rowdata);
+                                    if(userflag) {
+                                        row_datas.push(rowdata);
+                                    }
                                 }
                             }
 
@@ -703,7 +723,13 @@
 <tr><th>賛同者</th><td colspan="3">' + gadgets.util.escapeString(row_datas[i]["add_user"]) + add_html + '</td></tr>\
 ';
                                     // データの表示
-                                    $("#status").html($("#status").html() + key_data);
+                                    if(userflag) {
+                                        $("#status").html($("#status").html() + key_data);
+                                    } else {
+                                        $("#status").html($("#status").html() + key_data);
+                                               var msg = new gadgets.MiniMessage();
+                                               msg.createTimerMessage("ユーザー情報が不正です。", 5);
+                                    }
                                 }
                             }
                             // ウインドウの幅再調整
