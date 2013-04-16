@@ -338,7 +338,7 @@
                             }
                             if (counter > 0) {
                                 // minimessage
-                                msg.createTimerMessage("参加者がいるため削除できません。", 3, function () {
+                                msg.createTimerMessage("参加者がいるため削除できません。", 10, function () {
                                     gadgets.window.adjustHeight();
                                     return true;
                                 });
