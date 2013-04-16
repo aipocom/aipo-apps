@@ -618,7 +618,7 @@
                                         } else {
                                               $("#status").html($("#status").html() + key_data);
                                                var msg = new gadgets.MiniMessage();
-                                               msg.createTimerMessage("ユーザー情報が不正です。", 5);
+                                               msg.createTimerMessage("読み込みに失敗しました。", 5);
                                         }
                                     }
                                     // ウインドウの幅再調整
@@ -728,7 +728,7 @@
                                     } else {
                                         $("#status").html($("#status").html() + key_data);
                                                var msg = new gadgets.MiniMessage();
-                                               msg.createTimerMessage("ユーザー情報が不正です。", 5);
+                                               msg.createTimerMessage("読み込みに失敗しました。", 5);
                                     }
                                 }
                             }
