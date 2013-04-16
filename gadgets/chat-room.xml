@@ -235,6 +235,7 @@
                             }
                         }
                         // データの取得
+                        var userflag = true;
                         osapi.appdata.get({ userId: userIds ,fields: keys }).execute(function(response) {
                             for (var userId2 in response) {
                                 var data = response[userId2];
@@ -243,10 +244,14 @@
                                     // データの作成
                                     var rowdata = gadgets.json.parse(data[key]);
                                     rowdata["key"] = key;
-                                    rowdata["owner"] = users[userId2].displayName;
-                                    rowdata["owner_id"] = userId2;
-                                    rowdata["color"] = color_map[userId2];
-                                    row_datas.push(rowdata);
+                                    if(users[userId2] != null) {
+                                        rowdata["owner"] = users[userId2].displayName;
+                                        rowdata["owner_id"] = userId2;
+                                        rowdata["color"] = color_map[userId2];
+                                        row_datas.push(rowdata);
+                                    } else {
+                                        userflag = false;
+                                    }
                                 }
                             }
 
@@ -279,6 +284,13 @@
                                 }
                             }
                             // データの表示
+                            if(!userflag) {
+                                 var msg = new gadgets.MiniMessage();
+                                 msg.createTimerMessage("読み込みに失敗しました。", 3, function() {
+                                    gadgets.window.adjustHeight();
+                                    return true;
+                                });
+                            }
                             $("#hiddenresult").html($("#hiddenresult").html() + key_data);
                             initPagination(currentPage, counter);
                         });
