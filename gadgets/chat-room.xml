@@ -125,7 +125,7 @@
 		(function(){
 	        var m=prefs.getInt("p3-autoReload");
 	        if(0<m && m <10)
-	        	pref.set("p3-autoReload",10);
+	        	prefs.set("p3-autoReload",10);
 		})();
 
         /*
