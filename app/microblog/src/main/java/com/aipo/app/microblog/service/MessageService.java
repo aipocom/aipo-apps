@@ -315,7 +315,7 @@ public class MessageService {
 
   public int getMessageCount() {
     try {
-      return Datastore.query(messageMeta).count();
+      return Datastore.query(messageMeta).limit(100).count();
     } catch (Exception e) {
       return -1;
     }
