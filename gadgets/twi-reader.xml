@@ -4,7 +4,16 @@
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>
         <Require feature="tabs"/>
+        <Require feature="osapi"/>
+        <Require feature="oauthpopup"/>
         <Optional feature="aipostyle"/>
+        <OAuth>
+            <Service name="twitter">
+                <Access url="https://api.twitter.com/oauth/access_token" param_location="uri-query"/>
+                <Request url="https://api.twitter.com/oauth/request_token" param_location="uri-query"/>
+                <Authorization url="https://api.twitter.com/oauth/authorize"/>
+            </Service>
+        </OAuth>
         <Icon>https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/twi-reader/img/icon/icon16-trans.png</Icon>
     </ModulePrefs>
     <UserPref name="query1" display_name="検索ワード1" datatype="string" default_value="Aipo"/>
@@ -106,6 +115,9 @@
                 margin: 0 5px 0 5px;
             }
         </style>
+        <div id="approval" style="display:none">
+        <a href="#" id="personalize">Personalize this gadget</a>
+      </div>
         <div id="content" class="aipostyle" style="height:432px;overflow: scroll;overflow-x: hidden;"></div>
         <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
         </script>
@@ -113,7 +125,6 @@
             prefs = new gadgets.Prefs();//設定リスト
             reloadspan = prefs.getString("reloadspan") * 1000;//ミリ秒
             newestid = 0;//最新id
-
             function link(src) {
                 return src.replace(/(http:\/\/[\x21-\x7e]+)/gi, "<a href='$1' target='_blank'>$1</a>");
             }
@@ -128,7 +139,9 @@
                 SearchForTwitter(tabparent.getSelectedTab().getName());
             }
             function SearchForTwitter(query) {
-                var rowUrl = "https://search.twitter.com/search.json?";
+            	if(!query){
+            		return;
+            	}
                 var lang = prefs.getString("lang");
                 if (lang == "default") {
                     try {
@@ -137,59 +150,75 @@
                         lang = "all";
                     }
                 }
-                var values = {"q":query,"lang":lang};
-                var length = prefs.getString("length");
-                var fetchUrl = rowUrl + gadgets.io.encodeValues(values);
+                var rowUrl = "https://api.twitter.com/1.1/search/tweets.json" + "?q=" + encodeURIComponent(query) + "&lang=" + lang;
+                var values = {};
                 var profileURL = "http://twitter.com/#!/";
-                $.ajax({
-                    type: "GET",
-                    url: rowUrl,
-                    data: values,
-                    cache: false,
-                    dataType: "json",
-                    success: function(jsonData) {
-                        var resultHtml = "<div id='top_message_rs' class='lc_ajax'><div id='pageElement'>";
-                        var length = jsonData.results.length;
-                        for (var i = 0; i < length; i++) {
-                            var res = jsonData.results[i];
-                            if (i == 0) {
-                                var new_newestid = res.id;
-                            }
-                            if (res.id <= newestid) {
-                                break;
-                            }
-                            var text = link(res.text);
-                            text = text.split(query).join("\<strong>" + query + "\<\/strong>");
-                            var createdAt = new Date(res.created_at);//res.created_at
-                            var createdAtStr = (createdAt.getFullYear())
-                                    + "/" + (createdAt.getMonth() + 1)
-                                    + "/" + createdAt.getDate() + " ";
-                            var hours = createdAt.getHours().toString().length == 2 ? createdAt.getHours() : "0" + createdAt.getHours();
-                            var minutes = createdAt.getMinutes().toString().length == 2 ? createdAt.getMinutes() : "0" + createdAt.getMinutes();
-                            createdAtStr += hours + ":" + minutes;
-                            resultHtml += "\
+
+			    values[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+			    values[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.OAUTH;
+			    values[gadgets.io.RequestParameters.OAUTH_SERVICE_NAME] = "twitter";
+			    values[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.GET;
+			    values[gadgets.io.RequestParameters.OAUTH_USE_TOKEN] = "always";
+
+
+			    gadgets.io.makeRequest(rowUrl, function(response) {
+			        if (response.oauthApprovalUrl) {
+			            var popup = new gadgets.oauth.Popup(
+			                    response.oauthApprovalUrl,
+			                    null,
+			                    function() {
+			                        return;
+			                    },
+			                    SearchForTwitter.bind(this,query)
+			                    );
+			            document.getElementById('personalize').onclick = popup.createOpenerOnClick();
+						document.getElementById('personalize').click();
+			        } else {
+			            if (response.rc == 200) {
+			                // ...
+			                // OAuth リクエストで取得したデータ
+			                var data = response.data;
+				            var resultHtml = "<div id='top_message_rs' class='lc_ajax'><div id='pageElement'>";
+				            var result = data.statuses;
+	                        for (var i = 0; i < result.length; i++) {
+	                            var res = result[i];
+	                            if (i == 0) {
+	                                var new_newestid = res.id;
+	                            }
+	                            if (res.id <= newestid) {
+	                                break;
+	                            }
+	                            var text = link(res.text);
+	                            text = text.split(query).join("\<strong>" + query + "\<\/strong>");
+	                            var createdAt = new Date(res.created_at);//res.created_at
+	                            var createdAtStr = (createdAt.getFullYear())
+	                                    + "/" + (createdAt.getMonth() + 1)
+	                                    + "/" + createdAt.getDate() + " ";
+	                            var hours = createdAt.getHours().toString().length == 2 ? createdAt.getHours() : "0" + createdAt.getHours();
+	                            var minutes = createdAt.getMinutes().toString().length == 2 ? createdAt.getMinutes() : "0" + createdAt.getMinutes();
+	                            createdAtStr += hours + ":" + minutes;
+	                            resultHtml += "\
 <hr id='" + res.id_str + "'>\
 <div class='timeline clearfix' id='post_" + res.id_str + "'>\
 <div class='main'>\
 <div class='body'><span class='name'>\
-<a target='_blank' href='" + profileURL + res.from_user + "'>" + res.from_user + "<\/a><\/span>" + text + "\
+<a target='_blank' href='" + profileURL + res.user.screen_name + "'>" + res.user.name + "<\/a><\/span>" + text + "\
 <\/div>\
 <div class='clearfix'>\
-<div class='time'><a target='_blank' href='" + profileURL + res.from_user + "\/status\/" + res.id_str + "'>" + createdAtStr + "<\/a><\/div>\
+<div class='time'><a target='_blank' href='" + profileURL + res.user.screen_name + "\/status\/" + res.id_str + "'>" + createdAtStr + "<\/a><\/div>\
 <\/div>\
 <\/div>\
 <\/div>";
-                            resultHtml += "<\/div><\/div>";
-                        }
-                        if (new_newestid) {
-                            newestid = new_newestid;
-                        }
-                        document.getElementById("content").innerHTML = resultHtml + document.getElementById("content").innerHTML;
-                        gadgets.window.adjustHeight();
-                    },
-                    error: function(xhr, status, e) {
-                    }
-                });
+	                            resultHtml += "<\/div><\/div>";
+	                        }
+	                        if (new_newestid) {
+	                            newestid = new_newestid;
+	                        }
+	                        document.getElementById("content").innerHTML = resultHtml + document.getElementById("content").innerHTML;
+	                        gadgets.window.adjustHeight();
+			            }
+			        }
+			    }, values);
             }
             function SearchForTwitterInit(tabparent, query) {
                 newestid = 0;
