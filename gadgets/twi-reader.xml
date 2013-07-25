@@ -170,6 +170,8 @@
 			                        return;
 			                    },
                                 function(){
+                                    var personalize = document.getElementById('personalize');
+                                    personalize.style.display = "none";
                                     SearchForTwitter(query);
                                 }
 			            );
@@ -200,7 +202,10 @@
 	                            }
 	                            var text = link(res.text);
 	                            text = text.split(query).join("\<strong>" + query + "\<\/strong>");
-	                            var createdAt = new Date(res.created_at);//res.created_at
+	                            var time_values = res.created_at.split(" ");
+	                            var time_value = time_values[1]+" "+time_values[2]+", "+time_values[5]+" "+time_values[3];
+	                            var createdAt = new Date(time_value);//res.created_at
+	                            createdAt.setTime(createdAt.getTime() - 25200000); // 1000 * 60 * 60 * 7(hour)
 	                            var createdAtStr = (createdAt.getFullYear())
 	                                    + "/" + (createdAt.getMonth() + 1)
 	                                    + "/" + createdAt.getDate() + " ";
