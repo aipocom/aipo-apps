@@ -33,7 +33,7 @@
         <EnumValue display_value="デフォルト(通常使用言語)" value="default"/>
     </UserPref>
     <Content type="html" preferred_height="300">
-    <![CDATA[
+        <![CDATA[
         <style type="text/css">
             .timeline {
                 width: 98%;
@@ -115,10 +115,11 @@
                 margin: 0 5px 0 5px;
             }
         </style>
-        <div id="approval" style="display:none">
-        <a href="#" id="personalize">Personalize this gadget</a>
+        <div id="approval">
+        <a href="javascript:void(0);" id="personalize" style="display:none">こちらをクリックして Twitter
+                にログインしてください。</a>
       </div>
-        <div id="content" class="aipostyle" style="height:432px;overflow: scroll;overflow-x: hidden;"></div>
+        <div id="content" class="aipostyle"></div>
         <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
         </script>
         <script type="text/javascript">
@@ -160,7 +161,6 @@
 			    values[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.GET;
 			    values[gadgets.io.RequestParameters.OAUTH_USE_TOKEN] = "always";
 
-
 			    gadgets.io.makeRequest(rowUrl, function(response) {
 			        if (response.oauthApprovalUrl) {
 			            var popup = new gadgets.oauth.Popup(
@@ -169,12 +169,22 @@
 			                    function() {
 			                        return;
 			                    },
-			                    SearchForTwitter.bind(this,query)
-			                    );
-			            document.getElementById('personalize').onclick = popup.createOpenerOnClick();
-						document.getElementById('personalize').click();
+                                function(){
+                                    SearchForTwitter(query);
+                                }
+			            );
+			            document.getElementById('tl_' + __MODULE_ID__).style.display = "none";
+			            var personalize = document.getElementById('personalize');
+			            personalize.style.display = "";
+			            personalize.onclick = popup.createOpenerOnClick();
+			            gadgets.window.adjustHeight();
 			        } else {
 			            if (response.rc == 200) {
+			            var content = document.getElementById('content');
+			            document.getElementById('tl_' + __MODULE_ID__).style.display = "";
+			            content.style.height = "432px";
+			            content.style.overflow = "scroll";
+			            content.style.overflowX = "hidden";
 			                // ...
 			                // OAuth リクエストで取得したデータ
 			                var data = response.data;
@@ -214,7 +224,7 @@
 	                        if (new_newestid) {
 	                            newestid = new_newestid;
 	                        }
-	                        document.getElementById("content").innerHTML = resultHtml + document.getElementById("content").innerHTML;
+	                        content.innerHTML = resultHtml + content.innerHTML;
 	                        gadgets.window.adjustHeight();
 			            }
 			        }
@@ -252,5 +262,5 @@
         </script>
         ]]>
 
-  </Content>
+    </Content>
 </Module>
