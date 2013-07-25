@@ -170,6 +170,8 @@
 			                        return;
 			                    },
                                 function(){
+                                    var personalize = document.getElementById('personalize');
+                                    personalize.style.display = "none";
                                     SearchForTwitter(query);
                                 }
 			            );
