@@ -87,7 +87,7 @@
 			var begin, end,
 				interval = this.pc.getInterval(current_page),
 				np = this.pc.numPages(),
-				fragment = $("");
+				fragment = $("<div class='pagination'></div>");
 
 			// Generate "Previous"-Link
 			if(this.opts.prev_text && (current_page > 0 || this.opts.prev_show_always)){
