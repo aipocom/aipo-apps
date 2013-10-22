@@ -33,37 +33,6 @@
     <UserPref name="version" datatype="hidden"/>
     <Content type="html"><![CDATA[
         <style type="text/css">
-            .pagination {
-                margin: 0 0 5px 0;
-                padding: 0;
-                height: 2.5em;
-            }
-
-            .pagination a {
-                text-decoration: none;
-                border: solid 1px darkorange;
-                color: darkorange;
-            }
-
-            .pagination a, .pagination span {
-                font-weight: bold;
-                display: block;
-                float: left;
-                margin: 0 5px 0 0;
-                padding: .3em .5em;
-            }
-
-            .pagination .current {
-                background: darkorange;
-                color: #fff;
-                border: solid 1px darkorange;
-            }
-
-            .pagination .current.prev, .pagination .current.next {
-                color: #999;
-                border-color: #999;
-                background: #fff;
-            }
 
             .left {
                 float: left;
@@ -85,7 +54,7 @@
             </table>
             <hr/>
             <div>
-                <div id="Pagination" class="pagination left"></div>
+                <div id="Pagination" class="left"></div>
                 <div id="reload" class="left"></div>
             </div>
             <div id="res" style="clear:both;"></div>
@@ -95,7 +64,7 @@
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js">
         </script>
         <script type="text/javascript"
-                src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chat-room/js/jquery/pagination/jquery.pagination.js"></script>
+                src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chat-room/js/jquery/pagination/jquery.pagination.js"></script> <!-- 絶対コミット前に戻す！！ -->
         <script type="text/javascript">
 
         // バージョン情報
