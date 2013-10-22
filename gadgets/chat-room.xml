@@ -85,7 +85,7 @@
             </table>
             <hr/>
             <div>
-                <ul id="Pagination" class="pagination left"></ul>
+                <div id="Pagination" class="pagination left"></div>
                 <div id="reload" class="left"></div>
             </div>
             <div id="res" style="clear:both;"></div>
