@@ -40,7 +40,7 @@
 
         </style>
         <div class="aipostyle">
-            <table style="width:97%;">
+            <table style="width:100%;">
                 <tbody>
                 <tr>
                     <td><textarea onKeyUp="updateCount(value, 'count', max_length)" cols="40" rows="2"
@@ -64,7 +64,7 @@
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js">
         </script>
         <script type="text/javascript"
-                src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chat-room/js/jquery/pagination/jquery.pagination.js"></script> <!-- 絶対コミット前に戻す！！ -->
+                src="https://s3-ap-northeast-1.amazonaws.com/gadgets.aipo.com/chat-room/js/jquery/pagination/jquery.pagination.js"></script>
         <script type="text/javascript">
 
         // バージョン情報
