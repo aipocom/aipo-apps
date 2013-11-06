@@ -141,6 +141,9 @@
 	                        $("#content").prepend(resultHtml);
 	                        twttr.ready(function(twttr){
 	                        	twttr.widgets.load();
+	                        	setTimeout( function() {
+	                        	gadgets.window.adjustHeight();
+	                        	}, 10000 );
 	                        });
 	                        gadgets.window.adjustHeight();
 			            }
