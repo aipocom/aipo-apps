@@ -104,9 +104,6 @@
             if (type == 2) {
                 type = "off"
             }
-            if (type == 4) {
-                type = "ordered"
-            }
 
             var date = (new Date()).getTime() + "";
 
@@ -250,7 +247,7 @@
                 keep.push("date_" + i);
                 keep.push("reporter_" + i);
                 keep.push("name_" + i);
-                selectedAttr[i] = {0:"", 1:"", 2:"", 4:""};
+                selectedAttr[i] = {0:"", 1:"", 2:""};
             }
             osapi.appdata.get({ userId: ['@admin'] ,fields: keep }).execute(function(response) {
                 // ユーザーID、アプリデータの連想配列
@@ -278,12 +275,8 @@
                                 statusText = "無し";
                                 selectedAttr[i][2] = 'selected="selected"';
                             }
-                            else if (data["type_" + i] == "ordered") {
-                                statusText = "注文済";
-                                selectedAttr[i][4] = 'selected="selected"';
-                            }
 
-                            if (data["type_" + i] == "on" || data["type_" + i] == "min" || data["type_" + i] == "off" || data["type_" + i] == "ordered") {
+                            if (data["type_" + i] == "on" || data["type_" + i] == "min" || data["type_" + i] == "off") {
                                 // データの作成
                                 userData[i] = '\
 <tr>\
@@ -294,7 +287,6 @@
         <option value="0" ' + selectedAttr[i][0] + '>補充済</option>\
         <option value="1" ' + selectedAttr[i][1] + '>少ない</option>\
         <option value="2" ' + selectedAttr[i][2] + '>無し</option>\
-        <option value="2" ' + selectedAttr[i][2] + '>注文済</option>\
       </select>\
       <input type="button" value="削除" onclick="if(window.confirm(\'備品データを削除しますか？\')) eventChange(3 , ' + i + ')"/>\
     </td>\
