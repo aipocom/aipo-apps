@@ -64,11 +64,16 @@
             	}
                 var lang = prefs.getString("lang");
                 if (lang == "default") {
-                    try {
-                        lang = browserLanguage();
-                    } catch(e) {
-                        lang = "all";
-                    }
+                    var agent = window.navigator.userAgent.toLowerCase();
+                    if(agent.indexOf('android 2.') != -1){
+                    	lang = "all";
+                	} else {
+	                	try {
+	                        lang = browserLanguage();
+	                    } catch(e) {
+	                        lang = "all";
+	                    }
+                	}
                 }
                 var rowUrl = "https://api.twitter.com/1.1/search/tweets.json" + "?q=" + encodeURIComponent(query) + "&lang=" + lang;
                 var values = {};
@@ -103,14 +108,25 @@
 			            if (response.rc == 200) {
 			            var content = document.getElementById('content');
 			            document.getElementById('tl_' + __MODULE_ID__).style.display = "";
-			            content.style.height = "432px";
-			            content.style.overflow = "scroll";
-			            content.style.overflowX = "hidden";
+			            var agent = window.navigator.userAgent.toLowerCase();
+			            
 			                // OAuth リクエストで取得したデータ
 			                var data = response.data;
 				            var resultHtml = "";
 				            var result = data.statuses;
-	                        for (var i = 0; i < result.length; i++) {
+				            var tweetNum = result.length;
+				            
+				            if (agent.indexOf('iphone') != -1 ){
+			            		content.style.height = (tweetNum * 275) + "px";
+				            } else if(agent.indexOf('android 2.') != -1 && agent.indexOf('mobile') != -1) {
+				            	content.style.height = (tweetNum * 275) + "px";
+				            } else {
+				            	content.style.height = "432px";
+				            }
+				            content.style.overflow = "scroll";
+				            content.style.overflowX = "hidden";
+				            
+	                        for (var i = 0; i < tweetNum; i++) {
 	                            var res = result[i];
 	                            if (i == 0) {
 	                                var new_newestid = res.id;
@@ -141,9 +157,6 @@
 	                        $("#content").prepend(resultHtml);
 	                        twttr.ready(function(twttr){
 	                        	twttr.widgets.load();
-	                        	setTimeout( function() {
-	                        	gadgets.window.adjustHeight();
-	                        	}, 10000 );
 	                        });
 	                        gadgets.window.adjustHeight();
 			            }
