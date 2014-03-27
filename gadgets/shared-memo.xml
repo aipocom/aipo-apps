@@ -539,6 +539,11 @@
         function addMemo(title, contents, categoryId) {
             var posKey = 'pos.' + categoryId;
             osapi.appdata.get({ userId: ["@viewer"] ,fields: [posKey] }).execute(function(response) {
+                if (response.error){
+                    showTimerMessage("メモの追加に失敗しました。");
+                    return;
+                }
+
                 var memos = response[viewerId];
                 var keys = new Array();
                 if (memos && memos[posKey]) {
