@@ -372,7 +372,6 @@
                                                 for (var userId in response) {
                                                     var tmp_keys = gadgets.json.parse(response[userId]['keys']);
                                                     for (var tmp_key in tmp_keys) {
-                                                        keys.push(tmp_keys[tmp_key]);
                                                         data_counter++
                                                     }
                                                 }
