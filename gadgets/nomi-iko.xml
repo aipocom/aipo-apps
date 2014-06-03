@@ -352,21 +352,6 @@
                                         keys = gadgets.json.parse(links["keys"]);
                                     }
 
-                                    var newKeys = new Array();
-                                    for (var i in keys) {
-                                        if (keys[i] != key) {
-                                            newKeys.push(keys[i]);
-                                        }
-                                    }
-
-                                    var data = {};
-                                    data["keys"] = gadgets.json.stringify(newKeys);
-
-                                    var batch = osapi.newBatch()
-                                            .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' }))
-                                            .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }));
-                                    batch.execute(callback);
-
                                     // 削除後の処理
                                     var callback = function (response) {
                                         if (response.error) {
@@ -381,10 +366,25 @@
                                                 gadgets.window.adjustHeight();
                                                 return true;
                                             });
-                                            // データの再表示
-                                            repaint();
                                         }
                                     };
+
+                                    var newKeys = new Array();
+                                    for (var i in keys) {
+                                        if (keys[i] != key) {
+                                            newKeys.push(keys[i]);
+                                        }
+                                    }
+
+                                    var data = {};
+                                    data["keys"] = gadgets.json.stringify(newKeys);
+
+                                    var batch = osapi.newBatch()
+                                            .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' }))
+                                            .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }));
+                                    batch.execute(callback);
+                                    // データの再表示
+                                    repaint();
                                 });
                             }
                         });
