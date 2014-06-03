@@ -366,8 +366,12 @@
                                                 gadgets.window.adjustHeight();
                                                 return true;
                                             });
-                                            // データの再表示
-                                            repaint();
+                                            if (view_type == popup_view_type) {
+                                                detail(key);
+                                            } else {
+                                                // データの再表示
+                                                repaint();
+                                            }
                                         }
                                     };
 
