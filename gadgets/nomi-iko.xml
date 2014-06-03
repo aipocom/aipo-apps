@@ -367,9 +367,7 @@
                                                 return true;
                                             });
                                             // データの再表示
-                                            osapi.appdata.get({ userId:userIds, fields:['add'] }).execute(function (response) {
-                                                repaint();
-                                            });
+                                            repaint();
                                         }
                                     };
 
@@ -475,7 +473,7 @@
          * テーブルの再描画
          */
         function repaint() {
-            osapi.people.get({ userId:'@viewer' }).execute(function (response) {
+            osapi.appdata.get({ userId:'@viewer' }).execute(function (response) {
                 var users = [];
                 var userIds = [];
                 var adds_users = [];
