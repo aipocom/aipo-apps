@@ -366,23 +366,23 @@
                                                 gadgets.window.adjustHeight();
                                                 return true;
                                             });
-                                            osapi.appdata.get({ userId:userIds, fields:['add'] }).execute(function (response) {
-                                            var userIds = [];
-                                            var counter = 0;
-                                            for (var userId3 in response) {
-                                                var tmp_add = gadgets.json.parse(response[userId3]['add']);
-                                                for (var i in tmp_add) {
-                                                    if (tmp_add[i] == key) {
-                                                        counter++
+                                            osapi.appdata.get({ userId:userIds, fields:['keys'] }).execute(function (response) {
+                                                // ユーザーID、アプリデータの連想配列
+                                                var data_counter = 0;
+                                                for (var userId in response) {
+                                                    var tmp_keys = gadgets.json.parse(response[userId]['keys']);
+                                                    for (var tmp_key in tmp_keys) {
+                                                        keys.push(tmp_keys[tmp_key]);
+                                                        data_counter++
                                                     }
                                                 }
-                                            }
-                                            // データの再表示
-                                            if (counter == 0){
-                                            detail(key);
-                                            } else {
-                                            repaint();
-                                            }
+                                                if (data_counter == 0){
+                                                    $("#status").children().remove();
+                                                    repaint();
+                                                }else{
+                                                    // データの再表示
+                                                    repaint();
+                                                }
                                             });
                                         }
                                     };
