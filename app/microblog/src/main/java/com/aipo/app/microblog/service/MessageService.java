@@ -313,4 +313,12 @@ public class MessageService {
     return data;
   }
 
+  public int getMessageCount() {
+    try {
+      return Datastore.query(messageMeta).limit(100).count();
+    } catch (Exception e) {
+      return -1;
+    }
+  }
+
 }

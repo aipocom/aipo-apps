@@ -255,13 +255,15 @@
                     var selectedUserId;
                     for (var i = 0; i < people.length; i++) {
                         var person = people[i];
-                        var params = {};
-                        params['value'] = person.id;
-                        if (currentUserId == person.id) {
-                            selectedUserId = currentUserId;
-                            params['selected'] = 'selected';
+                        if(person != null){
+                            var params = {};
+                            params['value'] = person.id;
+                            if (currentUserId == person.id) {
+                                selectedUserId = currentUserId;
+                                params['selected'] = 'selected';
+                            }
+                            userSelectDom.append($('<option>').attr(params).text(person.displayName));
                         }
-                        userSelectDom.append($('<option>').attr(params).text(person.displayName));
                     }
                     currentUserId = selectedUserId;
                     fetch(currentUserId, currentCategoryId);
@@ -432,11 +434,15 @@
                                 var contents = memos2[keys[key]];
                             }
                             if (keys.length > 0) {
-
+                                var memoflag = true;
                                 var ul = document.createElement('ul');
                                 ul.id = "sortable";
                                 for (var key in keys) {
                                     var value = memos2[keys[key]];
+                                    if(value == null){
+                                        memoflag = false;
+                                        continue;
+                                    }
                                     var memo = gadgets.json.parse(value);
                                     var title = gadgets.util.escapeString(memo.title);
                                     var contents = gadgets.util.escapeString(memo.contents);
@@ -514,6 +520,9 @@
                                             }
                                     );
                                 }
+                                if(!memoflag){
+                                    showTimerMessage("メモの読み込みに失敗しました。");
+                                }
                                 adjustHeight();
                             } else {
                                 document.getElementById('memos').innerHTML = "メモがありません。";
@@ -539,6 +548,11 @@
         function addMemo(title, contents, categoryId) {
             var posKey = 'pos.' + categoryId;
             osapi.appdata.get({ userId: ["@viewer"] ,fields: [posKey] }).execute(function(response) {
+                if (response.error){
+                    showTimerMessage("メモの追加に失敗しました。");
+                    return;
+                }
+
                 var memos = response[viewerId];
                 var keys = new Array();
                 if (memos && memos[posKey]) {

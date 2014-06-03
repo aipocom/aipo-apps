@@ -50,13 +50,13 @@
             }
 
             table.feedTable  tr:hover {
-                background: #F5F5F5;
+                background: #f5f5f5;
             }
 
             table.feedTable td {
                 padding: 3px;
                 margin: 0px;
-                border-bottom: #EEE solid 1px;
+                border-bottom: #f0f0f0 solid 1px;
                 vertical-align: top;
             }
 
@@ -84,7 +84,7 @@
             }
 
             table.feedTable tr.unread {
-                background: #FFEFE5;
+                background: #f0f0f0;
             }
 
             table.feedTable tr.unread td {
