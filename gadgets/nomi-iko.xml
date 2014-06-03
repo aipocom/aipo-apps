@@ -376,7 +376,7 @@
                                                     }
                                                 }
                                                 if (data_counter == 0){
-                                                    $("#status").children().remove();
+                                                    $("#status").empty();
                                                     repaint();
                                                 }else{
                                                     // データの再表示
