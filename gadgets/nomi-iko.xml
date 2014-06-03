@@ -367,7 +367,9 @@
                                                 return true;
                                             });
                                             // データの再表示
-                                            // repaint();
+                                            osapi.appdata.get({ userId:userIds, fields:['add'] }).execute(function (response) {
+                                                repaint();
+                                            });
                                         }
                                     };
 
