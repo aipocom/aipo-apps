@@ -381,10 +381,7 @@
                                     var data = {};
                                     data["keys"] = gadgets.json.stringify(newKeys);
 
-                                    var batch = osapi.newBatch()
-                                            .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' }))
-                                            .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }));
-                                    batch.execute(callback);
+                                    osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' })).execute(callback);
                                 });
                             }
                         });
@@ -473,7 +470,7 @@
          * テーブルの再描画
          */
         function repaint() {
-            osapi.appdata.get({ userId:'@viewer' }).execute(function (response) {
+            osapi.people.get({ userId:'@viewer' }).execute(function (response) {
                 var users = [];
                 var userIds = [];
                 var adds_users = [];
