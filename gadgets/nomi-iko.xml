@@ -366,6 +366,8 @@
                                                 gadgets.window.adjustHeight();
                                                 return true;
                                             });
+                                            // データの再表示
+                                            repaint();
                                         }
                                     };
 
@@ -380,11 +382,9 @@
                                     data["keys"] = gadgets.json.stringify(newKeys);
 
                                     var batch = osapi.newBatch()
-                                            .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' }))
-                                            .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }));
+                                            .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }))
+                                            .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' }));
                                     batch.execute(callback);
-                                    // データの再表示
-                                    repaint();
                                 });
                             }
                         });
