@@ -382,7 +382,6 @@
                                     data["keys"] = gadgets.json.stringify(newKeys);
 
                                     var batch = osapi.newBatch()
-                                            .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }))
                                             .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' }));
                                     batch.execute(callback);
                                 });
