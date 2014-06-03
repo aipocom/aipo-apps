@@ -381,7 +381,10 @@
                                     var data = {};
                                     data["keys"] = gadgets.json.stringify(newKeys);
 
-                                    osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' }).execute(callback);
+                                    var batch = osapi.newBatch()
+                                            .add('update', osapi.appdata.update({ userId:'@viewer', data:data}))
+                                            .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key]}));
+                                    batch.execute(callback);
                                 });
                             }
                         });
