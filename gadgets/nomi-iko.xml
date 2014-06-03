@@ -352,29 +352,6 @@
                                         keys = gadgets.json.parse(links["keys"]);
                                     }
 
-                                    // 削除後の処理
-                                    var callback = function (response) {
-                                        if (response.error) {
-                                            // minimessage
-                                            msg.createTimerMessage("削除に失敗しました。", 3, function () {
-                                                gadgets.window.adjustHeight();
-                                                return true;
-                                            });
-                                        } else {
-                                            // minimessage
-                                            msg.createTimerMessage("削除しました。", 3, function () {
-                                                gadgets.window.adjustHeight();
-                                                return true;
-                                            });
-                                            if (view_type == popup_view_type) {
-                                                detail(key);
-                                            } else {
-                                                // データの再表示
-                                                repaint();
-                                            }
-                                        }
-                                    };
-
                                     var newKeys = new Array();
                                     for (var i in keys) {
                                         if (keys[i] != key) {
@@ -389,6 +366,25 @@
                                             .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' }))
                                             .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }));
                                     batch.execute(callback);
+
+                                    // 削除後の処理
+                                    var callback = function (response) {
+                                        if (response.error) {
+                                            // minimessage
+                                            msg.createTimerMessage("削除に失敗しました。", 3, function () {
+                                                gadgets.window.adjustHeight();
+                                                return true;
+                                            });
+                                        } else {
+                                            // minimessage
+                                            msg.createTimerMessage("削除しました。", 3, function () {
+                                                gadgets.window.adjustHeight();
+                                                return true;
+                                            });
+                                            // データの再表示
+                                            repaint();
+                                        }
+                                    };
                                 });
                             }
                         });
