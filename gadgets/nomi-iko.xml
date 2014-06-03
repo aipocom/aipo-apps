@@ -379,10 +379,7 @@
                                             }
                                             // データの再表示
                                             if (counter == 0){
-                                            msg.createTimerMessage("削除に失敗しました。", 3, function () {
-                                                gadgets.window.adjustHeight();
-                                                return true;
-                                            });
+                                            detail(key);
                                             } else {
                                             repaint();
                                             }
