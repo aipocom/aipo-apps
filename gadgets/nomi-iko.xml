@@ -366,8 +366,23 @@
                                                 gadgets.window.adjustHeight();
                                                 return true;
                                             });
-                                            // データの再表示
-                                            repaint();
+                                            osapi.appdata.get({ userId:userIds, fields:['keys'] }).execute(function (response) {
+                                                // ユーザーID、アプリデータの連想配列
+                                                var data_counter = 0;
+                                                for (var userId in response) {
+                                                    var tmp_keys = gadgets.json.parse(response[userId]['keys']);
+                                                    for (var tmp_key in tmp_keys) {
+                                                        data_counter++
+                                                    }
+                                                }
+                                                if (data_counter == 0){
+                                                    $("#status").empty();
+                                                    repaint();
+                                                }else{
+                                                    // データの再表示
+                                                    repaint();
+                                                }
+                                            });
                                         }
                                     };
 
@@ -382,8 +397,8 @@
                                     data["keys"] = gadgets.json.stringify(newKeys);
 
                                     var batch = osapi.newBatch()
-                                            .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key], appId:'@app' }))
-                                            .add('update', osapi.appdata.update({ userId:'@viewer', data:data, appId:'@app' }));
+                                            .add('update', osapi.appdata.update({ userId:'@viewer', data:data}))
+                                            .add('delete', osapi.appdata['delete']({ userId:'@viewer', fields:[key]}));
                                     batch.execute(callback);
                                 });
                             }
