@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-<ModulePrefs title="Yahoo!ニュース" description="「Yahoo!ニュースWeb API」は2014年6月30日をもちまして、提供を終了いたしました。"" height="35">
+<ModulePrefs title="Yahoo!ニュース" description="「Yahoo!ニュースWeb API」は2014年6月30日をもちまして、提供を終了いたしました。" height="35">
 <Require feature="views"/>
 <Require feature="dynamic-height"/>
 <Require feature="minimessage"/>
