@@ -69,23 +69,6 @@
                             <div id="categorySelectField">
                                 <input type="hidden" name="categorySelect" value="none"/>
                             </div>
-                            <!--
-                            <h3>カテゴリ</h3>
-
-                            <div id="categoryInputField" style="display:none">
-                                <input id="categoryInput" type="text" class="text" value="" style="width:200px"/>&nbsp;
-                                <input id="categoryInputButton" type="button" onclick="swapCategoryField(false);"
-                                       value="選択"/>
-                            </div>
-                            <div id="categorySelectField">
-                                <select id="categorySelect2" name="categorySelect" style="width:200px">
-                                    <option value="">読み込み中
-                                    </option>
-                                    &nbsp;
-                                    <input id="categorySelectButton" type="button" onclick="swapCategoryField(true);"
-                                           value="入力"/>
-                            </div>
-                            -->
                         </div>
                         <p class="center">
                             <input id="submit" type="submit" value=""/>&nbsp;
@@ -107,16 +90,6 @@
                             </td>
                         </tr>
                         <input type="hidden" name="category" value="none"/>
-                        <!--
-                        <tr>
-                            <th>カテゴリ</th>
-                            <td>
-                                <select id="categorySelect1" name="category"
-                                        onchange="fetch(null, this.options[this.selectedIndex].value);">
-                                    <option value="">読み込み中</option>
-                            </td>
-                        </tr>
-                        -->
                     </table>
                     <a id="addMemo" href="javascript:showForm_add();" style="display:none">メモを追加する</a>
 
@@ -145,7 +118,6 @@
         var currentCategoryId = "none";
         var viewerId;
         var dispayName;
-        var inputSelect = false;
 
         var submitFunc = function() {
             document.getElementById("errors").innerHTML = "";
@@ -170,17 +142,7 @@
             }
 
             if (validate) {
-                if (inputSelect) {
-                    addCategory(title, contents, categoryInput);
-                } else {
-                    /*
-                     var category = document.form.categorySelect.value;
-                     if (category) {
-                     currentCategoryId = category;
-                     }
-                     */
-                    addMemo(title, contents, currentCategoryId);
-                }
+                addMemo(title, contents, currentCategoryId);
                 hideForm();
             }
             adjustHeight();
@@ -381,12 +343,6 @@
             adjustHeight();
         }
 
-        function swapCategoryField(input) {
-            document.getElementById('categoryInputField').style.display = input ? "" : "none";
-            document.getElementById('categorySelectField').style.display = input ? "none" : "";
-            inputSelect = input;
-        }
-
         function swapClip(input) {
             if (input.checked) {
                 prefs.set("currentUserId", currentUserId, "currentGroupId", currentGroupId, "currentCategoryId", currentCategoryId);
@@ -560,7 +516,6 @@
                 }
 
                 var callback = function(response2) {
-                    swapCategoryField(false);
                     if (response2.error) {
                         showTimerMessage("メモの追加に失敗しました。");
                     } else {
@@ -578,45 +533,6 @@
                 memo['contents'] = contents;
                 var data1 = {};
                 data1[key] = gadgets.json.stringify(memo);
-
-                var data2 = {};
-                data2[posKey] = gadgets.json.stringify(keys);
-
-                var batch = osapi.newBatch()
-                        .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
-                        .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }));
-                batch.execute(callback);
-            });
-        }
-
-        function addCategory(title, contents, category) {
-            var posKey = 'cat.pos';
-            osapi.appdata.get({ userId: ["@viewer"] ,fields: [posKey] }).execute(function(response) {
-                var memos = response[viewerId];
-                var keys = new Array();
-                if (memos && memos[posKey]) {
-                    keys = gadgets.json.parse(memos[posKey]);
-                }
-
-                var timestamp = new Date().getTime();
-                var key = 'cat.__MODULE_ID__.' + timestamp;
-                keys.push(key);
-
-                var callback = function(response2) {
-                    if (response2.error) {
-                        showTimerMessage("カテゴリの追加に失敗しました。");
-                        return null;
-                    } else {
-                        currentCategoryId = key;
-                        addMemo(title, contents, currentCategoryId);
-                        return key;
-                    }
-                };
-
-                var cat = {};
-                cat['title'] = category;
-                var data1 = {};
-                data1[key] = gadgets.json.stringify(cat);
 
                 var data2 = {};
                 data2[posKey] = gadgets.json.stringify(keys);
