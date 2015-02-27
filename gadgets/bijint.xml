@@ -65,7 +65,7 @@ var tieupJson = {"id":"1","code":"jp","title":"\u7f8e\u4eba\u6642\u8a08 \u7f8e\u
 var
 	PHOTO_DOMAIN = "http://www.bijint.com",
 	PHOTO_DIR = "240x320",
-	PHOTO_DIR_L = "590x450",
+	PHOTO_DIR_L = "240x320",
 	PHOTO_EXT = ".jpg",
 	DEFAULT_PHOTO_PATH = "/assets/pict/jp/",
 	TIEUP_PHOTO_PATH = "/assets/pict/jp/",
@@ -74,8 +74,8 @@ var
 	RANDOM_LENGTH = 10,
 	MAX_WIDTH = 240,
 	MAX_HEIGHT = 320,
-	MAX_WIDTH_L = 590,
-	MAX_HEIGHT_L = 450,
+	MAX_WIDTH_L = 240,
+	MAX_HEIGHT_L = 320,
 	PADDING = 0,
 	MIXI_MAX_HEIGHT = 212;
 
