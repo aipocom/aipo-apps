@@ -17,8 +17,8 @@
 	author_link="http://www.bijint.com/"
 	author_photo="http://www.bijint.com/img/logo70x100.jpg">
 
-	<Locale messages="http://www.bijint.com/gadget/jp/assets/locale/ALL_ALL.xml" />
-	<Locale messages="http://www.bijint.com/gadget/jp/assets/locale/ja_ALL.xml" lang="ja" />
+	<Locale messages="http://www.bijint.com/gadget/locale/ALL_ALL.xml" />
+	<Locale messages="http://www.bijint.com/gadget/locale/ja_ALL.xml" lang="ja" />
 	<Require feature="dynamic-height"/>
 	<Require feature="views"/>
 	<Require feature="opensocial-0.9"/>
