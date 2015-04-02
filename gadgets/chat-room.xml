@@ -71,7 +71,7 @@
         var version = "1.0";
 
         var max_length = 140;
-        var max_data = 50;
+        var max_data = 48;
         var msg = new gadgets.MiniMessage();
         var prefs = new gadgets.Prefs();
         var max_per_page = getPrefRows();
@@ -135,11 +135,13 @@
                 if (tmp_data && tmp_data['keys']) {
                     keys = gadgets.json.parse(tmp_data['keys']);
                 }
-                // 古いデータ自動削除
                 keys.sort(function(a, b) {
                     return a - b;
                 });
+
+                //keysの編集
                 if (keys.length >= max_data) {
+                    // 古いデータ自動削除
                     var delete_key = keys.shift();
                 }
                 keys.push(key);
@@ -152,6 +154,7 @@
                 data1[key] = gadgets.json.stringify(data);
                 data2['keys'] = gadgets.json.stringify(keys);
 
+                //実データの編集
                 var batch = osapi.newBatch()
                         .add('update1', osapi.appdata.update({ userId: '@viewer', data: data1, appId: '@app' }))
                         .add('update2', osapi.appdata.update({ userId: '@viewer', data: data2, appId: '@app' }))
