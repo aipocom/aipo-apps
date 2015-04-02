@@ -151,12 +151,21 @@
 
             // データの保存
             osapi.appdata.update({ userId: '@viewer', data: data }).execute(function(response) {
-                // minimessage
-                var msg = new gadgets.MiniMessage();
-                msg.createTimerMessage("送信しました。", 3, function() {
-                    gadgets.window.adjustHeight();
-                    return true;
-                });
+            	if (response.error) {
+            		// 保存に失敗した場合の処理
+            		var msg = new gadgets.MiniMessage();
+                   	msg.createDismissibleMessage("データの送信に失敗しました。", function() {
+	                    gadgets.window.adjustHeight();
+	                    return;
+	                });
+            	} else {
+	                // minimessage
+	                var msg = new gadgets.MiniMessage();
+	                msg.createTimerMessage("送信しました。", 3, function() {
+	                    gadgets.window.adjustHeight();
+	                    return true;
+	                });
+	            }
                 // データの再表示
                 repaint();
             });
@@ -243,6 +252,11 @@
                 }
                 // データの取得
                 osapi.appdata.get({ userId: userIds ,fields: ['type','comment','date'] }).execute(function(response) {
+                    // 取得に失敗した場合の処理
+                    if(response.error) {
+                    	var msg = new gadgets.MiniMessage();
+                    	msg.createDismissibleMessage("データの取得に失敗しました。");
+                    }
                     // ユーザーID、アプリデータの連想配列
                     for (var userId in response) {
                         var data = response[userId];
