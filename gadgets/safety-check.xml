@@ -166,8 +166,12 @@
         function setPageCount(callback) {
             var index = page * getPrefRows();
             var groupId = groups[$("#groups").val()].id.groupId;
-            osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index,count:1500 }).execute(function(response) {
+            osapi.people.get({ userId: '@viewer', groupId: groupId, startIndex:index,count:100 }).execute(function(response) {
                 var len = response.list.length;
+                var totalResults = response.totalResults;
+                if(totalResults > len) {
+                len = totalResults;
+                }
                 pageCount = len / getPrefRows();
                 callback();
             });
