@@ -106,6 +106,7 @@
         <div class="aipostyle">
             <div id="content"><a href="javascript:void(0);" id="personalize" style="display:none">こちらをクリックして Gmail
                 にログインしてください。</a></div>
+            <div id="content2"> Gmail 認証の仕様変更により、現在 Gmail Checker がご利用できなくなっています。<br />ご迷惑おかけいたしますが、対応完了までお待ち頂けますようよろしくお願いいたします。</div>
         </div>
         <script type="text/javascript">
 
