@@ -71,7 +71,7 @@
         var version = "1.0";
 
         var max_length = 140;
-        var max_data = 48;
+        var max_data = 45;
         var msg = new gadgets.MiniMessage();
         var prefs = new gadgets.Prefs();
         var max_per_page = getPrefRows();
