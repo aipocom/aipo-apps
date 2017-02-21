@@ -8,7 +8,6 @@
 	thumbnail="http://www.ig.gmodules.com/gadgets/proxy/refresh=3600&amp;container=ig&amp;gadget=http%3A%2F%2Fbijint.com%2Fgadget%2Fjp%2FFgadget.xml/http://www.bijint.com/gadget/jp/assets/img/thumbnail.png"
 	scrolling="false"
 	singleton="false"
-	height="320"
 	author_email="info@bijint.com"
 	author="__MSG_author_name__"
 	author_affiliation="__MSG_author_affiliation__"
@@ -23,6 +22,7 @@
 	<Require feature="views"/>
 	<Require feature="opensocial-0.9"/>
 	<Require feature="analytics"/>
+	<Optional feature="aipostyle"/>
 	<Icon mode="base64" type="image/gif">R0lGODlhEAAQALMKAERERFVVVREREczMzHd3d6qqqmZmZt3d3YiIiAAAAP///wAAAAAAAAAAAAAA
 AAAAACH5BAEAAAoALAAAAAAQABAAAAQ5UMlJKx02q5AyrkgHIlYIJsZxcsSUkOdxJKrylqIA36ek
 S6/aJCQT2RCwSYEAACSbSY10Sq1ar5MIADs=</Icon>
