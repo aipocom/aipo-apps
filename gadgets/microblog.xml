@@ -315,7 +315,7 @@ input[type=reset] {
         ]]></Content>
     <Content type="html" view="canvas,home"><![CDATA[
         <div id="wrapper" class="aipostyle">
-            <div id="expire" style="margin-bottom:5px;">「つぶやき」は2017年5月15日（月）をもちまして、提供を終了させていただきます。<br>今後はメッセージ機能をご利用くださいませ。<br>ご利用中のお客様にはご不便をおかけして申し訳ございませんが、ご理解いただきますようお願いいたします。</div>
+            <div id="expire" style="margin-bottom:5px;">「つぶやき」は2017年5月15日（月）をもちまして、提供を終了させていただきます。<br>今後は<a href="https://www.aipo.com/feature/chat/" target="_blank">メッセージ機能</a>をご利用くださいませ。<br>ご利用中のお客様にはご不便をおかけして申し訳ございませんが、ご理解いただきますようお願いいたします。</div>
             <div id="messageContainer"></div>
             <div id="inputField">
                 <form action="#" method="post" onsubmit="return false;">
