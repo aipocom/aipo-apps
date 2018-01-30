@@ -315,12 +315,12 @@ input[type=reset] {
         ]]></Content>
     <Content type="html" view="canvas,home"><![CDATA[
         <div class="aipostyle">
-            <div id="content">「つぶやき」は2017年5月15日をもちまして、提供を終了いたしました。<br>今後は<a href="https://www.aipo.com/feature/chat/" target="_blank">メッセージ機能</a>をご利用くださいませ。<br>ご利用中のお客様にはご不便をおかけして申し訳ございませんが、ご理解いただきますようお願いいたします。</div>
+            <div id="content">「つぶやき」は2017年5月15日をもちまして、提供を終了いたしました。<br>今後は<a href="https://aipo.com/feature/chat/" target="_blank">メッセージ機能</a>をご利用くださいませ。<br>ご利用中のお客様にはご不便をおかけして申し訳ございませんが、ご理解いただきますようお願いいたします。</div>
         </div>
         ]]></Content>
     <Content type="html" view="popup"><![CDATA[
         <div class="aipostyle">
-            <div id="content">「つぶやき」は2017年5月15日をもちまして、提供を終了いたしました。<br>今後は<a href="https://www.aipo.com/feature/chat/" target="_blank">メッセージ機能</a>をご利用くださいませ。<br>ご利用中のお客様にはご不便をおかけして申し訳ございませんが、ご理解いただきますようお願いいたします。</div>
+            <div id="content">「つぶやき」は2017年5月15日をもちまして、提供を終了いたしました。<br>今後は<a href="https://aipo.com/feature/chat/" target="_blank">メッセージ機能</a>をご利用くださいませ。<br>ご利用中のお客様にはご不便をおかけして申し訳ございませんが、ご理解いただきますようお願いいたします。</div>
         </div>
         ]]></Content>
 </Module>
