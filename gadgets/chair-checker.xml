@@ -118,7 +118,7 @@
             // コメント
             eventCommentBlur();
             // グループの読み込み
-            osapi.groups.get({ userId: '@viewer' }).execute(function(response) {
+            osapi.groups.get({ userId: '@viewer', count: 300 }).execute(function(response) {
                 groups = response.list;
                 if(typeof(groups) != "undefined") {
                 	groups.unshift({id:{groupId:'@all'},title:'全体'});
