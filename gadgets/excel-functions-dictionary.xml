@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
-    <ModulePrefs title="エクセル関数辞典" description="エクセル関数を関数名での検索、または逆引き検索することが出来ます。">
+    <ModulePrefs title="エクセル関数辞典" description="「エクセル関数辞典」は2019年12月11日をもちまして、提供を終了いたしました。">
         <Require feature="views"/>
         <Require feature="dynamic-height"/>
         <Require feature="minimessage"/>
@@ -12,129 +12,8 @@
     <Content type="html">
 <![CDATA[
         <div class="aipostyle">
-            <h3>関数名での検索、逆引き検索も可能です。</h3>
-
-            <div style="padding:0 0 15px;">
-                <select id="catego" onChange="showHint()">
-                    <option value="0">全て</option>
-                    <option value="1">検索/行列関数 </option>
-                    <option value="2">データベース関数</option>
-                    <option value="3">エンジニアリング関数</option>
-                    <option value="4">財務関数</option>
-                    <option value="5">情報関数</option>
-                    <option value="6">数学/三角関数</option>
-                    <option value="7">統計関数 </option>
-                    <option value="8">日付/時刻関数</option>
-                    <option value="9">文字列操作関数</option>
-                    <option value="10">論理関数 </option>
-                </select>
-                <input type="text" class="form" value="" id="req" name="req" onkeyup="showHint()"/>
-                <input onClick="searchExcelFunctions()" value="検索" type="button">
-
-                <div id="content_div" class="aipostyle"></div>
-
-                <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js">
-                </script>
-                <script type="text/javascript">
-                    function showHint()
-                    {
-                        var catego = $("#catego").val();
-                        var req = $("#req").val();
-
-                        var url = 'http://searchexcelfunctions.appspot.com/ExcelFunctions/Search?categories='
-                                + encodeURIComponent(catego)
-                                + '&req='
-                                + encodeURIComponent(req);
-
-                        $("#content_div").html("");
-
-                        var params = {};
-                        params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
-
-                        gadgets.io.makeRequest(url, response, params);
-
-                        return(false);
-
-
-                    }
-
-                    function searchExcelFunctions() {
-                        var catego = $("#catego").val();
-                        var req = $("#req").val();
-
-
-                        var url = 'http://searchexcelfunctions.appspot.com/ExcelFunctions/Search?categories='
-                                + encodeURIComponent(catego)
-                                + '&req='
-                                + encodeURIComponent(req);
-
-                        $("#content_div").html("");
-
-                        var params = {};
-                        params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
-
-                        gadgets.io.makeRequest(url, response, params);
-
-                        return(false);
-                    }
-
-                    function response(obj) {
-                        var json = obj.data['excelfunction'];
-
-                        if (json.length == 0) {
-                            var html = '<p>一致する関数はありません。</p>'
-                        }
-                        else {
-                            var html = '<table class="list wide">';
-                            html = html + '<tbody>';
-                            html = html + '<tr><th width="15%">関数名</th><th width="40%">説明</th><th>書式</th></tr>';
-                            for (var i in json) {
-                                var functions = markupFunction(json[i]['function'].toUpperCase());
-                                var comments = markupComments(json[i]['comments']);
-                                html = html + '<tr>';
-                                html = html + '<td>' + functions + '</td>';
-                                html = html + '<td>' + comments + '</td>';
-                                html = html + '<td>' + '<input type="text" onfocus="this.select()" value=' + json[i]['form']+ '>' + '</td>';
-                                html = html + '</tr>';
-                            }
-                            html = html + '</tbody>';
-                            html = html + '</table>';
-                        }
-
-                        $("#content_div").html(html);
-                        gadgets.window.adjustHeight();
-                    }
-
-                    function markupComments(obj) {
-                        var empty = "";
-                        var req =  $("#req").val().toUpperCase(); //検索文字
-                        if (obj.indexOf(req) == -1 || req == empty) {
-                            return obj;
-                        }
-                        var count = obj.indexOf(req); //検索文字がどこに位置してるか
-                        var reqsize = req.length; //検索文字の長さ
-
-                        return obj.substring(0, count) + '<strong>' + req + '</strong>' + markupComments(obj.slice(count + reqsize));
-                    }
-
-                    function markupFunction(obj) {
-                        var empty = "";
-                        var req = $("#req").val().toUpperCase(); //検索文字
-                        if (obj.indexOf(req) == -1 || req == empty) {
-                            return obj;
-                        }
-                        var count = obj.indexOf(req); //検索文字がどこに位置してるか
-
-                        if(count != 0) {
-                            return obj;
-                        }
-
-                        var reqsize = req.length; //検索文字の長さ
-
-                        return obj.substring(0, count) + '<strong>' + req + '</strong>' + obj.slice(count + reqsize);
-                    }
-                </script>
-            </div>
+            <div id="content">「エクセル関数辞典」は2019年12月11日をもちまして、提供を終了いたしました。</div>
+        </div>
         ]]>
 </Content>
     <Content type="html"/>
