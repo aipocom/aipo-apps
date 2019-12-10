@@ -39,6 +39,7 @@
                 にログインしてください。</a>
       </div>
         <div id="content"></div>
+        <div id="content2"> Twitter 認証の仕様変更により、現在 twiリーダー がご利用できなくなっています。<br />ご迷惑おかけいたしますが、対応完了までお待ち頂けますようよろしくお願いいたします。</div>
         <script type="text/javascript" src="https://d2hv4ldeur9lfv.cloudfront.net/opensocial-jquery-1.3.2.5.min.js"></script>
         <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
         <script type="text/javascript">
@@ -109,13 +110,13 @@
 			            var content = document.getElementById('content');
 			            document.getElementById('tl_' + __MODULE_ID__).style.display = "";
 			            var agent = window.navigator.userAgent.toLowerCase();
-			            
+
 			                // OAuth リクエストで取得したデータ
 			                var data = response.data;
 				            var resultHtml = "";
 				            var result = data.statuses;
 				            var tweetNum = result.length;
-				            
+
 				            if (agent.indexOf('iphone') != -1 ){
 			            		content.style.height = (tweetNum * 275) + "px";
 				            } else if(agent.indexOf('android 2.') != -1 && agent.indexOf('mobile') != -1) {
@@ -125,7 +126,7 @@
 				            }
 				            content.style.overflow = "scroll";
 				            content.style.overflowX = "hidden";
-				            
+
 	                        for (var i = 0; i < tweetNum; i++) {
 	                            var res = result[i];
 	                            if (i == 0) {
