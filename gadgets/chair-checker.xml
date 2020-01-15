@@ -242,11 +242,12 @@
                 for (var i in list) {
                     users[list[i].id] = list[i];
                     userIds.push(list[i].id);
+                    var displayName = typeof users[list[i].id].displayName === 'undefined' ? '' : users[list[i].id].displayName;
                     // 初期値
                     userData[list[i].id] = '\
 <tr>\
     <td valign="top" class="pb5" width="15" nowrap><img src="' + icon_none + '" alt="' + icon_alt_none + '" width="15" height="15" class="middle" /></td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[list[i].id].displayName + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + displayName + '</td>\
 </tr>\
                             ';
                 }
@@ -271,11 +272,12 @@
                             icon = icon_off;
                             icon_alt = icon_alt_off;
                         }
+                        var displayName = typeof users[userId].displayName === 'undefined' ? '' : users[userId].displayName;
                         // データの作成
                         userData[userId] = '\
 <tr>\
     <td valign="top" class="pb5" width="15" nowrap><img src="' + icon + '" alt="' + icon_alt + '" width="15" height="15" class="middle" /></td>\
-    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + users[userId].displayName + '</td>\
+    <td valign="top" style="padding:0 5px 5px 0;" nowrap>' + displayName + '</td>\
     <td valign="top" class="pb5 fs10_g" nowrap style="padding-right:5px;">' + getDate(data["date"]) + '</td>\
     <td valign="top" class="pb5 fs10_g">' + data["comment"] + '</td>\
 </tr>\
