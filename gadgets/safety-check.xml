@@ -249,7 +249,7 @@
                         var displayName = typeof users[userId].displayName === 'undefined' ? '' : users[userId].displayName;
                         userData[userId] = '\
 <tr>\
-    <td nowrap="nowrap">' + users[userId].displayName + '</td>\
+    <td nowrap="nowrap">' + displayName + '</td>\
     <td nowrap="nowrap" align="center">' + value_safety_self + '</td>\
     <td nowrap="nowrap" align="center">' + value_safety_work + '</td>\
     <td>' + value_safety_note + '</td>\
